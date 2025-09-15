@@ -506,10 +506,10 @@ int OnInit()
       VGSoporte = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
       VGResistencia = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE); 
       if (Bid > VGResistencia || Bid < VGSoporte)
-      {
-         ////ObjectsDeleteAll(0,"Soporte");
-         //ObjectsDeleteAll(0,"Resistencia");
-         ////Soporte_Resistencia(1);
+      //{
+      //   ////ObjectsDeleteAll(0,"Soporte");
+      //   //ObjectsDeleteAll(0,"Resistencia");
+      //   ////Soporte_Resistencia(1);
       }
    }
    
