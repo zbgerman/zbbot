@@ -506,10 +506,10 @@ int OnInit()
       VGSoporte = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
       VGResistencia = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE); 
       if (Bid > VGResistencia || Bid < VGSoporte)
-      //{
-      //   ////ObjectsDeleteAll(0,"Soporte");
-      //   //ObjectsDeleteAll(0,"Resistencia");
-      //   ////Soporte_Resistencia(1);
+      {
+         //ObjectsDeleteAll(0,"Soporte");
+         //ObjectsDeleteAll(0,"Resistencia");
+         //Soporte_Resistencia(1);
       }
    }
    
@@ -2157,11 +2157,40 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
    if (id == CHARTEVENT_MOUSE_MOVE)
 
    {
-        // Obtener coordenadas del mouse
-        int mouse_x = (int)lparam;
-        int mouse_y = (int)dparam;
-        // Verificar objetos basados en precios
-        CheckPriceBasedObjects(mouse_x, mouse_y);
+        int lvflag = 0;
+        
+        string rectName1 = CheckRectHoverPrice("maximo_M15",lparam,dparam);
+        
+        if(rectName1 == "maximo_M15")
+        {
+           lvflag = 1;       
+           ObjectSetInteger(0, rectName1, OBJPROP_SELECTED, true);
+           ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrWhite);
+           ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrWhite);
+       }
+
+      string rectName2 = CheckRectHoverPrice("minimo_M15",lparam,dparam);
+        
+        if(rectName2 == "minimo_M15" )
+        {
+           lvflag = 1;
+           ObjectSetInteger(0, rectName2, OBJPROP_SELECTED, true);
+           ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrWhite);
+           ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrWhite);
+       }
+       if(lvflag == 0)
+       {
+           //ObjectSetInteger(0, rectName, OBJPROP_SELECTED, false);
+           ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrNONE);
+           ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrNONE);
+       }        
+           
+        //// Obtener coordenadas del mouse
+        //int mouse_x = (int)lparam;
+        //int mouse_y = (int)dparam;
+        //// Verificar objetos basados en precios
+        //CheckPriceBasedObjects(mouse_x, mouse_y);
+
    }
    
    if (id == CHARTEVENT_OBJECT_DRAG)
@@ -2718,99 +2747,45 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
      }
    
   }
-  
-//+------------------------------------------------------------------+
-//| Verificar objetos basados en precios                             |
-//+------------------------------------------------------------------+
-void CheckPriceBasedObjects(const int mouse_x, const int mouse_y)
-{
-    // Convertir coordenadas del mouse a precio y tiempo
-    double mouse_price = 0;
-    datetime mouse_time = 0;
-    int mouse_subwindow = 0;
-    
-    // Convertir coordenadas X,Y a precio y tiempo
-    if(ChartXYToTimePrice(0, mouse_x, mouse_y, mouse_subwindow, mouse_time, mouse_price))
-    {
-        // Verificar línea horizontal
-        CheckHLineMouseOver("Resistencia", mouse_price, mouse_subwindow);
-        CheckHLineMouseOver("Soporte", mouse_price, mouse_subwindow);
-        
-        // Verificar rectángulo
-        CheckRectangleMouseOver("maximo_M15", mouse_time, mouse_price, mouse_subwindow);
-        CheckRectangleMouseOver("minimo_M15", mouse_time, mouse_price, mouse_subwindow);
-        
-        // Verificar otros tipos de objetos...
-    }
-}
-  
-  
-//+------------------------------------------------------------------+
-//| Verificar HLine                                                  |
-//+------------------------------------------------------------------+
-void CheckHLineMouseOver(const string lineName, const double mouse_price, const int subwindow)
-{
-    // Obtener precio de la línea
-    double line_price = ObjectGetDouble(0, lineName, OBJPROP_PRICE);
-    
-    // Calcular tolerancia (depende del símbolo y timeframe)
-    double point = SymbolInfoDouble(Symbol(), SYMBOL_POINT);
-    double tolerance = 10 * point; // 10 pips de tolerancia
-    
-    bool isOver = (MathAbs(mouse_price - line_price) <= tolerance);
-
-        
-    if(isOver)
-    {
-       //Print("german",lineName);
-        ObjectSetInteger(0, lineName, OBJPROP_SELECTED, true);
-    }
-    else
-    {
-        //ObjectSetInteger(0, lineName, OBJPROP_SELECTED, false);
-    }
-    
-    ChartRedraw();
-}
-
 
 //+------------------------------------------------------------------+
-//| Verificar Rectángulo                                             |
+//| Función para verificar si el mouse está sobre un rectángulo     |
+//| usando comparaciones manuales de tiempo                         |
 //+------------------------------------------------------------------+
-void CheckRectangleMouseOver(const string rectName, const datetime mouse_time, 
-                           const double mouse_price, const int subwindow)
+string CheckRectHoverPrice(string rectName, long lparam, double dparam)
 {
     // Obtener propiedades del rectángulo
     datetime time1 = (datetime)ObjectGetInteger(0, rectName, OBJPROP_TIME);
-    double price1 = ObjectGetDouble(0, rectName, OBJPROP_PRICE);
     datetime time2 = (datetime)ObjectGetInteger(0, rectName, OBJPROP_TIME, 1);
+    double price1 = ObjectGetDouble(0, rectName, OBJPROP_PRICE);
     double price2 = ObjectGetDouble(0, rectName, OBJPROP_PRICE, 1);
     
-    // Ordenar tiempos y precios
-    datetime start_time = MathMin(time1, time2);
-    datetime end_time = MathMax(time1, time2);
-    double top_price = MathMax(price1, price2);
-    double bottom_price = MathMin(price1, price2);
+    // Convertir coordenadas del mouse a tiempo y precio
+    datetime mouse_time;
+    double mouse_price;
+    int sub_window;
     
-    // Verificar si el mouse está dentro del rectángulo
-    bool isOver = (mouse_time >= start_time && mouse_time <= end_time &&
-                  mouse_price >= bottom_price && mouse_price <= top_price);
-    
-    if(isOver)
+    if(ChartXYToTimePrice(0, (int)lparam, (int)dparam, sub_window, mouse_time, mouse_price))
     {
-        ObjectSetInteger(0, rectName, OBJPROP_SELECTED, true);
-        ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrWhite);
-        ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrWhite);
-    }
-    else
-    {
-        //ObjectSetInteger(0, rectName, OBJPROP_SELECTED, false);
-        ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrNONE);
-        ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrNONE);
+        // Determinar tiempo mínimo y máximo del rectángulo
+        datetime min_time = (time1 < time2) ? time1 : time2;
+        datetime max_time = (time1 > time2) ? time1 : time2;
+        
+        // Determinar precio mínimo y máximo del rectángulo
+        double min_price = (price1 < price2) ? price1 : price2;
+        double max_price = (price1 > price2) ? price1 : price2;
+        
+        // Verificar si el mouse está dentro del rectángulo
+        if(mouse_time >= min_time && mouse_time <= max_time &&
+           mouse_price >= min_price && mouse_price <= max_price)
+        {
+            return rectName;
+        }
     }
     
-    ChartRedraw();
+    return "";
 }
+
 
   
 //+------------------------------------------------------------------+
@@ -5485,12 +5460,16 @@ double CalculateMovementAndProfit(double entry_price, double exit_price, double 
       case SYMBOL_CALC_MODE_CFDLEVERAGE:
 
          VGcomodin = 1;
+ 
+         if(contractSize == 1000) // Lote estándar
+            pointValue =  10;
          if(contractSize == 100) // Lote estándar
             pointValue =  1;
          if(contractSize == 10) // Mini lote
             pointValue = 0.1;
          if(contractSize == 1) // Micro lote
             pointValue = 0.01;     
+
    
          profit = movement_points * pointValue * lot_size ;
    
@@ -6039,12 +6018,14 @@ double CalculateLotSize(double entry_price, double stop_loss, double risk_percen
    if ( calc_mode == SYMBOL_CALC_MODE_CFDLEVERAGE)
    {
 
+      if(contract_size == 1000) // Lote estándar
+         pointValue =  10;
       if(contract_size == 100) // Lote estándar
-      pointValue =  1;
+         pointValue =  1;
       if(contract_size == 10) // Mini lote
-      pointValue = 0.1;
+         pointValue = 0.1;
       if(contract_size == 1) // Micro lote
-      pointValue = 0.01;     
+         pointValue = 0.01;     
       
       // 3. Calcular pérdida potencial por lote
       stop_loss_pips = MathAbs(entry_price - stop_loss) / Puntos;
