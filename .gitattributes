@@ -1,4 +1,2 @@
-"*.mq5 text" 
-"*.mqh text" 
-"*.mq5 diff" 
-"*.mqh diff" 
+"*.mq5 text diff" 
+"*.mqh text diff" 
