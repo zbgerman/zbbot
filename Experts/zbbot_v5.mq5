@@ -2159,32 +2159,56 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
    {
         int lvflag = 0;
         
-        string rectName1 = CheckRectHoverPrice("maximo_M15",lparam,dparam);
+        string rectName = CheckRectHoverPrice("maximo_M15",lparam,dparam);
         
-        if(rectName1 == "maximo_M15")
+        if(rectName == "maximo_M15")
         {
            lvflag = 1;       
-           ObjectSetInteger(0, rectName1, OBJPROP_SELECTED, true);
+           ObjectSetInteger(0, rectName, OBJPROP_SELECTED, true);
            ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrWhite);
            ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrWhite);
        }
 
-      string rectName2 = CheckRectHoverPrice("minimo_M15",lparam,dparam);
+       string rectName1 = CheckRectHoverPrice("minimo_M15",lparam,dparam);
         
-        if(rectName2 == "minimo_M15" )
+        if(rectName1 == "minimo_M15" )
         {
            lvflag = 1;
-           ObjectSetInteger(0, rectName2, OBJPROP_SELECTED, true);
+           ObjectSetInteger(0, rectName1, OBJPROP_SELECTED, true);
            ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrWhite);
            ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrWhite);
        }
        if(lvflag == 0)
        {
-           //ObjectSetInteger(0, rectName, OBJPROP_SELECTED, false);
+           //ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED, false);
+           //ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED, false);
            ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrNONE);
            ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrNONE);
        }        
            
+       string lineName1 = IsMouseNearHorizontalLine("Resistencia",lparam,dparam);
+       
+       //Print("lineName1 : ",lineName1); 
+        if(lineName1 == "Resistencia" )
+        {
+           ObjectSetInteger(0, lineName1, OBJPROP_SELECTED, true);
+        }
+
+        if (lineName1 != "Resistencia")
+        {
+            //ObjectSetInteger(0, "Resistencia", OBJPROP_SELECTED, false);
+        }
+        string lineName2 = IsMouseNearHorizontalLine("Soporte",lparam,dparam);
+       
+       //Print("lineName1 : ",lineName1); 
+        if(lineName2 == "Soporte" )
+        {
+           ObjectSetInteger(0, lineName2, OBJPROP_SELECTED, true);
+        }
+        if (lineName2 != "Soporte")
+        {
+            //ObjectSetInteger(0, "Soporte", OBJPROP_SELECTED, false);
+        }
         //// Obtener coordenadas del mouse
         //int mouse_x = (int)lparam;
         //int mouse_y = (int)dparam;
@@ -2748,17 +2772,21 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
    
   }
 
+
+
 //+------------------------------------------------------------------+
 //| Función para verificar si el mouse está sobre un rectángulo     |
-//| usando comparaciones manuales de tiempo                         |
+//| con márgenes para activar hover antes de salir completamente    |
 //+------------------------------------------------------------------+
-string CheckRectHoverPrice(string rectName, long lparam, double dparam)
+string CheckRectHoverPrice(string rectName, long lparam, double dparam, 
+                          int time_margin_seconds = 300, double price_margin_pips = 10.0)
 {
     // Obtener propiedades del rectángulo
     datetime time1 = (datetime)ObjectGetInteger(0, rectName, OBJPROP_TIME);
     datetime time2 = (datetime)ObjectGetInteger(0, rectName, OBJPROP_TIME, 1);
     double price1 = ObjectGetDouble(0, rectName, OBJPROP_PRICE);
     double price2 = ObjectGetDouble(0, rectName, OBJPROP_PRICE, 1);
+    
     
     // Convertir coordenadas del mouse a tiempo y precio
     datetime mouse_time;
@@ -2775,17 +2803,89 @@ string CheckRectHoverPrice(string rectName, long lparam, double dparam)
         double min_price = (price1 < price2) ? price1 : price2;
         double max_price = (price1 > price2) ? price1 : price2;
         
-        // Verificar si el mouse está dentro del rectángulo
-        if(mouse_time >= min_time && mouse_time <= max_time &&
-           mouse_price >= min_price && mouse_price <= max_price)
+        
+        // Calcular el punto pip para el margen de precio
+        double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+        //double pip_value = point * 10; // Para la mayoría de pares 1 pip = 10 points
+       // Calcular margen de precio automáticamente
+        double price_margin = price_margin_pips * GetPipValue();        
+
+        //double price_margin = price_margin_pips * pip_value;
+        
+        // Aplicar márgenes (expandir el área efectiva)
+        datetime min_time_margin = min_time - time_margin_seconds;
+        datetime max_time_margin = max_time + time_margin_seconds;
+        double min_price_margin = min_price - price_margin;
+        double max_price_margin = max_price + price_margin;
+        
+        // Verificar si el mouse está dentro del rectángulo con márgenes
+        if(mouse_time >= min_time_margin && mouse_time <= max_time_margin &&
+           mouse_price >= min_price_margin && mouse_price <= max_price_margin)
         {
             return rectName;
         }
+        
     }
     
     return "";
 }
 
+
+//+------------------------------------------------------------------+
+//| Función simplificada para una línea horizontal                  |
+//+------------------------------------------------------------------+
+string IsMouseNearHorizontalLine(string lineName, long lparam, double dparam, 
+                              double price_margin_pips = 30.0)
+{
+    double line_price = ObjectGetDouble(0, lineName, OBJPROP_PRICE);
+    
+    datetime mouse_time;
+    double mouse_price;
+    int sub_window;
+    
+    if(ChartXYToTimePrice(0, (int)lparam, (int)dparam, sub_window, mouse_time, mouse_price))
+    {
+        double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+        string symbol = Symbol();
+        double price_margin;
+        
+        if(StringFind(symbol, "BTC") >= 0 || StringFind(symbol, "XBT") >= 0)
+        {
+            price_margin = price_margin_pips * point;
+        }
+        else
+        {
+            price_margin = price_margin_pips * point * 10;
+        }
+        if(MathAbs(mouse_price - line_price) <= price_margin)
+        {
+            return lineName;
+        }        
+    }
+    
+    return false;
+}
+
+//+------------------------------------------------------------------+
+//| Función universal para calcular el valor de pip correcto         |
+//+------------------------------------------------------------------+
+double GetPipValue()
+{
+    double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+    string symbol = Symbol();
+    
+    // Pares donde 1 pip = 1 point (Bitcoin, índices, etc.)
+    if(StringFind(symbol, "BTC") >= 0 || StringFind(symbol, "XBT") >= 0 || 
+       StringFind(symbol, "#") >= 0) // Índices
+    {
+        return point;
+    }
+    // Forex tradicional: 1 pip = 10 points
+    else
+    {
+        return point * 10;
+    }
+}
 
   
 //+------------------------------------------------------------------+
@@ -8305,10 +8405,10 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
 //         if(VGcontadorAlertasBajista == 1)
 //         {
-//            string  name_alto = "Sell_" + valor_fractal_alto_1;  
+             //name_alto = "Sell_" + valor_fractal_alto_1;  
+            
 //            
-//            
-//            if(ObjectFind(0, name_alto) < 0)// || ObjectFind(0, name_alto) < 0)
+//            if(ObjectFind(0, name_alto) < 0 && VGcontadorAlertasBajista >= 1)// || ObjectFind(0, name_alto) < 0)
 //            {
 //               VGcontadorAlertasBajista = 0;
 //               VGbag = false;
@@ -8320,7 +8420,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //         }
          
             name_alto = "Buy_" + valor_fractal_alto_1;  
-            if(ObjectFind(0, name_alto) < 0)// || ObjectFind(0, name_alto) < 0)
+            if(ObjectFind(0, name_alto) < 0  )// || ObjectFind(0, name_alto) < 0)
             {
                //VGcontadorAlertasAlcista = 0;
                VGbag = false;
@@ -8328,16 +8428,16 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
          //if(VGcontadorAlertasAlcista == 1)
          //{
-         //   string  name_alto = "Buy_" + valor_fractal_alto_1;  
-         //   if(ObjectFind(0, name_alto) < 0)// || ObjectFind(0, name_alto) < 0)
-         //   {
-         //      VGcontadorAlertasAlcista = 0;
-         //      VGbag = false;
-         //   } 
-         //   else
-         //   {
-         //      VGcontadorAlertasAlcista = 1;
-         //   }  
+            //name_alto = "Buy_" + valor_fractal_alto_1;  
+            //if(ObjectFind(0, name_alto) < 0 && VGcontadorAlertasAlcista >= 1)// || ObjectFind(0, name_alto) < 0)
+            //{
+            //   VGcontadorAlertasAlcista = 0;
+            //   VGbag = false;
+            //} 
+            //else
+            //{
+            //   VGcontadorAlertasAlcista = 1;
+            //}  
          //}
          
          VGvalor_fractal_alto = valor_fractal_alto_1;
@@ -9661,6 +9761,7 @@ void DrawBuySell(double lvalto, double lvbajo, string namebuysell, color lvcolor
       ObjectSetInteger(0,name_object,OBJPROP_STYLE,lvstyle);
       ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
       ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
+      ObjectSetInteger(0,name_object,OBJPROP_TIMEFRAMES,OBJ_PERIOD_M1|OBJ_PERIOD_M3|OBJ_PERIOD_M5);
       //ObjectSetInteger(0,name_object,OBJPROP_SELECTED,true);
    }
 
