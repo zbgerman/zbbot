@@ -365,14 +365,14 @@ datetime lastActionNoticias = 0;
 
 //Para que me este verificando el modelo 2022
 datetime lastActionModelo2022 = 0;
-int intervalModelo2022M5 = 5*60; //15 son los minutos o 900 segundos
+int intervalModelo2022M5 = 1*60; //15 son los minutos o 900 segundos
 
 //datetime lastActionFvgM3 = 0;
 //int intervalFvgM3 = 3*60; //3 son los minutos 
 
 
 datetime lastActionFvgM15 = 0;
-int intervalFvgM15 = 15*60; //15 son los minutos o 900 segundos
+int intervalFvgM15 = 1*60; //1 son los minutos o 900 segundos
 
 
 // Intervalos en segundos
@@ -5136,7 +5136,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
        
    //int candlesToCheck = 1000; // Velas a analizar
    datetime currentTime = TimeCurrent();
-   datetime endTime = iTime(NULL, PERIOD_M15, 1);
+   datetime endTime = iTime(NULL, PERIOD_M1, 1);
    int contadorFVGbullish = 0;
    int contadorFVGbearish = 0;
 
@@ -5212,7 +5212,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   VGcumplerregla = true;
                   //Print("german : contadorFVGbullish = ",contadorFVGbullish,  " low : ", low0, " high2 :",high2, " VGlowestLow : ",VGlowestLow);
                   //Print("El precio esta dentro del FVG alcista : ",VGHTF_Name);
-                  //break;
+                  break;
               }
             
             }
@@ -5289,7 +5289,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   VGcumplerregla = true;
                   //Print("german : contadorFVGbearish = ",contadorFVGbearish,  " low : ", low0, " high2 :",high2, " VGhighestHigh : ",VGhighestHigh );
                   //Print("El precio esta dentro del FVG bajista : ",VGHTF_Name);
-                  //break;
+                  break;
               }
             
             }
@@ -8053,7 +8053,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                
                if (lvcontador_alto >= 3)// || lvcontador_alto_bajo >= 3)
                {
-                  if ((fractal_bajo[1] < fractal_bajo[2] && fecha_fractal_alto < fecha_fractal_bajo && highestHigh < fractal_alto[1]) || lowestLow < fractal_bajo[1] )
+                  if ((fractal_bajo[1] < fractal_bajo[2] && fecha_fractal_alto < fecha_fractal_bajo && highestHigh < fractal_alto[1] && fractal_alto[1] < fractal_alto[2]) || lowestLow < fractal_bajo[1] )
                   {
                      lvtendencia_bajista = true;
                   }
@@ -8066,7 +8066,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                }
                if (lvcontador_bajo >= 3)// || lvcontador_bajo_bajo >=3)
                {
-                  if ((fractal_alto[1] > fractal_alto[2] && fecha_fractal_bajo < fecha_fractal_alto && lowestLow > fractal_bajo[1]) || highestHigh > fractal_alto[1]  )
+                  if ((fractal_alto[1] > fractal_alto[2] && fecha_fractal_bajo > fecha_fractal_alto && lowestLow > fractal_bajo[1] && fractal_bajo[1] > fractal_bajo[2]) || highestHigh > fractal_alto[1]  )
                   {
                      lvtendencia_alcista = true;
                   }      
@@ -8116,7 +8116,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                         lvtendencia = "Alcista";
                         break;
                      }   
-                     if (fractal_bajo[1] < fractal_bajo[2])
+                     if (fractal_bajo[1] < fractal_bajo[2] & fractal_alto[1] < fractal_alto[2])
                      {
                         lvtendencia = "Bajista";
                         break;
@@ -9793,21 +9793,21 @@ void ReglasModelo2022()
    
    
    
-   VGhighestHigh = iHigh(Symbol(), Time_Frame_M2022, iHighest(Symbol(), Time_Frame_M2022, MODE_HIGH, 90, 0));
-   VGlowestLow = iLow(Symbol(), Time_Frame_M2022, iLowest(Symbol(), Time_Frame_M2022, MODE_LOW, 90, 0));
+   //VGhighestHigh = iHigh(Symbol(), Time_Frame_M2022, iHighest(Symbol(), Time_Frame_M2022, MODE_HIGH, 90, 0));
+   //VGlowestLow = iLow(Symbol(), Time_Frame_M2022, iLowest(Symbol(), Time_Frame_M2022, MODE_LOW, 90, 0));
 
 //1.- Verificar si esta liquidando un PDH o PDL
 
 //2.- Verificar si el precio llego a un FVG
 
-   VGHTF_Name = TimeframeToString(PERIOD_M15);
-   DrawFVG(PERIOD_M15, Velas_FVG_HTF, Color_Bullish_HTF, Color_Bearist_HTF, 9);
-
-   VGHTF_Name = TimeframeToString(PERIOD_H1);
-   DrawFVG(PERIOD_H1, Velas_FVG_HTF, Color_Bullish_HTF, Color_Bearist_HTF, 9);
-
-   VGHTF_Name = TimeframeToString(PERIOD_H4);
-   DrawFVG(PERIOD_H4, Velas_FVG_HTF, Color_Bullish_HTF, Color_Bearist_HTF, 9);
+//   VGHTF_Name = TimeframeToString(PERIOD_M15);
+//   DrawFVG(PERIOD_M15, Velas_FVG_HTF, Color_Bullish_HTF, Color_Bearist_HTF, 9);
+//
+//   VGHTF_Name = TimeframeToString(PERIOD_H1);
+//   DrawFVG(PERIOD_H1, Velas_FVG_HTF, Color_Bullish_HTF, Color_Bearist_HTF, 9);
+//
+//   VGHTF_Name = TimeframeToString(PERIOD_H4);
+//   DrawFVG(PERIOD_H4, Velas_FVG_HTF, Color_Bullish_HTF, Color_Bearist_HTF, 9);
    
    //Print("VGcumplerregla : ",VGcumplerregla);
 
@@ -9848,12 +9848,21 @@ void Bias(ENUM_TIMEFRAMES biastimeframe)
    }
    else
    {
-      if(lvpreviuslow < lvlow)
+      if(lvpreviuslow < lvlow && iOpen(_Symbol,biastimeframe,1) > iClose(_Symbol,biastimeframe,1))
       {
          ObjectCreate(0, name, OBJ_HLINE,0,0,lvbiaslow);
          vlbias = lvbiaslow;
+         vlcolor = clrWhite;
       }   
+      else
+      {
+         ObjectCreate(0, name, OBJ_HLINE,0,0,lvbiashigh);
+         vlbias = lvbiashigh;
+         vlcolor = clrWhite;
+      
+      }
    }
+   
    if( lvpreviusclose < lvlow)
    {
       ObjectCreate(0, name, OBJ_HLINE,0,0,lvbiaslow);
@@ -9861,13 +9870,23 @@ void Bias(ENUM_TIMEFRAMES biastimeframe)
    }
    else
    {
-      if(lvpreviushigh > lvhigh)
+      if(lvpreviushigh > lvhigh && iOpen(_Symbol,biastimeframe,1) < iClose(_Symbol,biastimeframe,1) )
       {
          ObjectCreate(0, name, OBJ_HLINE,0,0,lvbiashigh);
          vlbias = lvbiashigh;
          vlcolor = clrWhite;
-      }   
+      } 
+      else
+      {
+         ObjectCreate(0, name, OBJ_HLINE,0,0,lvbiaslow);
+         vlbias = lvbiaslow;
+         vlcolor = clrWhite;
+       
+      }
+      
+        
    }
+   
    if(vlbias == 0)
    {
       double lvopen  = iOpen(_Symbol,biastimeframe,1);
@@ -9885,6 +9904,7 @@ void Bias(ENUM_TIMEFRAMES biastimeframe)
          vlcolor = clrWhite;
       }
    }
+   
    if(biastimeframe == PERIOD_W1)
    {
       VGbias_W1 = vlbias;
