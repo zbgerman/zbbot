@@ -90,6 +90,7 @@
 #define LABEL_RATIOTEXT "Ratio Text"
 #define EDIT_RATIO "Ratio"
 
+#define M1_BTN_NAME "Tendencia M1"
 #define M3_BTN_NAME "Tendencia M3"
 #define M15_BTN_NAME "Tendencia M15"
 #define H1_BTN_NAME "Tendencia H1"
@@ -126,6 +127,7 @@ CButton closeBtn;
 CButton beBtn;
 CButton showMacrosKillzoneBtn;
 CButton showFvgBtn;
+CButton m1Btn;
 CButton m3Btn;
 CButton m15Btn;
 CButton h1Btn;
@@ -228,6 +230,7 @@ double VGMidPrice_M1;
 double VGPorcentaje;
 double VGPorcentaje_externa;
 double VGPorcentaje_fibo;
+double VGPorcentaje_fibo_M1;
 double VGPorcentaje_fibo_M3;
 double VGPorcentaje_fibo_M15;
 double VGPorcentaje_fibo_H1;
@@ -237,6 +240,7 @@ datetime VGHoraInicio = TimeCurrent() - 10000;
 datetime VGHoraFinal = TimeCurrent() + 10000;
 
 string VGTendencia_interna;
+string VGTendencia_interna_M1;
 string VGTendencia_interna_M3;
 string VGTendencia_interna_M15;
 string VGTendencia_interna_H1;
@@ -1345,8 +1349,23 @@ int OnInit()
       showFvgBtn.Text("Show Fvg");
    }
 
+
+   m1Btn.Create(0, M1_BTN_NAME, 0, 0 , 205, 0, 0);
+   ObjectSetString(0, m1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M1 ");
+   m1Btn.Width(COL_WIDTH);
+   m1Btn.Height(ROW_HEIGHT);
+   m1Btn.ColorBackground(clrGray);
+   m1Btn.Text("M1");
+   m1Btn.Font("Arial");
+   m1Btn.FontSize(FONT_SIZE);
+   m1Btn.Color(colorbtn);
+   m1Btn.ColorBorder(clrBlack);
+   m1Btn.ZOrder(99999);
+   panel.Add(m1Btn);  
+
+
 //--- Tendencia M3 - M15 - H1 - H5 - D1
-   m3Btn.Create(0, M3_BTN_NAME, 0, 0 , 205, 0, 0);
+   m3Btn.Create(0, M3_BTN_NAME, 0, 0 , 225, 0, 0);
    ObjectSetString(0, m3Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M3 ");
    m3Btn.Width(COL_WIDTH);
    m3Btn.Height(ROW_HEIGHT);
@@ -1360,7 +1379,7 @@ int OnInit()
    panel.Add(m3Btn);  
 
  
-   m15Btn.Create(0, M15_BTN_NAME, 0, 0 , 225, 0, 0);
+   m15Btn.Create(0, M15_BTN_NAME, 0, 0 , 245, 0, 0);
    ObjectSetString(0, m15Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M15 ");
    m15Btn.Width(COL_WIDTH);
    m15Btn.Height(ROW_HEIGHT);
@@ -1374,7 +1393,7 @@ int OnInit()
    panel.Add(m15Btn);  
 
 
-   h1Btn.Create(0, H1_BTN_NAME, 0, 0 , 245, 0, 0);
+   h1Btn.Create(0, H1_BTN_NAME, 0, 0 , 265, 0, 0);
    ObjectSetString(0, h1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H1 ");
    h1Btn.Width(COL_WIDTH);
    h1Btn.Height(ROW_HEIGHT);
@@ -1388,7 +1407,7 @@ int OnInit()
    panel.Add(h1Btn);  
 
 
-   h4Btn.Create(0, H4_BTN_NAME, 0, 0 , 265, 0, 0);
+   h4Btn.Create(0, H4_BTN_NAME, 0, 0 , 285, 0, 0);
    ObjectSetString(0, h4Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H4 ");
    h4Btn.Width(COL_WIDTH);
    h4Btn.Height(ROW_HEIGHT);
@@ -1402,7 +1421,7 @@ int OnInit()
    panel.Add(h4Btn);  
 
 
-   d1Btn.Create(0, D1_BTN_NAME, 0, 0 , 285, 0, 0);
+   d1Btn.Create(0, D1_BTN_NAME, 0, 0 , 305, 0, 0);
    ObjectSetString(0, d1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia D1 ");
    d1Btn.Width(COL_WIDTH);
    d1Btn.Height(ROW_HEIGHT);
@@ -1652,13 +1671,17 @@ void OnTick()
          //AlarmaImmediateRebalance_vela_1(PERIOD_MN1,"MN1");
          
          
-         DetectImmediateRebalancePattern(PERIOD_M1);
-         DetectImmediateRebalancePattern(PERIOD_M3);
-         DetectImmediateRebalancePattern(PERIOD_M5);
-         DetectImmediateRebalancePattern(PERIOD_M10);
-         DetectImmediateRebalancePattern(PERIOD_M15);
+         //DetectImmediateRebalancePattern(PERIOD_M1);
+         //DetectImmediateRebalancePattern(PERIOD_M3);
+         //DetectImmediateRebalancePattern(PERIOD_M5);
+         //DetectImmediateRebalancePattern(PERIOD_M10);
+         //DetectImmediateRebalancePattern(PERIOD_M15);
          DetectImmediateRebalancePattern(PERIOD_H1);
+         DetectImmediateRebalancePattern(PERIOD_H2);
          DetectImmediateRebalancePattern(PERIOD_H4);
+         DetectImmediateRebalancePattern(PERIOD_H6);
+         DetectImmediateRebalancePattern(PERIOD_H8);
+         DetectImmediateRebalancePattern(PERIOD_H12);
          DetectImmediateRebalancePattern(PERIOD_D1);
          
          //PerfectPriceDelivered esta temporalmente suspenidad
@@ -1903,6 +1926,7 @@ void OnTimer()
       Bias(PERIOD_W1);
       Bias(PERIOD_D1);
       Bias(PERIOD_H4);
+      Bias(PERIOD_H1);
       
       //DrawBarFractals(PERIOD_M15, 500, 15, "1");// Fractal para el fibo de M15 y 500 velas y 20 para detectar el fibo   
    }
@@ -1996,6 +2020,7 @@ void OnTimer()
 
    //AlarmaImmediateRebalance(PERIOD_M15, "M15");
    //AlarmaImmediateRebalance(PERIOD_H1, "H1");
+   //AlarmaImmediateRebalance(PERIOD_H4, "H4");
 
  
    if(now - lastActionC >= intervalC) //15  Segundos
@@ -2048,8 +2073,8 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
         trans.order_state == TRADE_ACTION_PENDING
         )
     {
-        PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f",
-                    trans.type, trans.order, trans.price);
+        //PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f",
+        //            trans.type, trans.order, trans.price);
         CrearLineaPromedio();            
         ActualizarLineaPromedio();
         //Manejor stop loss
@@ -3722,15 +3747,17 @@ void ProgramarCompraVenta()
 //             profit_money_sell=DoubleToString(tick_value * lvlote * lvpuntosprofit_sell,2);
 //             //profit_money_sell = profit_money_sell / 100;
 //         }   
-
+           
+         lvlote = CalculateLotSize(VGMaximo1, VGMaximo2, porcentajeRiesgo1); //calcular el tamano del lote  
+         lotSizeSell.Text(lvlote);
          if (Bid >  VGMaximo1) // && Bid > VGMidPrice)
          {
              //Print("VGMaximo1:",VGMaximo1);
-             VGMaximo1 =  Bid;
+             //VGMaximo1 =  Bid;
              //lvlote = CalculateLotSize(VGMaximo1, VGMaximo2, porcentajeRiesgo1); //calcular el tamano del lote
              if (lotaje_automatico)
              {
-                //VGMaximo1 =  Bid;
+                VGMaximo1 =  Bid;
                 lvlote = CalculateLotSize(VGMaximo1, VGMaximo2, porcentajeRiesgo1); //calcular el tamano del lote
                 lotSizeSell.Text(lvlote);
              }  
@@ -3739,18 +3766,19 @@ void ProgramarCompraVenta()
                 lvlote =  lotSizeSell.Text();
              }   
          }  
-         else
-         {
-             if (lotaje_automatico)
-             {
-                lvlote = CalculateLotSize(VGMaximo1, VGMaximo2, porcentajeRiesgo1); //calcular el tamano del lote
-                lotSizeSell.Text(lvlote);
-             }   
-             else
-             {
-               lvlote =  lotSizeSell.Text();
-             }   
-         }  
+         //else
+         //{
+         //    if (lotaje_automatico)
+         //    {
+         //       VGMaximo1 =  Bid;
+         //       lvlote = CalculateLotSize(VGMaximo1, VGMaximo2, porcentajeRiesgo1); //calcular el tamano del lote
+         //       lotSizeSell.Text(lvlote);
+         //    }   
+         //    else
+         //    {
+         //      lvlote =  lotSizeSell.Text();
+         //    }   
+         //}  
          
 
          //Print("VGMaximo1 : ",VGMaximo1," VGMaximo2 : ",VGMaximo2, "VGMinimo1 : ",VGMinimo1," VGMinimo2 : ",VGMinimo2);
@@ -3780,8 +3808,10 @@ void ProgramarCompraVenta()
         ObjectSetString(current_chart_id, vllabel,OBJPROP_TOOLTIP,TextLabel); 
         //ObjectSetInteger(current_chart_id, vllabel,OBJPROP_COLOR,clrWhite);
         ObjectSetInteger(current_chart_id,vllabel,OBJPROP_ANCHOR, ANCHOR_RIGHT_LOWER);
-        ObjectSetInteger(current_chart_id, vllabel,OBJPROP_SELECTABLE,true);
+        ObjectSetInteger(current_chart_id, vllabel,OBJPROP_SELECTABLE,false);
+         ObjectSetInteger(current_chart_id, vllabel, OBJPROP_BACK, false);
         ObjectSetInteger(current_chart_id, vllabel,OBJPROP_ZORDER,9999);
+        ChartRedraw();
         //ObjectSetInteger(current_chart_id, vllabel,OBJPROP_TIMEFRAMES, OBJ_PERIOD_M1|OBJ_PERIOD_M2|OBJ_PERIOD_M3|OBJ_PERIOD_M5|OBJ_PERIOD_M10|OBJ_PERIOD_M5|OBJ_PERIOD_M15);
         
 //++Fin Ventas        
@@ -3907,13 +3937,16 @@ void ProgramarCompraVenta()
          //Print("VGMaximo2:",VGMaximo2," VGMaximo1",VGMaximo1);
 
          //lotSizeBuy.Text(0);
+         lvlote = CalculateLotSize(VGMinimo2, VGMinimo1, porcentajeRiesgo1); //calcular el tamano del lote
+         lotSizeBuy.Text(lvlote);
+         
          if (Bid < VGMinimo2)// && Bid < VGMidPrice)
          {
-             VGMinimo2 =  Bid;
+             //VGMinimo2 =  Bid;
              //lvlote = CalculateLotSize(VGMinimo1, VGMinimo2, porcentajeRiesgo1); //calcular el tamano del lote
              if (lotaje_automatico)
              {
-                //VGMinimo2 =  Bid;
+                VGMinimo2 =  Bid;
                 lvlote = CalculateLotSize(VGMinimo2, VGMinimo1, porcentajeRiesgo1); //calcular el tamano del lote
                 lotSizeBuy.Text(lvlote);
              }   
@@ -3922,20 +3955,21 @@ void ProgramarCompraVenta()
                lvlote =  lotSizeSell.Text();
              }   
          } 
-         else
-         {
-             if (lotaje_automatico)
-             {
-                lvlote = CalculateLotSize(VGMinimo2, VGMinimo1, porcentajeRiesgo1); //calcular el tamano del lote
-                lotSizeBuy.Text(lvlote);
-             }   
-             else
-             {
-               lvlote =  lotSizeSell.Text();
-             }   
-             //Sleep(2000);
-             //Print("lvlote: ",lvlote);
-         }   
+         //else
+         //{
+         //    if (lotaje_automatico)
+         //    {
+         //       VGMinimo2 =  Bid;
+         //       lvlote = CalculateLotSize(VGMinimo2, VGMinimo1, porcentajeRiesgo1); //calcular el tamano del lote
+         //       lotSizeBuy.Text(lvlote);
+         //    }   
+         //    else
+         //    {
+         //      lvlote =  lotSizeSell.Text();
+         //    }   
+         //    //Sleep(2000);
+         //    //Print("lvlote: ",lvlote);
+         //}   
 
          lvpuntosloss_buy = CalculateMovementAndProfit(VGMinimo2, VGMinimo1, 0);
          lvpuntosprofit_buy = CalculateMovementAndProfit(VGMaximo2, VGMinimo2, 0);
@@ -3967,7 +4001,7 @@ void ProgramarCompraVenta()
         ObjectSetString(current_chart_id, vllabel,OBJPROP_TEXT,TextLabel);  
         ObjectSetString(current_chart_id, vllabel,OBJPROP_TOOLTIP,TextLabel); 
         ObjectSetInteger(current_chart_id, vllabel,OBJPROP_ANCHOR, ANCHOR_RIGHT_UPPER);
-        ObjectSetInteger(current_chart_id, vllabel,OBJPROP_SELECTABLE,true);
+        ObjectSetInteger(current_chart_id, vllabel,OBJPROP_SELECTABLE,false);
         ObjectSetInteger(current_chart_id, vllabel,OBJPROP_ZORDER,9999);
         
         //ObjectSetInteger(current_chart_id, vllabel,OBJPROP_TIMEFRAMES, OBJ_PERIOD_M1|OBJ_PERIOD_M2|OBJ_PERIOD_M3|OBJ_PERIOD_M5|OBJ_PERIOD_M10|OBJ_PERIOD_M5|OBJ_PERIOD_M15);
@@ -4069,32 +4103,33 @@ void Alarmas()
 
    double lot = CalculateLotSize(Bid, lvalto, inpporcentajeRiesgo );
    
-   if(VGcontadorAlertasAlcista >= 2)//  && VGTendencia_interna_H4 == "Alcista" && VGTendencia_interna_H1 == "Alcista" )
+   if(VGcontadorAlertasAlcista == 1)//  && VGTendencia_interna_H4 == "Alcista" && VGTendencia_interna_H1 == "Alcista" )
    {
       if (Bid > VGvalor_fractal_alto_5 )
       {
          VGvalor_fractal_alto_5 = iHigh(_Symbol,Time_Frame_M2022,0);
       }
+      
       VGPorcentaje = (VGvalor_fractal_alto_5 - Bid) / (VGvalor_fractal_alto_5 - VGvalor_fractal_bajo_5) * 100;
 
-      if (VGPorcentaje > inpporcentajeRetroceso && VGmodelo2022 == false && VGtradedia == 0 && MQLInfoInteger(MQL_TESTER))
+      if (VGmodelo2022 == false  && MQLInfoInteger(MQL_TESTER) && VGtradedia <= 2)// && VGPorcentaje > inpporcentajeRetroceso )
       {
          VGtradedia++;
          double lot = CalculateLotSize(Bid, VGvalor_fractal_bajo_5, inpporcentajeRiesgo );
          Print(" lot : ",lot, " VGPorcentaje : ",VGPorcentaje, " VGvalor_fractal_bajo_5 : ",VGvalor_fractal_bajo_5);
-         VGcontadorAlertasAlcista = 0;
+         //VGcontadorAlertasAlcista = 0;
          MiTrade.Buy(lot,_Symbol, Bid, VGvalor_fractal_bajo_5,0,"Modelo 2022_Sin_TP " );
          VGmovetobreakeven = false;
       }
       
-      if ( VGPorcentaje > 100 )
-      {
-         VGcontadorAlertasAlcista = 0;
-      }
+      //if ( VGPorcentaje > 100 )
+      //{
+      //   VGcontadorAlertasAlcista = 0;
+      //}
 
    }
    
-   if(VGcontadorAlertasBajista >= 2)//  && VGTendencia_interna_H4 == "Bajista" && VGTendencia_interna_H1 == "Bajista" )
+   if(VGcontadorAlertasBajista == 1)//  && VGTendencia_interna_H4 == "Bajista" && VGTendencia_interna_H1 == "Bajista" )
    {
       if (Bid < VGvalor_fractal_bajo_5 )
       {
@@ -4103,21 +4138,21 @@ void Alarmas()
       }
       VGPorcentaje = (Bid - VGvalor_fractal_bajo_5 ) / (VGvalor_fractal_alto_5 - VGvalor_fractal_bajo_5) * 100;
 
-      if (VGPorcentaje > inpporcentajeRetroceso && VGmodelo2022 == false && VGtradedia == 0 && MQLInfoInteger(MQL_TESTER))
+      if ( VGmodelo2022 == false && MQLInfoInteger(MQL_TESTER) && VGtradedia <= 2)// && VGPorcentaje > inpporcentajeRetroceso)
       
       {
          VGtradedia++;
          double lot = CalculateLotSize(Bid, VGvalor_fractal_alto_5, inpporcentajeRiesgo );
          Print(" lot : ",lot, " VGPorcentaje : ",VGPorcentaje, " VGvalor_fractal_alto_5 : ",VGvalor_fractal_alto_5);
-         VGcontadorAlertasBajista = 0;
+         //VGcontadorAlertasBajista = 0;
          MiTrade.Sell(lot,_Symbol, Bid, VGvalor_fractal_alto_5,0,"Modelo 2022_Sin_TP " );
          VGmovetobreakeven = false;
       }
 
-      if ( VGPorcentaje > 100 )
-      {
-         VGcontadorAlertasBajista = 0;
-      }
+      //if ( VGPorcentaje > 100 )
+      //{
+      //   VGcontadorAlertasBajista = 0;
+      //}
    }
       //Print( " CambioAlcista:",CambioAlcista," CambioBajista:",CambioBajista);
  
@@ -4474,7 +4509,7 @@ void ManejoStopLoss()
             
             if(inpporcentajeGanancia >= 1 &&  lvprofit >= 1 && VGmodelo2022 == true && VGmovetobreakeven == false)
             {
-               //MoveToBreakEven(); 
+               MoveToBreakEven(); 
                VGmovetobreakeven = true;    
             }
 
@@ -4958,8 +4993,8 @@ void AlarmavelaZB()
          //ObjectSetInteger(0, arrow_name, OBJPROP_FONTSIZE,7); 
          ObjectSetInteger(0, arrow_name, OBJPROP_TIMEFRAMES,OBJ_PERIOD_M1);                  
          ObjectSetInteger(0, arrow_name, OBJPROP_COLOR, clrWhite);                   
-         ObjectSetInteger(0, arrow_name, OBJPROP_SELECTABLE, true);                   
-         ObjectSetInteger(0, arrow_name, OBJPROP_SELECTED, true);
+         ObjectSetInteger(0, arrow_name, OBJPROP_SELECTABLE, false);                   
+         ObjectSetInteger(0, arrow_name, OBJPROP_SELECTED, false);
          //ObjectSetString(0, arrow_name, OBJPROP_TEXT, DoubleToString(lvpuntosvelaanterior,0)); 
          ObjectSetInteger(0, arrow_name, OBJPROP_ANCHOR, ANCHOR_BOTTOM);  
          ObjectSetString(0,arrow_name, OBJPROP_TOOLTIP, "Puntos:" +DoubleToString(lvpuntosvelaanterior,2) + " inpumbral: " +  inpumbral);           
@@ -5047,7 +5082,7 @@ void CrearLineaPromedio()
     ObjectSetInteger(0, NombreLineaPromedio, OBJPROP_WIDTH, GrosorLineaPromedio);
     ObjectSetInteger(0, NombreLineaPromedio, OBJPROP_STYLE, EstiloLineaPromedio);
     ObjectSetInteger(0, NombreLineaPromedio, OBJPROP_RAY, false); // Línea finita (no infinita)
-    ObjectSetInteger(0, NombreLineaPromedio, OBJPROP_SELECTABLE, true); 
+    ObjectSetInteger(0, NombreLineaPromedio, OBJPROP_SELECTABLE, false); 
 
 }
 
@@ -5180,8 +5215,8 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                      VGbag = true;
                      name1 =  TimeframeToString(timeframe);
                      string lvmensaje = "\"Breakaway Gap en " +  _Symbol + "  " + name1 + \"";
-                     textohablado(lvmensaje,true);
-                     VGcontadorAlertasAlcista = 3;
+                     //textohablado(lvmensaje,true);
+                     //VGcontadorAlertasAlcista = 3;
                   }   
                   //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,high2);
                   continue;
@@ -5192,7 +5227,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               lvpuntosfvg = lvpuntosfvg * 1.5;
               if (lvpuntos  > lvpuntosfvg && lvpuntosfvg > 0  )
               {
-                  Print(" lvpuntos : ",lvpuntos , " lvpuntosfvg : ",lvpuntosfvg);
+                  //Print(" lvpuntos : ",lvpuntos , " lvpuntosfvg : ",lvpuntosfvg);
                   lvcontadorfvg++;
               }    
               if(lvcontadorfvg >= 1)
@@ -5255,8 +5290,8 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                      VGbag = true;
                      name1 =  TimeframeToString(timeframe);
                      string lvmensaje = "\"Breakaway Gap en " +  _Symbol + "  " + name1 + \"";
-                     textohablado(lvmensaje,true);
-                     VGcontadorAlertasBajista = 3;
+                     //textohablado(lvmensaje,true);
+                     //VGcontadorAlertasBajista = 3;
 
                   }
                   continue;
@@ -5267,7 +5302,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               lvpuntosfvg = lvpuntosfvg * 1.5;
               if (lvpuntos  > lvpuntosfvg && lvpuntosfvg > 0 )
               {
-                  Print(" lvpuntos : ",lvpuntos , " lvpuntosfvg : ",lvpuntosfvg);
+                  //Print(" lvpuntos : ",lvpuntos , " lvpuntosfvg : ",lvpuntosfvg);
                   lvcontadorfvg++;
               }    
               if(lvcontadorfvg >= 1)
@@ -5431,7 +5466,7 @@ void CreateFVGRectangle(string name, datetime startTime, double startPrice,
    //ObjectSetInteger(0, name, OBJPROP_STYLE, STYLE_DOT);
    ObjectSetInteger(0, name, OBJPROP_BACK, true);
    ObjectSetInteger(0, name, OBJPROP_FILL, true);
-   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
+   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
    ObjectSetInteger(0, name, OBJPROP_WIDTH, 1);
    
    periodSeconds = PeriodSeconds(PERIOD_CURRENT) ;
@@ -5439,7 +5474,7 @@ void CreateFVGRectangle(string name, datetime startTime, double startPrice,
    {
       ObjectSetInteger(0, name, OBJPROP_TIME,0,iTime(_Symbol,PERIOD_CURRENT,0) + 10 * periodSeconds);
       ObjectSetInteger(0, name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_CURRENT,0) + 20 * periodSeconds);
-      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_FILL, false);
       ObjectSetInteger(0, name, OBJPROP_STYLE,STYLE_DOT);
       ObjectSetString(0, name, OBJPROP_TEXT, "NWOG");
@@ -5448,7 +5483,7 @@ void CreateFVGRectangle(string name, datetime startTime, double startPrice,
    {
       ObjectSetInteger(0, name, OBJPROP_TIME,0,iTime(_Symbol,PERIOD_CURRENT,0) + 10 * periodSeconds);
       ObjectSetInteger(0, name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_CURRENT,0) + 20 * periodSeconds);
-      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_FILL, false);
       ObjectSetInteger(0, name, OBJPROP_STYLE,STYLE_DOT);      
       ObjectSetString(0, name, OBJPROP_TEXT, "NDOG");
@@ -5466,7 +5501,7 @@ void CreateFVGLine_CE(string name, datetime startTime, double startPrice,
       ObjectCreate(0, name, OBJ_TREND,0, startTime, startPrice);
       ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
       ObjectSetInteger(0, name, OBJPROP_STYLE, STYLE_SOLID);
-      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_WIDTH, 1);
       //ObjectSetInteger(0, name, OBJPROP_BACK, true);
       //ObjectSetInteger(0, name, OBJPROP_FILL, true);
@@ -5765,7 +5800,7 @@ void DrawText(string textName, double price1, string text, datetime time1, int l
       return;
    }
    //ObjectSetInteger(0, textName, OBJPROP_COLOR, clrWhite);
-   ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 8);
+   ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 14);
 }
 
 
@@ -5826,7 +5861,7 @@ void DrawTrendLine(string name, double price, color lineColor, datetime startTim
       ObjectSetInteger(0, labelName, OBJPROP_COLOR, lineColor);
       ObjectSetInteger(0, labelName, OBJPROP_FONTSIZE, 7);
       ObjectSetInteger(0, labelName, OBJPROP_ANCHOR, ANCHOR_CENTER);
-      ObjectSetInteger(0, labelName, OBJPROP_SELECTABLE, true);
+      ObjectSetInteger(0, labelName, OBJPROP_SELECTABLE, false);
    }
    else
    {
@@ -7008,7 +7043,7 @@ void DrawMacro_Session_Lunch(int lv_flag)
           
          //ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_WIDTH,2); 
          ObjectSetInteger(0,obj_name_rectagle,OBJPROP_COLOR,clrWhite);
-         ObjectSetInteger(0,obj_name_rectagle,OBJPROP_SELECTABLE,true);
+         ObjectSetInteger(0,obj_name_rectagle,OBJPROP_SELECTABLE,false);
          //ObjectSetInteger(0,obj_name,OBJPROP_TIME,0,HoraInicio );
          //ObjectSetInteger(0,obj_name,OBJPROP_TIME,1,lvHoraFinal );
          //ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_FILL,clrPink);
@@ -7025,7 +7060,7 @@ void DrawMacro_Session_Lunch(int lv_flag)
          //ObjectSetInteger(0,obj_name_text,OBJPROP_TIMEFRAMES, OBJ_PERIOD_M1|OBJ_PERIOD_M2|OBJ_PERIOD_M3|OBJ_PERIOD_M5|OBJ_PERIOD_M15);
          ObjectSetDouble(0,obj_name_text,OBJPROP_PRICE,0,MacroHigh);
          ObjectSetInteger(0,obj_name_text,OBJPROP_COLOR,clrWhite);
-         ObjectSetInteger(0,obj_name_text,OBJPROP_SELECTABLE,true);
+         ObjectSetInteger(0,obj_name_text,OBJPROP_SELECTABLE,false);
          ObjectSetInteger(0,obj_name_text,OBJPROP_ANCHOR,ANCHOR_LEFT_LOWER);
          ObjectSetInteger(0,obj_name_text,OBJPROP_FONTSIZE,7);
          
@@ -7911,7 +7946,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             ObjectSetString(0, name, OBJPROP_TEXT, ".");
             ObjectSetInteger(0, name, OBJPROP_COLOR, clrDodgerBlue);
             ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 20);
-            ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
+            ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
             ObjectSetInteger(0, name, OBJPROP_ANCHOR, ANCHOR_CENTER);
 
             if(lvflag == "5")
@@ -7969,7 +8004,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             ObjectSetString(0, name, OBJPROP_TEXT, ".");
             ObjectSetInteger(0, name, OBJPROP_COLOR, clrOrangeRed);
             ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 20);
-            ObjectSetInteger(0, name, OBJPROP_SELECTABLE, true);
+            ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
             ObjectSetInteger(0, name, OBJPROP_ANCHOR, ANCHOR_CENTER);
             
             if(lvflag == "5")
@@ -8102,6 +8137,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                         lvtendencia = "Alcista";
                         break;
                      }   
+                     if( fractal_bajo[2] < fractal_bajo[3] )
+                     {
+                        lvtendencia = "Bajista";
+                        lvsoporte = fractal_bajo[2];
+                        break;
+                     }
                   }   
                   
                   if(fecha_fractal_bajo < fecha_fractal_alto )
@@ -8125,6 +8166,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                      {
                         lvtendencia = "Alcista";
                         break;
+                     if( fractal_alto[2] > fractal_alto[3] )
+                     {
+                        lvtendencia = "Alcista";
+                        lvresistencia = fractal_alto[2];
+                        break;
+                     }
                      }   
                   }   
 
@@ -8243,6 +8290,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                   VGPorcentaje_fibo = (vlhighestHigh - lvsoporte ) / (lvresistencia - lvsoporte) * 100;        
               }
 
+            if(timeframe == PERIOD_M1)
+            {
+              VGTendencia_interna_M1 = lvtendencia; 
+              m1Btn.Text("M1: "+ DoubleToString(VGPorcentaje_fibo,0)+"%"); 
+              VGPorcentaje_fibo_M1 = VGPorcentaje_fibo;
+            }
             if(timeframe == PERIOD_M3)
             {
               VGTendencia_interna_M3 = lvtendencia; 
@@ -8286,7 +8339,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    double lvpuntos_rompe_resistencia  = MathAbs(lvresistencia - valor_fractal_alto_1) / Puntos;
    double lvpuntos_rompe_soporte  = MathAbs(valor_fractal_bajo_1 - lvsoporte) / Puntos;
    
-   double lvpuntos_vela =MathAbs(iOpen(_Symbol,PERIOD_M1,0) - iClose(_Symbol,PERIOD_M1,0)) / Puntos ;
+   double lvpuntos_vela =MathAbs(iHigh(_Symbol,PERIOD_M1,0) - iLow(_Symbol,PERIOD_M1,0)) / Puntos ;
     
    //if(lvsoporte < valor_fractal_bajo_1 && lvflag == "1" )
    //   Print("Posible patron de venta MODELO 2022 ... lvpuntos_rompe_soporte :", lvpuntos_rompe_soporte , " tolerance_value : ",tolerance_value );
@@ -8374,17 +8427,59 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    
    int lvnumero_velas_verificar_fvg = 5;
    
-   
+   if (current_minutes >= start_minutes && current_minutes <= end_minutes)
+   {
+   }
+   else
+   {
+     VGcontadorAlertasAlcista = 0;
+     VGcontadorAlertasBajista = 0;
+   }
    if( lvflag == "5" &&  (current_minutes >= start_minutes && current_minutes <= end_minutes)  )// && VGHoraNewYork.min <= inpminutofinal)// ||  VGHoraNewYork.hour >= 17 &&  VGHoraNewYork.hour <= 23 ) )// &&  VGHoraNewYork.hour == inphora el parametro 7 es solo para alertas
    {  
    
       if(VGmodelo2022 == true)
       {
-        VGcontadorAlertasBajista = 0;
-        VGcontadorAlertasAlcista = 0;
-        return;
+        //VGcontadorAlertasBajista = 0;
+        //VGcontadorAlertasAlcista = 0;
+        //return;
       }
 
+     double  lvpuntosvela = StringToDouble(puntosFvg.Text());
+     double lvpuntosvelaanterior = 0;
+     for (int i = 1; i<6; i++)
+     {
+        //double lvopen = iOpen(_Symbol,PERIOD_M1,i);
+        //double lvclose = iClose(_Symbol,PERIOD_M1,i);
+        double lvhigh = iHigh(_Symbol,PERIOD_M1,i);
+        double lvlow = iLow(_Symbol,PERIOD_M1,i);
+        lvpuntosvelaanterior = MathAbs(lvhigh  - lvlow ) / Puntos;
+
+        //if ( lvopen > lvclose)
+        //{
+        //    lvpuntosvelaanterior = MathAbs(lvhigh  - lvlow ) / Puntos;
+        //}
+        //else
+        //{
+        //    lvpuntosvelaanterior = MathAbs(lvclose - lvopen ) / Puntos;
+        //}
+
+        if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
+        {
+            VGContadorPosible2022 = 1;
+            break;
+        }
+        if (lvpuntosvelaanterior > lvpuntosvela)
+        {
+            VGContadorPosible2022 = 2;
+            break;
+        }
+     }
+     
+     //Print( "VGContadorPosible2022 : ",VGContadorPosible2022, " lvpuntosvelaanterior : ",lvpuntosvelaanterior , " lvpuntosvela : ",lvpuntosvela);
+     
+      lvclose = iClose(_Symbol,PERIOD_M1,1);
+      
       VGHTF_Name = TimeframeToString(Time_Frame_M2022);
       DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
    
@@ -8393,14 +8488,16 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       //if(VGTendencia_interna_D1 == "Bajista" )
       //{                 
          //Print("German verificando si funciona:");
+         int lvalcista  = 1;
+         int lvbajista  = 1;
 
          string  name_alto = "Sell_" + valor_fractal_alto_1;  
-         
          
          if(ObjectFind(0, name_alto) < 0 )// || ObjectFind(0, name_alto) < 0)
          {
             //VGcontadorAlertasBajista = 0;
             VGbag = false;
+            lvbajista = 0;
          }   
 
 //         if(VGcontadorAlertasBajista == 1)
@@ -8424,6 +8521,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             {
                //VGcontadorAlertasAlcista = 0;
                VGbag = false;
+               lvalcista = 0;
             } 
 
          //if(VGcontadorAlertasAlcista == 1)
@@ -8451,9 +8549,9 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             //DrawFVG(PERIOD_M5, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);
             if (VGcontadorFVG >= inpnumerofvg && VGcontadorAlertasBajista == 1)
             {
-               lvmensaje = "\"Oportunidad de Venta con " + VGcontadorFVG + " FVG " +  _Symbol + \"";
-               textohablado(lvmensaje,true);
-               VGcontadorAlertasBajista = 2;
+               //lvmensaje = "\"Oportunidad de Venta con " + VGcontadorFVG + " FVG " +  _Symbol + \"";
+               //textohablado(lvmensaje,true);
+               //VGcontadorAlertasBajista = 2;
             }   
             //return;
          }
@@ -8468,29 +8566,30 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             if(VGcontadorFVG >= inpnumerofvg && VGcontadorAlertasAlcista == 1)
             {
                lvmensaje = "\"Oportunidad de compra con  " + VGcontadorFVG  + " FVG " +  _Symbol + \"";
-               textohablado(lvmensaje,true);
-               VGcontadorAlertasAlcista = 2;
+               //textohablado(lvmensaje,true);
+               //VGcontadorAlertasAlcista = 2;
             }
             //return;
          }
 
-         if(iOpen(_Symbol,Time_Frame_M2022,1) > iClose(_Symbol,Time_Frame_M2022,1) && VGcontadorAlertasBajista <= 0)
-         {
-              lvclose = iClose(_Symbol,Time_Frame_M2022,1);
-
-              double  lvpuntosvela = StringToDouble(puntosFvg.Text());
-              lvclose = iClose(_Symbol,Time_Frame_M2022,1);
-              double lvopen = iOpen(_Symbol,PERIOD_M1,1);
-              double lvclose = iClose(_Symbol,PERIOD_M1,1);
-              double lvpuntosvelaanterior = MathAbs(lvopen  - lvclose ) / Puntos;
-              if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
-              {
-                  VGContadorPosible2022 = 1;
-              }
-         } 
-          if(lvclose < valor_fractal_bajo_1 && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
+//         if(iOpen(_Symbol,Time_Frame_M2022,1) > iClose(_Symbol,Time_Frame_M2022,1) && VGcontadorAlertasBajista <= 0)
+//         {
+//              lvclose = iClose(_Symbol,Time_Frame_M2022,1);
+//
+//              double  lvpuntosvela = StringToDouble(puntosFvg.Text());
+//              lvclose = iClose(_Symbol,Time_Frame_M2022,1);
+//              double lvopen = iOpen(_Symbol,PERIOD_M1,1);
+//              double lvclose = iClose(_Symbol,PERIOD_M1,1);
+//              double lvpuntosvelaanterior = MathAbs(lvopen  - lvclose ) / Puntos;
+//              if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
+//              {
+//                  VGContadorPosible2022 = 1;
+//              }
+//         } 
+          if(lvclose < valor_fractal_bajo_1 && VGContadorPosible2022 >= 1 && lvbajista == 0)// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
           {
 
+               
                //if (Bid > VGbias_H4 && Bid > VGbias_D1 && Bid > VGbias_W1 )
                //{
                //  lvmensaje = "\"Exelente oportunidad de Venta con el Bias " +  _Symbol + " " + lv_timeframe +  \"";
@@ -8519,14 +8618,14 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //   VGContadorPosible2022++;
                //}
 
-               if( VGContadorPosible2022 > 0)
+               if( VGContadorPosible2022 == 1)
                {
                   lvmensaje = "\"Oportunidad de Venta con vela grande : " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, true);
                }
-               else
+               if( VGContadorPosible2022 == 2)
                {
-                  lvmensaje = "\"Oportunidad de Venta con vela : " +  _Symbol + " " + lv_timeframe +  \"";
+                  lvmensaje = "\"Oportunidad de Venta " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, false);
                
                }
@@ -8583,22 +8682,22 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
          //if(VGTendencia_interna_D1 == "Alcista" )
          //{
-            if(iOpen(_Symbol,Time_Frame_M2022,1) < iClose(_Symbol,Time_Frame_M2022,1) && VGcontadorAlertasAlcista <= 0)
-            {
-               lvclose = iClose(_Symbol,Time_Frame_M2022,1);
-
-
-              double  lvpuntosvela = StringToDouble(puntosFvg.Text());
-              lvclose = iClose(_Symbol,Time_Frame_M2022,1);
-              double lvopen = iOpen(_Symbol,PERIOD_M1,1);
-              double lvclose = iClose(_Symbol,PERIOD_M1,1);
-              double lvpuntosvelaanterior = MathAbs(lvclose - lvopen  ) / Puntos;
-              if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
-              {
-                  VGContadorPosible2022 = 1;
-              }
-            }  
-            if( lvclose > valor_fractal_alto_1  && VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
+//            if(iOpen(_Symbol,Time_Frame_M2022,1) < iClose(_Symbol,Time_Frame_M2022,1) && VGcontadorAlertasAlcista <= 0)
+//            {
+//               lvclose = iClose(_Symbol,Time_Frame_M2022,1);
+//
+//
+//              double  lvpuntosvela = StringToDouble(puntosFvg.Text());
+//              lvclose = iClose(_Symbol,Time_Frame_M2022,1);
+//              double lvopen = iOpen(_Symbol,PERIOD_M1,1);
+//              double lvclose = iClose(_Symbol,PERIOD_M1,1);
+//              double lvpuntosvelaanterior = MathAbs(lvclose - lvopen  ) / Puntos;
+//              if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
+//              {
+//                  VGContadorPosible2022 = 1;
+//              }
+//            }  
+            if( lvclose > valor_fractal_alto_1  && VGContadorPosible2022 >= 1 && lvalcista == 0 )//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
             {
 
                //if (Bid < VGbias_H4 && Bid < VGbias_D1 && Bid < VGbias_W1 )
@@ -8629,14 +8728,14 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //   VGContadorPosible2022++;
                //}
                
-               if( VGContadorPosible2022 > 0)
+               if( VGContadorPosible2022 == 1)
                {
                   lvmensaje = "\"Oportunidad de compra con vela grande : " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, true);
                }
-               else
+               if( VGContadorPosible2022 == 2)
                {
-                  lvmensaje = "\"Oportunidad de compra con vela : " +  _Symbol + " " + lv_timeframe +  \"";
+                  lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, false);
                }
 
@@ -9414,16 +9513,23 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    // Vela 2: index + 1
    // Vela 3: index
    
-   return; //para desactivar
+   //return; //para desactivar
    
    double ImmediateRebalanceTolerancePoints = 0; // Valor por defecto: 5 puntos. AJUSTA ESTO.
 
-   // --- Obtenemos los precios de las velas relevantes ---
-   double high_vela1 = iHigh(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
-   double high_vela3 = iHigh(_Symbol, lv_timeframes, 3); // Alto de la Vela 1
-   double low_vela1  = iLow(_Symbol, lv_timeframes, 1);     // Bajo de la Vela 3
-   double low_vela3  = iLow(_Symbol, lv_timeframes, 3);     // Bajo de la Vela 3
+   //// --- Obtenemos los precios de las velas relevantes --- despues de terminar la vela
+   //double high_vela1 = iHigh(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
+   //double high_vela3 = iHigh(_Symbol, lv_timeframes, 3); // Alto de la Vela 1
+   //double low_vela1  = iLow(_Symbol, lv_timeframes, 1);     // Bajo de la Vela 3
+   //double low_vela3  = iLow(_Symbol, lv_timeframes, 3);     // Bajo de la Vela 3
    
+
+   // --- Obtenemos los precios de las velas relevantes --- en la vela actual
+   double high_vela1 = iHigh(_Symbol, lv_timeframes, 0); // Alto de la Vela 1
+   double high_vela3 = iHigh(_Symbol, lv_timeframes, 2); // Alto de la Vela 1
+   double low_vela1  = iLow(_Symbol, lv_timeframes, 0);     // Bajo de la Vela 3
+   double low_vela3  = iLow(_Symbol, lv_timeframes, 2);     // Bajo de la Vela 3
+
    
    // --- Convertir la tolerancia de puntos a valor de precio ---
    // _Point es el tamaño de un punto para el símbolo actual (ej. 0.00001 para EURUSD)
@@ -9553,13 +9659,14 @@ void textohablado(string  mensaje, bool hablar)
 
 {
    Alert(mensaje); 
+   Print("mensaje :",mensaje);
    //SendNotification(mensaje);   
    if ( MQLInfoInteger(MQL_TESTER))
        return;   
    if (hablar == true)
    {    
-      TextToSpeech(mensaje);
-      SendNotification(mensaje);
+      //TextToSpeech(mensaje);
+      //SendNotification(mensaje)";
    }   
 }
 
@@ -9752,11 +9859,41 @@ void DrawBuySell(double lvalto, double lvbajo, string namebuysell, color lvcolor
    //string name_object = namebuysell + VGHoraNewYork.year + VGHoraNewYork.mon + VGHoraNewYork.day + VGHoraNewYork.hour + VGHoraNewYork;
    string name_object = namebuysell + lvalto;
 
-   int ObjectExiste = ObjectFind(0,name_object);      
-
+   int ObjectExiste = ObjectFind(0,name_object);
+   
+   double lvprice = 0;      
+   int i = 0;   
    if (ObjectExiste < 0)
    {    
-      ObjectCreate(0,name_object,OBJ_RECTANGLE,0,iTime(_Symbol,PERIOD_M1,2),lvalto,iTime(_Symbol,PERIOD_M1,1),lvbajo);
+      for (i = 1; i < 20; i++)
+      {
+         if (namebuysell == "Buy_")
+         {
+            lvprice = lvalto;
+            if(lvalto == iHigh(_Symbol,PERIOD_M1,i))
+            {
+               break;
+            }
+            else
+            {
+               continue;
+            }
+         }
+         if (namebuysell == "Sell_")
+         {
+            lvprice = lvbajo;
+            if(lvbajo == iLow(_Symbol,PERIOD_M1,i))
+            {
+               break;
+            }
+            else
+            {
+               continue;
+            }
+         }
+      }
+      //ObjectCreate(0,name_object,OBJ_RECTANGLE,0,iTime(_Symbol,PERIOD_M1,2),lvalto,iTime(_Symbol,PERIOD_M1,1),lvbajo);
+      ObjectCreate(0,name_object,OBJ_TREND,0,iTime(_Symbol,PERIOD_M1,i),lvprice,iTime(_Symbol,PERIOD_M1,1),lvprice);
       ObjectSetInteger(0,name_object,OBJPROP_COLOR,lvcolor);
       ObjectSetInteger(0,name_object,OBJPROP_STYLE,lvstyle);
       ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
@@ -9920,6 +10057,11 @@ void Bias(ENUM_TIMEFRAMES biastimeframe)
       VGbias_H4 = vlbias;
       VGbias_H4_color = vlcolor;
    }
+   if(biastimeframe == PERIOD_H1)
+   {
+      VGbias_H4 = vlbias;
+      VGbias_H4_color = vlcolor;
+   }
    ObjectSetInteger(0, name, OBJPROP_COLOR, vlcolor);
    ObjectSetInteger(0, name, OBJPROP_WIDTH, 1);
    ObjectSetInteger(0, name, OBJPROP_STYLE, STYLE_DASHDOTDOT);
@@ -9930,6 +10072,16 @@ void Bias(ENUM_TIMEFRAMES biastimeframe)
 
 void Tendencia()
 {
+
+   if( VGTendencia_interna_M1 == "Bajista")
+   {
+      m1Btn.ColorBackground(clrRed);
+   }
+   if( VGTendencia_interna_M1 == "Alcista")
+   {
+      m1Btn.ColorBackground(clrBlue);
+   }
+
    if( VGTendencia_interna_M3 == "Bajista")
    {
       m3Btn.ColorBackground(clrRed);
