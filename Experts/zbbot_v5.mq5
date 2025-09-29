@@ -236,6 +236,18 @@ double VGPorcentaje_fibo_M15;
 double VGPorcentaje_fibo_H1;
 double VGPorcentaje_fibo_H4;
 double VGPorcentaje_fibo_D1;
+
+int    VGContadorAlertasZona_M1;
+int    VGContadorAlertasZona_M3;
+int    VGContadorAlertasZona_M15;
+int    VGContadorAlertasZona_H1;
+
+int    VGContadorAlertasOte_M1;
+int    VGContadorAlertasOte_M3;
+int    VGContadorAlertasOte_M15;
+int    VGContadorAlertasOte_H1;
+
+
 datetime VGHoraInicio = TimeCurrent() - 10000;
 datetime VGHoraFinal = TimeCurrent() + 10000;
 
@@ -377,13 +389,13 @@ int intervalModelo2022M5 = 1*60; //15 son los minutos o 900 segundos
 
 
 datetime lastActionFvgM15 = 0;
-int intervalFvgM15 = 15*60; //1 son los minutos o 900 segundos
+int intervalFvgM15 = 15*60; //15 son los minutos
 
 
 // Intervalos en segundos
 int fiboInterval = 60; 
 int intervalB = 60;//Macros
-int intervalC = 90000; //Se cambia cuando verifico si esta en backtesting a 15 segundso
+int intervalC = 30 * 60; // 30 son los minutos
 int RejectionBlockInterval = 900; 
 int NoticiasInterval = 180;
 
@@ -569,7 +581,8 @@ int OnInit()
    
    //Print( "VGHTF_Name_Fractal : ",VGHTF_Name_Fractal);
    
-   DrawBarFractals(PERIOD_M1, 500, 30, "1");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo 
+   //DrawBarFractals(PERIOD_M1, 500, 30, "1");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo 
+   //DrawBarFractals(PERIOD_M3, 500, 30, "1");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo 
    DrawBarFractals(_Period, 1000, 30, "1");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo 
    DrawBarFractals(VGtime_Frame_Fractal, 1000, 30, "2");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo
    DrawBarFractals(Time_Frame_M2022, 500, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022  
@@ -1579,9 +1592,9 @@ void OnTick()
 
     if( ContadorSonido  == 1)
     {
-       Sleep(1000);
+       //Sleep(1000);
        //Print("Prueba sonido ...");
-       PlaySound("news.wav");
+       //PlaySound("news.wav");
        ContadorSonido = 0; 
     }
  
@@ -2033,6 +2046,18 @@ void OnTimer()
    {
        //para detectar en cada segundo la posible compra o venta
       //DrawBarFractals(PERIOD_CURRENT, 500, 6, "1" );// Fractal para soporte y resistencia del periodo actual  
+      
+     VGContadorAlertasOte = 0;
+     VGContadorAlertasOte_M1 = 0;
+     VGContadorAlertasOte_M3 = 0;
+     VGContadorAlertasOte_M15 = 0;
+     VGContadorAlertasOte_H1 = 0;
+     
+     VGContadorAlertasZona = 0;
+     VGContadorAlertasZona_M1 = 0;
+     VGContadorAlertasZona_M3 = 0;
+     VGContadorAlertasZona_M15 = 0;
+     VGContadorAlertasZona_H1 = 0;
 
       lastActionC = now;
    }
@@ -4115,18 +4140,36 @@ void Alarmas()
    //VGResistencia = ObjectGetDouble (0,"Resistencia",OBJPROP_PRICE);
    //VGSoporte = ObjectGetDouble (0,"Soporte",OBJPROP_PRICE);
    
-   if(Bid > VGResistencia )
-   {
-      lvalto = iHigh(_Symbol,Time_Frame_M2022,0);
-      //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvalto);
-   }   
    
-   if(Bid < VGSoporte )
-   {
-      lvbajo = iLow(_Symbol,Time_Frame_M2022,0);
-      //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvbajo);
-   }   
+   //Print( " VGvalor_fractal_alto :",VGvalor_fractal_alto, " VGvalor_fractal_bajo : ",VGvalor_fractal_bajo);
+   lvalto = iHigh(_Symbol,Time_Frame_M2022,0);
+   lvbajo = iLow(_Symbol,Time_Frame_M2022,0);
    
+   
+//   if(Bid > VGvalor_fractal_alto)
+//   {
+//      VGContadorAlertasZona = 0;
+//      VGContadorAlertasOte  = 0;
+//      lvalto = iHigh(_Symbol,Time_Frame_M2022,0);
+//      //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvalto);
+//   }   
+//   
+//   if(Bid < VGvalor_fractal_bajo )
+//   {
+//      lvbajo = iLow(_Symbol,Time_Frame_M2022,0);
+//      VGContadorAlertasZona = 0;
+//      VGContadorAlertasOte  = 0;
+//      //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvbajo);
+//   }   
+//   
+//   if ( VGvalor_fractal_alto < lvalto )
+//      VGvalor_fractal_alto =  lvalto;
+//
+//   if ( VGvalor_fractal_bajo > lvbajo )
+//      VGvalor_fractal_bajo =  lvbajo;
+
+
+
    //VGMidPrice = lvalto + (lvbajo - lvalto) / 2.0;
 
    double lot = CalculateLotSize(Bid, lvalto, inpporcentajeRiesgo );
@@ -4228,8 +4271,8 @@ void Alarmas()
    if(VGTendencia_interna_M1 == "Bajista" && VGTendencia_interna_M3 == "Bajista")//VGcontadorAlertasBajista > 1 )//&& VGHoraNewYork.hour >= 09 && VGHoraNewYork.hour <= 10)// && Bid > VGMidPrice && VGContadorAlertasZona == 0) //&&  VGTendencia_interna == "Bajista" && VGContadorAlertasZona == 0)
    {
 
-      VGPorcentaje = (Bid - VGSoporte ) / (VGResistencia - VGSoporte) * 100; 
-      double lot = CalculateLotSize(Bid, lvalto, inpporcentajeRiesgo );
+      //VGPorcentaje = (Bid - VGSoporte ) / (VGResistencia - VGSoporte) * 100; 
+      //double lot = CalculateLotSize(Bid, lvalto, inpporcentajeRiesgo );
 
       //ObjectSetDouble(0,"minimo_M15",OBJPROP_PRICE,1,VGMidPrice);
       LVPosibleTrade = _Symbol + " :Zona Premiun !!!" + DoubleToString(VGSoporte,2) + " Server : " + TimeCurrent() + " Local : " + TimeLocal() ;//  " Lote " + NormalizeDouble(lvlote,2) + " - " +  " Ratio : " + NormalizeDouble(lvratio,2);  
@@ -4237,35 +4280,11 @@ void Alarmas()
       //VGPorcentaje = (Bid - VGvalor_fractal_bajo_5 ) / (VGvalor_fractal_alto_5 - VGvalor_fractal_bajo_5) * 100;
       if(Bid > VGMidPrice && VGContadorAlertasZona == 0)
       {
-         textohablado("\"Zona Premiun "+ _Symbol +\"", true);
+         //textohablado("\"Zona Premiun "+ _Symbol +\"", true);
          VGContadorAlertasZona++;
       }
    }
 
-   if(VGTendencia_externa == "Bajista" && VGContadorAlertasOte == 0)//VGcontadorAlertasBajista > 0 && VGPorcentaje > 61 && VGContadorAlertasOte == 0 )// && VGTendencia_interna == "Bajista" )
-   {
-      VGPorcentaje = (Bid - VGSoporte ) / (VGResistencia - VGSoporte) * 100;
-      LVPosibleTrade = _Symbol + " :Zona OTE !!!" + DoubleToString(VGSoporte,2) + " Server : " + TimeCurrent() + " Local : " + TimeLocal() ;//  " Lote " + NormalizeDouble(lvlote,2) + " - " +  " Ratio : " + NormalizeDouble(lvratio,2);  
-      if(VGPorcentaje >=61 && VGContadorAlertasZona == 0)
-      {
-         //textohablado("\"Zona OTE " + _Symbol +\"",true);
-         VGContadorAlertasOte++;
-      }   
-   }    
-
-   if(VGTendencia_externa == "Alcista" && VGContadorAlertasOte == 0)//VGcontadorAlertasAlcista > 0 && VGPorcentaje > 61 && VGContadorAlertasOte == 0 )// && VGTendencia_interna == "Alcista" )
-   {
-      VGPorcentaje = (VGResistencia - Bid) / (VGResistencia - VGSoporte) * 100;
-      LVPosibleTrade = _Symbol + " :Zona OTE !!!" + DoubleToString(VGSoporte,2) + " Server : " + TimeCurrent() + " Local : " + TimeLocal() ;//  " Lote " + NormalizeDouble(lvlote,2) + " - " +  " Ratio : " + NormalizeDouble(lvratio,2);  
-      //SendNotification(LVPosibleTrade);
-      //Alert(LVPosibleTrade);
-      //TextToSpeech("\"Zona OTE " + _Symbol +\"");
-      if(VGPorcentaje >=61 && VGContadorAlertasZona == 0)
-      {
-         //textohablado("\"Zona OTE " + _Symbol +\"",true);
-         VGContadorAlertasOte++;
-      }   
-   }    
 
    
    if(VGTendencia_interna_M1 == "Alcista" && VGTendencia_interna_M3 == "Alcista")// VGcontadorAlertasAlcista > 1)// && VGHoraNewYork.hour >= 09 && VGHoraNewYork.hour <= 10) //&& Bid < VGMidPrice && VGContadorAlertasZona == 0) //&& VGTendencia_interna == "Alcista" 
@@ -4276,7 +4295,7 @@ void Alarmas()
       LVPosibleTrade = _Symbol + " :Zona Discount !!!" + DoubleToString(VGSoporte,2) + " Server : " + TimeCurrent() + " Local : " + TimeLocal() ;//  " Lote " + NormalizeDouble(lvlote,2) + " - " +  " Ratio : " + NormalizeDouble(lvratio,2);  
       if(Bid < VGMidPrice && VGContadorAlertasZona == 0)
       {
-         textohablado("\"Zona de descuento " + _Symbol +\"",true);
+         //textohablado("\"Zona de descuento " + _Symbol +\"",true);
          VGContadorAlertasZona++;
       }   
    }
@@ -5262,7 +5281,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               {
                      name1 =  TimeframeToString(timeframe);
                      string lvmensaje = "\"Displacement leg " + contadorFVGbullish + " " + _Symbol + "  " + name1 + \"";
-                     textohablado(lvmensaje,true);
+                     //textohablado(lvmensaje,true);
                      break;
               }
                 continue;
@@ -5337,7 +5356,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               {
                      name1 =  TimeframeToString(timeframe);
                      string lvmensaje = "\"Displacement leg " + contadorFVGbearish + " " + _Symbol + "  " + name1 + \"";
-                     textohablado(lvmensaje,true);
+                     //textohablado(lvmensaje,true);
                      break;
               }
                 continue;
@@ -8339,12 +8358,46 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
               VGTendencia_interna_M1 = lvtendencia; 
               m1Btn.Text("M1: "+ DoubleToString(VGPorcentaje_fibo,0)+"%"); 
               VGPorcentaje_fibo_M1 = VGPorcentaje_fibo;
+
+              if (VGPorcentaje_fibo_M1 > 50 && VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasZona_M1 <= 0)
+              {
+                  textohablado("\"Zona de descuento M1 " + _Symbol +\"",true);
+                  VGContadorAlertasZona_M1++;  
+              }
+              if (VGPorcentaje_fibo_M1 > 50 && VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasZona_M1 <= 0)
+              {
+                  textohablado("\"Zona Premiun M1 " + _Symbol +\"",true);
+                  VGContadorAlertasZona_M1++;  
+              }
+              if (VGPorcentaje_fibo_M1 > 70 && VGContadorAlertasOte_M1 <= 0)
+              {
+                  textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
+                  VGContadorAlertasOte_M1++;  
+              }
+
             }
             if(timeframe == PERIOD_M3)
             {
               VGTendencia_interna_M3 = lvtendencia; 
               m3Btn.Text("M3: "+ DoubleToString(VGPorcentaje_fibo,0)+"%"); 
               VGPorcentaje_fibo_M3 = VGPorcentaje_fibo;
+
+              if (VGPorcentaje_fibo_M3 > 50 && VGTendencia_interna_M3 == "Alcista" && VGContadorAlertasZona_M3 <= 0)
+              {
+                  textohablado("\"Zona de descuento M3 " + _Symbol +\"",true);
+                  VGContadorAlertasZona_M3++;  
+              }
+              if (VGPorcentaje_fibo_M3 > 50 && VGTendencia_interna_M3 == "Bajista" && VGContadorAlertasZona_M3 <= 0)
+              {
+                  textohablado("\"Zona Premiun M3 " + _Symbol +\"",true);
+                  VGContadorAlertasZona_M3++;  
+              }
+              if (VGPorcentaje_fibo_M3 > 70 && VGContadorAlertasOte_M3 <= 0)
+              {
+                  textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
+                  VGContadorAlertasOte_M3++;  
+              }
+
             }
             if(timeframe == PERIOD_M15)
             {
@@ -8579,8 +8632,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             //}  
          //}
          
-         VGvalor_fractal_alto = valor_fractal_alto_1;
-         VGvalor_fractal_bajo = valor_fractal_bajo_1;
+         //VGvalor_fractal_alto = valor_fractal_alto_1;
+         //VGvalor_fractal_bajo = valor_fractal_bajo_1;
 
          if(VGcontadorAlertasBajista >= 1)
          {
@@ -8627,7 +8680,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //                  VGContadorPosible2022 = 1;
 //              }
 //         } 
-          if(lvclose < valor_fractal_bajo_1 && VGContadorPosible2022 >= 1 && lvbajista == 0)// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
+          if(lvclose < valor_fractal_bajo_1 && (VGContadorPosible2022 >= 1 && lvbajista == 0 && VGTendencia_interna_M1 == "Bajista"  && VGTendencia_interna_M3 == "Bajista" || VGPorcentaje_fibo_M3 < 30))// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
           {
 
                
@@ -8659,12 +8712,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //   VGContadorPosible2022++;
                //}
 
-               if( VGContadorPosible2022 == 1 && VGContadorAlertasZona)
+               if( VGContadorPosible2022 == 1 && VGContadorAlertasZona_M1 > 0)
                {
                   lvmensaje = "\"Oportunidad de Venta con vela grande : " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, true);
                }
-               if( VGContadorPosible2022 == 2 && VGContadorAlertasZona)
+               if( VGContadorPosible2022 == 2 && VGContadorAlertasZona_M1 > 0)
                {
                   lvmensaje = "\"Oportunidad de Venta " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, false);
@@ -8701,8 +8754,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                   VGvalor_fractal_bajo_5 = lvsoporte;
                   VGcontadorAlertasBajista++ ;
                   VGcontadorAlertasAlcista = 0;
-                  VGContadorAlertasOte = 0;
-                  VGContadorAlertasZona = 0; 
+                  //VGContadorAlertasOte = 0;
+                  //VGContadorAlertasZona = 0; 
 
                   DrawBuySell(valor_fractal_alto_1,valor_fractal_bajo_1,"Sell_",clrWhite, STYLE_DOT);//,C'89,9,24');
                   double lvmidprice = lvresistencia + (VGSoporte - lvresistencia) / 2.0;
@@ -8741,7 +8794,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //                  VGContadorPosible2022 = 1;
 //              }
 //            }  
-            if( lvclose > valor_fractal_alto_1  && VGContadorPosible2022 >= 1 && lvalcista == 0 )//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
+            if( lvclose > valor_fractal_alto_1  && (VGContadorPosible2022 >= 1 && lvalcista == 0 && VGTendencia_interna_M1 == "Alcista"  && VGTendencia_interna_M3 == "Alcista" || VGPorcentaje_fibo_M3 < 30))//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
             {
 
                //if (Bid < VGbias_H4 && Bid < VGbias_D1 && Bid < VGbias_W1 )
@@ -8772,12 +8825,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //   VGContadorPosible2022++;
                //}
                
-               if( VGContadorPosible2022 == 1 && VGContadorAlertasZona)
+               if( VGContadorPosible2022 == 1 && VGContadorAlertasZona_M1 > 0)
                {
                   lvmensaje = "\"Oportunidad de compra con vela grande : " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, true);
                }
-               if( VGContadorPosible2022 == 2 && VGContadorAlertasZona)
+               if( VGContadorPosible2022 == 2 && VGContadorAlertasZona_M1 > 0)
                {
                   lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe +  \"";
                   textohablado(lvmensaje, false);
@@ -8816,8 +8869,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                   VGvalor_fractal_bajo_5 = lvsoporte;
                   VGcontadorAlertasAlcista++;
                   VGcontadorAlertasBajista = 0;
-                  VGContadorAlertasOte = 0;
-                  VGContadorAlertasZona = 0; 
+                  //VGContadorAlertasOte = 0;
+                  //VGContadorAlertasZona = 0; 
 
                   DrawBuySell(valor_fractal_alto_1,valor_fractal_bajo_1,"Buy_",clrWhite, STYLE_SOLID);//C'0,105,108');
                   double lvmidprice = VGResistencia + (lvsoporte - VGResistencia) / 2.0;
@@ -8869,21 +8922,27 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       if(timeframe == PERIOD_M1)
       {
          VGMidPrice = lvresistencia + (lvsoporte - lvresistencia) / 2.0;
+         
          VGResistencia = fractal_alto[1];
          VGSoporte = fractal_bajo[1];
+         VGvalor_fractal_alto = fractal_alto[1];;
+         VGvalor_fractal_bajo = fractal_bajo[1];;
          //Print(" VGResistencia :",VGResistencia, " VGSoporte :",VGSoporte);
          
          ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,VGMidPrice);
       }   
-      if(VGTendencia_interna == "Alcista")
+      if(VGTendencia_interna_M1 == "Alcista" && timeframe == PERIOD_M1)
       {
 
-         //VGPorcentaje = (lvresistencia - Bid) / (lvresistencia - lvsoporte) * 100;
+         VGPorcentaje = (lvresistencia - iLow(_Symbol,PERIOD_M15,1)) / (lvresistencia - lvsoporte) * 100;
+         //Print(" VGPorcentaje :",VGPorcentaje);
       }
-      else
+      if(VGTendencia_interna_M1 == "Bajista" && timeframe == PERIOD_M1)
       {
-         //VGPorcentaje = (Bid - lvsoporte ) / (lvresistencia - lvsoporte) * 100;
+         VGPorcentaje = (iHigh(_Symbol,PERIOD_M15,1) - lvsoporte ) / (lvresistencia - lvsoporte) * 100;
+         //Print(" VGPorcentaje :",VGPorcentaje);
       }
+      //Print(" VGPorcentaje :",VGPorcentaje);
    }
 
    if(lvflag == "2")
@@ -8902,8 +8961,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    }
    
    
-   VGvalor_fractal_alto = lvresistencia;
-   VGvalor_fractal_bajo = lvsoporte;
+   //VGvalor_fractal_alto = lvresistencia;
+   //VGvalor_fractal_bajo = lvsoporte;
    
     name = "ZB_FIBO_"  + lvflag;
      
@@ -9665,7 +9724,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       //SendNotification(LVPosibleTrade);
       //Alert(LVPosibleTrade);
       //TextToSpeech("\"Immediate Rebalance Bajista " +  _Symbol + lv_tf +\"");
-      textohablado(lv_mensaje,false);
+      //textohablado(lv_mensaje,false);
       ContadorSonido = 1;
       //Print("Patrón 'Immediate Rebalance Bajista ' detectado en : ",lv_tf);
       //Print("   Vela 1 (Alto): ", DoubleToString(high_vela1, _Digits));
@@ -9690,18 +9749,18 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
 
       if ( (low_vela1 - high_vela3) == 0 )
       {
-         lv_mensaje = ""\" Perfect Price Alcista !!! " + _Symbol + " " + lv_nametf + \"";
+         //lv_mensaje = ""\" Perfect Price Alcista !!! " + _Symbol + " " + lv_nametf + \"";
          //ObjectSetString(0, ir_name, OBJPROP_TEXT, "PPD "+ lv_nametf);
       }
       else
       {
-         lv_mensaje = ""\" Immediate Rebalance Alcista !!! " + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela3 - low_vela1),2) + \"";
+         //lv_mensaje = ""\" Immediate Rebalance Alcista !!! " + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela3 - low_vela1),2) + \"";
          //ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
       }
       //SendNotification(LVPosibleTrade);
       //Alert(LVPosibleTrade);
       //TextToSpeech("\"Immediate Rebalance Bajista una Vela" +  _Symbol + lv_tf +\"");
-      textohablado(lv_mensaje, false);
+      //textohablado(lv_mensaje, false);
       ContadorSonido = 1;
 
       //Print("Patrón 'Immediate Rebalance Alcista ' detectado en : ",lv_tf);
@@ -9716,6 +9775,7 @@ void textohablado(string  mensaje, bool hablar)
 
 {
    Alert(mensaje); 
+   SendNotification(mensaje);
    Print("mensaje :",mensaje);
    //SendNotification(mensaje);   
    if ( MQLInfoInteger(MQL_TESTER))
@@ -9723,7 +9783,7 @@ void textohablado(string  mensaje, bool hablar)
    if (hablar == true)
    {    
       //TextToSpeech(mensaje);
-      //SendNotification(mensaje)";
+      //SendNotification(mensaje);
    }   
 }
 
