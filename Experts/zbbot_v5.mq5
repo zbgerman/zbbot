@@ -4431,12 +4431,13 @@ void ManejoStopLoss()
                     VGtotalOrdenesAbiertas++;
                     total_ordenes_pendientes++; // Incrementamos el contador
                     double lvsl = OrderGetDouble(ORDER_SL);
-                    if (Bid > lvsl && order_type == ORDER_TYPE_SELL_STOP )
+                    double lvtp = OrderGetDouble(ORDER_TP);
+                    if ( (Bid > lvsl || Bid < lvtp) && ( order_type == ORDER_TYPE_SELL_STOP || order_type == ORDER_TYPE_SELL_LIMIT) )
                     {
                         MiTrade.OrderDelete(ticket);
                     
                     }
-                    if (Bid < lvsl && order_type == ORDER_TYPE_BUY_STOP )
+                    if ( (Bid < lvsl || Bid > lvtp) && (order_type == ORDER_TYPE_BUY_STOP || order_type == ORDER_TYPE_BUY_LIMIT) )
                     {
                         MiTrade.OrderDelete(ticket);
                     
