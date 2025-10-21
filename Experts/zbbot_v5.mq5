@@ -2443,11 +2443,18 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
                     {
                         double lvresistencia  = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
                         double lvsoporte      = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
-                        VGMidPrice     = lvresistencia + (lvsoporte - lvresistencia) / 2.0;
-                        ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia ); 
+                        
+                        if(VGMaximo2 > lvresistencia)
+                           VGMaximo2 = lvresistencia;
+
+                        if(VGMinimo1 < lvsoporte)
+                           VGMinimo1 = lvsoporte;
+                           
+                        VGMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+                        ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGMaximo2 ); 
                         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
                         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
-                        ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,lvsoporte ); 
+                        ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGMinimo1 ); 
                         ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
                         ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
                         // Ocultar todos los objetos de trading
@@ -2731,13 +2738,18 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
                ulong clickTime = GetTickCount();
                //Print(" clickTime ",clickTime);
                if(clickTime < clickTimeMemory + 300){
-                  double vlresistencia = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
-                  double vlsoporte     = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
-                  double vlMidPrice = vlresistencia + (vlsoporte - vlresistencia) / 2.0;
-                  ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,vlresistencia ); 
+//                  
+//                  double vlresistencia = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
+//                  double vlsoporte     = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
+                  
+                  //double vlMidPrice = vlresistencia + (vlsoporte - vlresistencia) / 2.0;
+
+                  double vlMidPrice = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+                  
+                  ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGMaximo2 ); 
                   ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,vlMidPrice );
                   ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,vlMidPrice );
-                  ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,vlsoporte ); 
+                  ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGMinimo1 ); 
                   ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
                   ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
 
@@ -4158,8 +4170,8 @@ void Alarmas()
     double lvalto = ObjectGetDouble(0, "maximo_M15", OBJPROP_PRICE,0);  
     double lvbajo = ObjectGetDouble(0, "minimo_M15", OBJPROP_PRICE,1);  
  
-   double lvresistencia = ObjectGetDouble (0,"Resistencia",OBJPROP_PRICE);
-   double lvsoporte = ObjectGetDouble (0,"Soporte",OBJPROP_PRICE);
+   //double lvresistencia = ObjectGetDouble (0,"Resistencia",OBJPROP_PRICE);
+   //double lvsoporte = ObjectGetDouble (0,"Soporte",OBJPROP_PRICE);
    
    
    //Print( " VGvalor_fractal_alto :",VGvalor_fractal_alto, " VGvalor_fractal_bajo : ",VGvalor_fractal_bajo);
@@ -4193,20 +4205,30 @@ void Alarmas()
    //Print("VGPorcentaje : ",VGPorcentaje);
 
 
-   if (lvalto > lvresistencia) 
+   if (lvalto > VGMaximo2) 
    {
          VGcontadorAlertasAlcista = 1;
          VGcontadorAlertasBajista = 0;
-         ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvalto);
+         VGMaximo2 = lvalto;
+         VGMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGMaximo2 );
+         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
+         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
+         //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvalto);
          //textohablado("\"Precio Mayor a resistencia "+ _Symbol +\"", true);
    }   
    
-   if (lvbajo < lvsoporte )
+   if (lvbajo < VGMinimo1 )
    {
 
          VGcontadorAlertasBajista = 1;
          VGcontadorAlertasAlcista = 0;
-         ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvbajo);
+         VGMinimo1 = lvbajo;
+         VGMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGMinimo1 );
+         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
+         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
+         //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvbajo);
          //textohablado("\"Precio Menor a Soporte "+ _Symbol +\"", true);
    }   
 //   if(Bid > VGvalor_fractal_alto)
@@ -4995,7 +5017,7 @@ void MaximoMinimo()
          ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_COLOR,C'89,9,24');
          ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_SELECTABLE,true);
          //ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_SELECTED,true); 
-         ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_ZORDER,9999); 
+         ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_ZORDER,29999); 
       }
       
    
@@ -5025,7 +5047,7 @@ void MaximoMinimo()
          ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_COLOR,C'0,105,108');
          ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_SELECTABLE,true);
          //ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_SELECTED,true);     
-         ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_ZORDER,9999); 
+         ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_ZORDER,29000); 
       }
 }
 
@@ -6540,7 +6562,7 @@ void Soporte_Resistencia(int lv_flag)
       ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_SELECTABLE,true);
       ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_SELECTED,true); 
       ObjectSetString(current_chart_id,obj_name_maximo,OBJPROP_TEXT, "BSL");
-      ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_ZORDER,100);  
+      //ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_ZORDER,100);  
       
 //+++Fin Resistencia   
 
@@ -6610,7 +6632,7 @@ void Soporte_Resistencia(int lv_flag)
       ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_SELECTABLE,true);
       ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_SELECTED,true);     
       ObjectSetString(current_chart_id,obj_name_minimo,OBJPROP_TEXT, "SSL");
-      ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_ZORDER,100); 
+      //ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_ZORDER,100); 
 
       //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGResistencia);
       //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGSoporte);
@@ -8929,15 +8951,19 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                   //VGContadorAlertasZona = 0; 
 
                   DrawBuySell(valor_fractal_alto_1,valor_fractal_bajo_1,"Sell_",clrWhite, STYLE_DOT);//,C'89,9,24');
-                  double lvmidprice = lvresistencia + (VGSoporte - lvresistencia) / 2.0;
-
-                  ObjectSetDouble(0, "Resistencia", OBJPROP_PRICE,lvresistencia);
-                  ObjectSetDouble(0, "Soporte", OBJPROP_PRICE,lvsoporte);
                   
-                  //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia ); 
-                  //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvmidprice ); 
-                  //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvmidprice );
-                  //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGSoporte ); 
+                  double lvmidprice = lvresistencia + (lvsoporte - lvresistencia) / 2.0;
+
+                  //ObjectSetDouble(0, "Resistencia", OBJPROP_PRICE,lvresistencia);
+                  //ObjectSetDouble(0, "Soporte", OBJPROP_PRICE,lvsoporte);
+                  
+                  VGMaximo2 = lvresistencia;
+                  VGMinimo1 = lvsoporte;
+                  
+                  ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia ); 
+                  ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvmidprice ); 
+                  ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvmidprice );
+                  ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,lvsoporte ); 
                   
                   
                   //ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
@@ -9046,15 +9072,19 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
 
                   DrawBuySell(valor_fractal_alto_1,valor_fractal_bajo_1,"Buy_",clrWhite, STYLE_SOLID);//C'0,105,108');
-                  double lvmidprice = VGResistencia + (lvsoporte - VGResistencia) / 2.0;
                   
-                  ObjectSetDouble(0, "Resistencia", OBJPROP_PRICE,lvresistencia);
-                  ObjectSetDouble(0, "Soporte", OBJPROP_PRICE,lvsoporte);
+                  double lvmidprice = lvresistencia + (lvsoporte - lvresistencia) / 2.0;
                   
-                  //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGResistencia ); 
-                  //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvmidprice ); 
-                  //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvmidprice );
-                  //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,lvsoporte );
+                  //ObjectSetDouble(0, "Resistencia", OBJPROP_PRICE,lvresistencia);
+                  //ObjectSetDouble(0, "Soporte", OBJPROP_PRICE,lvsoporte);
+                  
+                  VGMaximo2 = lvresistencia;
+                  VGMinimo1 = lvsoporte;
+                  
+                  ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia ); 
+                  ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvmidprice ); 
+                  ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvmidprice );
+                  ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,lvsoporte );
                   
                   
                   
