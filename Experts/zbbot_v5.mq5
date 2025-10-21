@@ -2302,6 +2302,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       if (object_name == "Resistencia")
       {
          //VGResistencia  = ObjectGetDouble(0,object_name,OBJPROP_PRICE);
+         //VGSoporte  = ObjectGetDouble(0,object_name,OBJPROP_PRICE);
          //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGResistencia ); 
          //VGMaximo2 = VGResistencia;  
       }
@@ -2328,6 +2329,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       
       if (object_name == "Soporte")
       {
+         //VGResistencia  = ObjectGetDouble(0,object_name,OBJPROP_PRICE);
          //VGSoporte  = ObjectGetDouble(0,object_name,OBJPROP_PRICE);
          //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGSoporte ); 
          //VGMinimo1 = VGSoporte;  
@@ -2353,7 +2355,9 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
 
 
       
-      //VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
+      VGResistencia  = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
+      VGSoporte  = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
+      VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
       ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,0,VGMidPrice );
 
       string obj_nombre = "maximo_M15";
@@ -2450,10 +2454,10 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
                         if(VGMinimo1 < lvsoporte)
                            VGMinimo1 = lvsoporte;
                            
-                        VGMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+                        double lvMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
                         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGMaximo2 ); 
-                        ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
-                        ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
+                        ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvMidPrice );
+                        ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvMidPrice );
                         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGMinimo1 ); 
                         ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
                         ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
@@ -4210,10 +4214,10 @@ void Alarmas()
          VGcontadorAlertasAlcista = 1;
          VGcontadorAlertasBajista = 0;
          VGMaximo2 = lvalto;
-         VGMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+         double lvMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGMaximo2 );
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
+         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvMidPrice );
+         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvMidPrice );
          //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvalto);
          //textohablado("\"Precio Mayor a resistencia "+ _Symbol +\"", true);
    }   
@@ -4224,10 +4228,10 @@ void Alarmas()
          VGcontadorAlertasBajista = 1;
          VGcontadorAlertasAlcista = 0;
          VGMinimo1 = lvbajo;
-         VGMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
+         double lvMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
          ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGMinimo1 );
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
+         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1, lvMidPrice );
+         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0, lvMidPrice );
          //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvbajo);
          //textohablado("\"Precio Menor a Soporte "+ _Symbol +\"", true);
    }   
@@ -9143,7 +9147,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
   
       if(timeframe == PERIOD_M1)
       {
-         VGMidPrice = lvresistencia + (lvsoporte - lvresistencia) / 2.0;
+         //VGMidPrice = lvresistencia + (lvsoporte - lvresistencia) / 2.0;
          
          //VGResistencia = fractal_alto[1];
          //VGSoporte = fractal_bajo[1];
@@ -9151,7 +9155,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
          VGvalor_fractal_bajo = fractal_bajo[1];;
          //Print(" VGResistencia :",VGResistencia, " VGSoporte :",VGSoporte);
          
-         ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,VGMidPrice);
+         //ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,VGMidPrice);
       }   
 
 
