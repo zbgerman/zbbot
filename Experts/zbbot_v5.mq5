@@ -2078,6 +2078,11 @@ void OnTimer()
    {
        //para detectar en cada segundo la posible compra o venta
       //DrawBarFractals(PERIOD_CURRENT, 500, 6, "1" );// Fractal para soporte y resistencia del periodo actual  
+     
+     int fecha_final = iTime(_Symbol,PERIOD_M1,0) + (60 * 60);
+     //fecha_final = fecha_final + (60 * 60); 
+     ObjectSetInteger(0,"ZONA_COMPRAS",OBJPROP_TIME,1,fecha_final);
+     ObjectSetInteger(0,"ZONA_VENTAS",OBJPROP_TIME,1,fecha_final);
       
      VGContadorAlertasOte = 0;
      VGContadorAlertasOte_M1 = 0;
@@ -2422,7 +2427,8 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       VGtecla = sparam;
       if(VGtecla == 2 ) //tecla numero 1 compras
       {
-      
+         VGcontadorAlertasAlcista = 0;
+         VGcontadorAlertasBajista = 0;
          if( VGCompra == 1) //Desaciva el panel
          {
             VGCompra = 0;
@@ -2443,7 +2449,8 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
             
       if(VGtecla == 3 ) //tecla numero 2 ventas
       {
-
+         VGcontadorAlertasAlcista = 0;
+         VGcontadorAlertasBajista = 0;
          if( VGVenta == 1)//Desaciva el panel
          {
             VGCompra = 0;
@@ -2461,6 +2468,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          VGVenta  = 1;
       
       }
+      
       if(VGtecla == 4 ) //Tecla nuemor 3 para soporte y resistencia
       {
          //Print("tecla : ",VGtecla, " ID ", id, " VGResistencia :",VGResistencia, " VGSoporte :",VGSoporte);
@@ -2470,14 +2478,20 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          VGtecla = 0;     
       
       }
+      
     }     
      
+
     if (id == CHARTEVENT_CLICK)
     {
       
       //Print( " Id :", id, " lparam : " , lparam, " dparam: ",dparam, " sparam : ", sparam, " VGtecla ",VGtecla);
       // Obtener el estado de las teclas modificadoras
-
+      if (VGtecla == 6 || VGtecla == 7)// Para ventas
+      {
+         DetectClickedCandle(lparam,dparam,VGtecla);
+         VGtecla = 0;
+      }
       if (id == 4)
       {
             static ulong clickTimeMemory;
@@ -2937,6 +2951,75 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
      }
    
   }
+
+
+//+------------------------------------------------------------------+
+//| Función principal para detectar vela clickeada                  |
+//+------------------------------------------------------------------+
+void DetectClickedCandle(int lparam, int dparam, int lvtecla)
+{
+    
+    // Convertir coordenadas de pantalla a tiempo/precio
+    datetime clickTime;
+    double clickPrice;
+    int window = 0;
+   double high = 0;
+   double low = 0;
+   double open = 0;
+   double close = 0;
+   int fecha_final = iTime(_Symbol,PERIOD_CURRENT,0);
+   
+   string lvnametf = TimeframeToString(_Period);
+   
+    if(ChartXYToTimePrice(0, lparam, dparam, window, clickTime, clickPrice))
+    {
+        // Encontrar la vela correspondiente al tiempo clickeado
+        int candleIndex = iBarShift(_Symbol, _Period, clickTime);
+        
+        if(candleIndex >= 0)
+        {
+            // Obtener datos de la vela
+            high = iHigh(_Symbol, _Period, candleIndex);
+            low = iLow(_Symbol, _Period, candleIndex);
+            open = iOpen(_Symbol, _Period, candleIndex);
+            close = iClose(_Symbol, _Period, candleIndex);
+            
+            // Mostrar información
+            //Print("German", " high :",high, " low :",low);
+        }
+        if (lvtecla == 6)//Ventas tecla numero 5
+        {
+         string name_object = "ZONA_VENTAS";
+         ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
+         ObjectSetDouble(0,name_object,OBJPROP_PRICE,high);
+         ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,low);
+         ObjectSetInteger(0,name_object,OBJPROP_TIME,0,clickTime);
+         ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+         ObjectSetString(0,name_object,OBJPROP_TEXT,"ZONA DE VENTAS - " + lvnametf);
+         ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'89,9,24');
+         ObjectSetInteger(0,name_object,OBJPROP_FILL,true);
+         ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
+         
+         Print("VENTAS", " high :",high, " low :",low);
+         
+        }
+        if (lvtecla == 7)//Compras tecla numero 6
+        {
+         string name_object = "ZONA_COMPRAS";
+         ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
+         ObjectSetDouble(0,name_object,OBJPROP_PRICE,high);
+         ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,low);
+         ObjectSetInteger(0,name_object,OBJPROP_TIME,0,clickTime);
+         ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+         ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'0,81,83');
+         ObjectSetString(0,name_object,OBJPROP_TEXT,"ZONA DE COMPRAS - " + lvnametf);
+         ObjectSetInteger(0,name_object,OBJPROP_FILL,true);
+         ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
+         Print("COMPRAS", " high :",high, " low :",low);
+        }
+    }
+}
+
 
 
 
@@ -8759,6 +8842,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    
 //Inicio Modelo 2022   
 
+   if (lvflag ==  "7")
+   {
+      VGvalor_fractal_alto = valor_fractal_alto_1;
+      VGvalor_fractal_bajo = valor_fractal_bajo_1;
+      return;
+   }
 
 
    if (lvflag ==  "5")
@@ -9032,7 +9121,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //VGvalor_fractal_bajo_5 = lvsoporte;
                
                VGcontadorAlertasBajista++ ;
-               VGcontadorAlertasAlcista = 0;
+               //VGcontadorAlertasAlcista = 0;
                
                if ( VGVenta == 1)//VGTendencia_interna_M15 == "Bajista" && VGPorcentaje_fibo_M15 > 50 || VGVenta == 1)
                { 
@@ -9153,7 +9242,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //}
                
                VGcontadorAlertasAlcista++;
-               VGcontadorAlertasBajista = 0;
+               //VGcontadorAlertasBajista = 0;
                //VGContadorAlertasOte = 0;
                //VGContadorAlertasZona = 0; 
                if( VGCompra == 1)//VGTendencia_interna_M15 == "Alcista" && VGPorcentaje_fibo_M15 > 50 || VGCompra == 1)
@@ -9226,26 +9315,25 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                }
    }
 
+
    if(lvflag == "5")// 5 es solo para programar compras o ventas 7 Solo para alertas
    {
    
+       double lvalto = valor_fractal_alto_1;
+       double lvbajo = valor_fractal_bajo_1;
       string name = "FIBO_3";
-      if(VGcontadorAlertasAlcista == 1)
+      if(VGCompra == 1 && Bid > lvbajo)
       {
-          double lvalto = valor_fractal_alto_1;
-          double lvbajo = valor_fractal_bajo_1;
           ObjectSetDouble(0, name, OBJPROP_PRICE,0, lvbajo);    
           ObjectSetDouble(0, name, OBJPROP_PRICE,1, lvalto);  
-          VGcontadorAlertasAlcista++;
+          //VGcontadorAlertasAlcista++;
       }
       
-      if(VGcontadorAlertasBajista == 1)
+      if(VGVenta == 1 && Bid < lvalto)
       {
-          double lvalto = valor_fractal_alto_1;
-          double lvbajo = valor_fractal_bajo_1;
           ObjectSetDouble(0, name, OBJPROP_PRICE,0, lvalto);    
           ObjectSetDouble(0, name, OBJPROP_PRICE,1, lvbajo);
-          VGcontadorAlertasBajista++;       
+          //VGcontadorAlertasBajista++;       
       }
        ObjectSetInteger(0, name, OBJPROP_TIME,0, hora_inicio);
        ObjectSetInteger(0, name, OBJPROP_TIME,1, hora_final);
