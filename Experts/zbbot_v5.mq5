@@ -469,6 +469,19 @@ int OnInit()
    VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
    ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,0,VGMidPrice );
    
+   
+
+   int fecha_final = iTime(_Symbol,PERIOD_M1,0) + (60 * 60);
+   //fecha_final = fecha_final + (60 * 60); 
+   string name_object = "ZONA_VENTAS";
+   ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
+   ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+   ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
+   
+   name_object = "ZONA_COMPRAS";
+   ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
+   ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+   ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
 
    if(Bid > VGResistencia || Bid < VGSoporte )
    {
@@ -2078,12 +2091,7 @@ void OnTimer()
    {
        //para detectar en cada segundo la posible compra o venta
       //DrawBarFractals(PERIOD_CURRENT, 500, 6, "1" );// Fractal para soporte y resistencia del periodo actual  
-     
-     int fecha_final = iTime(_Symbol,PERIOD_M1,0) + (60 * 60);
-     //fecha_final = fecha_final + (60 * 60); 
-     ObjectSetInteger(0,"ZONA_COMPRAS",OBJPROP_TIME,1,fecha_final);
-     ObjectSetInteger(0,"ZONA_VENTAS",OBJPROP_TIME,1,fecha_final);
-      
+           
      VGContadorAlertasOte = 0;
      VGContadorAlertasOte_M1 = 0;
      VGContadorAlertasOte_M3 = 0;
@@ -2997,7 +3005,7 @@ void DetectClickedCandle(int lparam, int dparam, int lvtecla)
          ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
          ObjectSetString(0,name_object,OBJPROP_TEXT,"ZONA DE VENTAS - " + lvnametf);
          ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'89,9,24');
-         ObjectSetInteger(0,name_object,OBJPROP_FILL,true);
+         ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
          ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
          
          Print("VENTAS", " high :",high, " low :",low);
@@ -3011,9 +3019,9 @@ void DetectClickedCandle(int lparam, int dparam, int lvtecla)
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,low);
          ObjectSetInteger(0,name_object,OBJPROP_TIME,0,clickTime);
          ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
-         ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'0,81,83');
+         ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
          ObjectSetString(0,name_object,OBJPROP_TEXT,"ZONA DE COMPRAS - " + lvnametf);
-         ObjectSetInteger(0,name_object,OBJPROP_FILL,true);
+         ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
          ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
          Print("COMPRAS", " high :",high, " low :",low);
         }
@@ -4318,28 +4326,55 @@ void Alarmas()
    lvalto = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 5, 0));
    lvbajo = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_HIGH, 5, 0));
 
+   double lvresistencia = ObjectGetDouble (0,"Resistencia",OBJPROP_PRICE);
+   double lvsoporte = ObjectGetDouble (0,"Soporte",OBJPROP_PRICE);
 
 
-      if(VGCompra == 1 ) //  compras
-      {
+   if (Bid > lvresistencia && VGVenta == 0)
+   {
+      int lvstyle = ObjectGetInteger(0,"Resistencia",OBJPROP_STYLE);
+      //if(lvstyle == STYLE_SOLID)
+      //{
+         VGVenta = 1;
+         VGCompra = 0;
+         textohablado("\"Zona de Ventas "+ _Symbol +\"", true);
+      //}
+   
+   }
 
-         double lvresistencia = ObjectGetDouble(0, "Resistencia", OBJPROP_PRICE);
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia );
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_alto_5 );
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_alto_5 );
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
-      
-      }
-            
-      if(VGVenta == 1 ) // ventas
-      {
-         double lvsoporte = ObjectGetDouble(0, "Soporte", OBJPROP_PRICE);
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0, VGvalor_fractal_alto_5);
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_bajo_5 );
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,lvsoporte );
-      
-      }
+   if (Bid < lvsoporte && VGCompra == 0)
+   {
+      int lvstyle = ObjectGetInteger(0,"Soporte",OBJPROP_STYLE);
+      //Print("g ", lvstyle,  STYLE_SOLID);
+      //if(lvstyle == STYLE_SOLID)
+      //{
+         VGVenta = 0;
+         VGCompra = 1;
+         textohablado("\"Zona de Compras "+ _Symbol +\"", true);
+      //}
+   
+   }
+
+   if(VGCompra == 1 ) //  compras
+   {
+   
+      double lvresistencia = ObjectGetDouble(0, "Resistencia", OBJPROP_PRICE);
+      ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia );
+      ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_alto_5 );
+      ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_alto_5 );
+      ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
+   
+   }
+         
+   if(VGVenta == 1 ) // ventas
+   {
+      double lvsoporte = ObjectGetDouble(0, "Soporte", OBJPROP_PRICE);
+      ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0, VGvalor_fractal_alto_5);
+      ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
+      ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_bajo_5 );
+      ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,lvsoporte );
+   
+   }
 
    
    if (Bid > VGvalor_fractal_alto_5 && VGvalor_fractal_alto_5 > 0 )
@@ -4554,7 +4589,7 @@ void Alarmas()
       //VGPorcentaje = (Bid - VGvalor_fractal_bajo_5 ) / (VGvalor_fractal_alto_5 - VGvalor_fractal_bajo_5) * 100;
       if(Bid > lvmiDprice && VGContadorAlertasZona == 0)
       {
-         textohablado("\"Zona Premiun "+ _Symbol +\"", true);
+         //textohablado("\"Zona Premiun "+ _Symbol +\"", true);
          VGContadorAlertasZona++;
       }
    }
@@ -4569,7 +4604,7 @@ void Alarmas()
       LVPosibleTrade = _Symbol + " :Zona Discount !!!" + DoubleToString(VGSoporte,2) + " Server : " + TimeCurrent() + " Local : " + TimeLocal() ;//  " Lote " + NormalizeDouble(lvlote,2) + " - " +  " Ratio : " + NormalizeDouble(lvratio,2);  
       if(Bid < lvmiDprice && VGContadorAlertasZona == 0)
       {
-         textohablado("\"Zona de descuento " + _Symbol +\"",true);
+         //textohablado("\"Zona de descuento " + _Symbol +\"",true);
          VGContadorAlertasZona++;
       }   
    }
@@ -9121,7 +9156,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //VGvalor_fractal_bajo_5 = lvsoporte;
                
                VGcontadorAlertasBajista++ ;
-               //VGcontadorAlertasAlcista = 0;
+               VGcontadorAlertasAlcista = 0;
                
                if ( VGVenta == 1)//VGTendencia_interna_M15 == "Bajista" && VGPorcentaje_fibo_M15 > 50 || VGVenta == 1)
                { 
@@ -9242,7 +9277,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //}
                
                VGcontadorAlertasAlcista++;
-               //VGcontadorAlertasBajista = 0;
+               VGcontadorAlertasBajista = 0;
                //VGContadorAlertasOte = 0;
                //VGContadorAlertasZona = 0; 
                if( VGCompra == 1)//VGTendencia_interna_M15 == "Alcista" && VGPorcentaje_fibo_M15 > 50 || VGCompra == 1)
