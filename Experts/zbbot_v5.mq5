@@ -2363,6 +2363,12 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          ObjectSetInteger(0,"minimo_M15",OBJPROP_TIME,0,fecha_1);
          ObjectSetInteger(0,"minimo_M15",OBJPROP_TIME,1,fecha_2);
          ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvvalor2 ); 
+         
+         double lvalto = ObjectGetDouble(0,object_name,OBJPROP_PRICE,0);
+         double lvbajo = ObjectGetDouble(0,object_name,OBJPROP_PRICE,1);
+         
+         ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,0, lvalto);    
+         ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,1, lvbajo);
          //VGResistencia = VGMaximo2;  
       }
       
@@ -2390,6 +2396,12 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          ObjectSetInteger(0,"maximo_M15",OBJPROP_TIME,0,fecha_1);
          ObjectSetInteger(0,"maximo_M15",OBJPROP_TIME,1,fecha_2);
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvvalor2 ); 
+
+         double lvalto = ObjectGetDouble(0,object_name,OBJPROP_PRICE,0);
+         double lvbajo = ObjectGetDouble(0,object_name,OBJPROP_PRICE,1);
+         
+         ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,0, lvbajo);    
+         ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,1, lvalto);
          //VGSoporte = VGMinimo1;  
       }
 
@@ -4685,6 +4697,10 @@ void ManejoStopLoss()
    double tick_value=SymbolInfoDouble(_Symbol,SYMBOL_TRADE_TICK_VALUE);
    double tick_size=SymbolInfoDouble(_Symbol,SYMBOL_TRADE_TICK_SIZE);
    double tick_step=SymbolInfoDouble(_Symbol,SYMBOL_VOLUME_STEP);
+   
+   double lvtp1 = ObjectGetDouble(0,"TP1",OBJPROP_PRICE);
+   
+   
 
    //Print(" Ema :", ma200[0],  ma20[0], ma50[0]," Resistencia ", MiResistencia_1, " MiSoporte : ",MiSoporte_1 );
    //if (ma200[0] <= 0)
@@ -4941,7 +4957,7 @@ void ManejoStopLoss()
             }
             if (SymbolInfoDouble(_Symbol,SYMBOL_VOLUME_STEP) == 0.01)
             {
-               Mivolumen = NormalizeDouble(Mivolumen* VGporcentaje_venta_lote,2);
+               Mivolumen = NormalizeDouble(Mivolumen * VGporcentaje_venta_lote,2);
             }
 
             if(lvprofit >= porcentajeUtilidad1)//Tomar parcial
@@ -4978,25 +4994,61 @@ void ManejoStopLoss()
          //    return;
          //}
 
-         if(Symbol() == Symbolo && (PrecioApertura != StopLossAnterior)) 
-         {
-               ////Print("PrecioApertura :",PrecioApertura, " StopLossAnterior :",StopLossAnterior);
-               //if((Tipo == POSITION_TYPE_BUY))
-               //{
-               //   if(  Bid > VGMaximo2 && PrecioApertura > StopLossAnterior)
-               //   {
-               //      MiTrade.PositionModify(Ticket,PrecioApertura,MiTakeProfi);
-               //      Print("PrecioApertura :",PrecioApertura, " StopLossAnterior :",StopLossAnterior);
-               //   }  
-               //}
-               //if((Tipo == POSITION_TYPE_SELL))
-               //{
-               //   if(  Bid < VGMinimo2 && PrecioApertura < StopLossAnterior)
-               //   {
-               //      MiTrade.PositionModify(Ticket,PrecioApertura,MiTakeProfi);
-               //      Print("PrecioApertura :",PrecioApertura, " StopLossAnterior :",StopLossAnterior);
-               //   }  
-               //}
+         if(Symbol() == Symbolo) 
+         { 
+            string name_object = "TP1";
+            int ObjectExiste1 = ObjectFind(0,name_object);
+            
+            //Print(" ObjectExiste1 : ",ObjectExiste1);
+            datetime fecha_inicial = ObjectGetInteger(0,"maximo_M15",OBJPROP_TIME,0);
+            datetime fecha_final   = ObjectGetInteger(0,"maximo_M15",OBJPROP_TIME,1);
+            
+            double lvresistencia = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
+            double lvsoporte = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
+            
+            if (SymbolInfoDouble(_Symbol,SYMBOL_VOLUME_STEP) == 0.1)
+            {
+               Mivolumen = NormalizeDouble(Mivolumen * VGporcentaje_venta_lote,1);
+            }
+            if (SymbolInfoDouble(_Symbol,SYMBOL_VOLUME_STEP) == 0.01)
+            {
+               Mivolumen = NormalizeDouble(Mivolumen * VGporcentaje_venta_lote,2);
+            }
+            //Print("Mivolumen :",Mivolumen);
+            if((Tipo == POSITION_TYPE_BUY))
+            {
+               if ( ObjectExiste1 < 0) // No existe 
+               {
+                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,lvresistencia,fecha_final,lvresistencia);
+               
+               }
+               if(  Bid >=  lvtp1 && lvtp1 > 0)
+               {
+                  MiTrade.PositionClosePartial(Ticket,Mivolumen);
+                  ObjectDelete(0,"TP1");
+                  Print(" lvtp1 : ", lvtp1 );
+               }  
+            }
+            if((Tipo == POSITION_TYPE_SELL))
+            {
+               if ( ObjectExiste1 < 0) // No existe 
+               {
+                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,lvsoporte,fecha_final,lvsoporte);
+               
+               }
+               if(  Bid <=  lvtp1 && lvtp1 > 0)
+               {
+                  MiTrade.PositionClosePartial(Ticket,Mivolumen);
+                  ObjectDelete(0,"TP1");
+                  Print(" lvtp1 : ", lvtp1 );
+               }  
+            }
+            ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
+            ObjectSetInteger(0,name_object,OBJPROP_SELECTED,true);
+            ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrWhite);
+            ObjectSetInteger(0,name_object,OBJPROP_TIME,0,fecha_inicial);
+            ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+            ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " Porcentaje : " + VGporcentaje_venta_lote + " Volumen : " + Mivolumen);
          }
 
          if(Symbol() == Symbolo && sl_pf_Btn1 == true ) 
@@ -5194,6 +5246,29 @@ void ManejoStopLoss()
 
 void verificar_ordenes_Abiertas()
 {
+
+   int TotalPosiciones = PositionsTotal();
+   int lvcontador = 0;
+   //Print( " TotalPosiciones: ",TotalPosiciones);
+   
+   if(TotalPosiciones > 0)
+   {
+
+      for(int i=TotalPosiciones-1; i>=0; i--)
+      {
+         string   Symbolo           = PositionGetString(POSITION_SYMBOL);
+         if(Symbolo == Symbol() )
+         {
+            return;
+         }
+      }
+      if (lvcontador <=0)
+         ObjectsDeleteAll(0,"TP");
+   }
+   else
+   {
+      ObjectsDeleteAll(0,"TP");
+   }
 
    VGmodelo2022 = false ;
 
@@ -10178,7 +10253,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    // Vela 2: index + 1
    // Vela 3: index
    
-   //return; //para desactivar
+   return; //para desactivar
    
    double ImmediateRebalanceTolerancePoints = 0; // Valor por defecto: 5 puntos. AJUSTA ESTO.
 
