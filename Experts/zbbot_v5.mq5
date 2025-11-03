@@ -226,6 +226,7 @@ double VGMinimo2;
 int VGCompra   = 0;
 int VGVenta    = 0;
 
+
 double VGSoporte;
 double VGResistencia;
 double VGMidPrice;
@@ -468,19 +469,19 @@ int OnInit()
    VGSoporte  = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
    VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
    ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,0,VGMidPrice );
-   
-   
+ 
+ 
+  // Posicionar 5 velas en el futuro desde la vela actual
+    datetime futureTime = iTime(_Symbol, _Period, 0) + (5 * PeriodSeconds());  
 
-   int fecha_final = iTime(_Symbol,PERIOD_M1,0) + (60 * 60);
-   //fecha_final = fecha_final + (60 * 60); 
    string name_object = "ZONA_VENTAS";
-   ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
-   ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+   ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
+   ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
    ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
    
    name_object = "ZONA_COMPRAS";
-   ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
-   ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
+   ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
+   ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
    ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
 
    if(Bid > VGResistencia || Bid < VGSoporte )
@@ -2014,8 +2015,22 @@ void OnTimer()
 
    if(now - lastActionNoticias >= NoticiasInterval) // 180 segundos
    {
-     noticias();
-     lastActionNoticias = now;
+      noticias();
+      lastActionNoticias = now;
+      // Posicionar 5 velas en el futuro desde la vela actual
+      datetime futureTime = iTime(_Symbol, _Period, 0) + (5 * PeriodSeconds());  
+      
+      string name_object = "ZONA_VENTAS";
+      //ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
+      ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
+      ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
+      ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
+      
+      name_object = "ZONA_COMPRAS";
+      //ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
+      ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
+      ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
+      ObjectSetInteger(0,name_object,OBJPROP_FILL,false);     
    }
    
    if(now - fibolastAction >= fiboInterval) // 60 segundos
@@ -2486,6 +2501,10 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          VGtecla = 0;     
       
       }
+
+
+      if (VGtecla == 8)
+          ObjectsDeleteAll(0,"Cuartos");
       
     }     
      
@@ -2495,7 +2514,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       
       //Print( " Id :", id, " lparam : " , lparam, " dparam: ",dparam, " sparam : ", sparam, " VGtecla ",VGtecla);
       // Obtener el estado de las teclas modificadoras
-      if (VGtecla == 6 || VGtecla == 7)// Para ventas
+      if (VGtecla == 6 || VGtecla == 7 ||  VGtecla == 8 )// Para ventas
       {
          DetectClickedCandle(lparam,dparam,VGtecla);
          VGtecla = 0;
@@ -2967,36 +2986,36 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
 void DetectClickedCandle(int lparam, int dparam, int lvtecla)
 {
     
-    // Convertir coordenadas de pantalla a tiempo/precio
-    datetime clickTime;
-    double clickPrice;
-    int window = 0;
+   // Convertir coordenadas de pantalla a tiempo/precio
+   datetime clickTime;
+   double clickPrice;
+   int window = 0;
    double high = 0;
    double low = 0;
    double open = 0;
    double close = 0;
-   int fecha_final = iTime(_Symbol,PERIOD_CURRENT,0);
+   int fecha_final = iTime(_Symbol,PERIOD_CURRENT,0) + ( 5 * PeriodSeconds());
    
    string lvnametf = TimeframeToString(_Period);
    
-    if(ChartXYToTimePrice(0, lparam, dparam, window, clickTime, clickPrice))
-    {
-        // Encontrar la vela correspondiente al tiempo clickeado
-        int candleIndex = iBarShift(_Symbol, _Period, clickTime);
-        
-        if(candleIndex >= 0)
-        {
-            // Obtener datos de la vela
-            high = iHigh(_Symbol, _Period, candleIndex);
-            low = iLow(_Symbol, _Period, candleIndex);
-            open = iOpen(_Symbol, _Period, candleIndex);
-            close = iClose(_Symbol, _Period, candleIndex);
-            
-            // Mostrar información
-            //Print("German", " high :",high, " low :",low);
-        }
-        if (lvtecla == 6)//Ventas tecla numero 5
-        {
+   if(ChartXYToTimePrice(0, lparam, dparam, window, clickTime, clickPrice))
+   {
+      // Encontrar la vela correspondiente al tiempo clickeado
+      int candleIndex = iBarShift(_Symbol, _Period, clickTime);
+      
+      if(candleIndex >= 0)
+      {
+         // Obtener datos de la vela
+         high = iHigh(_Symbol, _Period, candleIndex);
+         low = iLow(_Symbol, _Period, candleIndex);
+         open = iOpen(_Symbol, _Period, candleIndex);
+         close = iClose(_Symbol, _Period, candleIndex);
+         
+         // Mostrar información
+         //Print("German", " high :",high, " low :",low);
+      }
+      if (lvtecla == 6)//Ventas tecla numero 5
+      {
          string name_object = "ZONA_VENTAS";
          ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,high);
@@ -3004,27 +3023,65 @@ void DetectClickedCandle(int lparam, int dparam, int lvtecla)
          ObjectSetInteger(0,name_object,OBJPROP_TIME,0,clickTime);
          ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
          ObjectSetString(0,name_object,OBJPROP_TEXT,"ZONA DE VENTAS - " + lvnametf);
-         ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'89,9,24');
+         ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
          ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
          ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
          
          Print("VENTAS", " high :",high, " low :",low);
          
-        }
-        if (lvtecla == 7)//Compras tecla numero 6
-        {
+      }
+      if (lvtecla == 7)//Compras tecla numero 6
+      {
          string name_object = "ZONA_COMPRAS";
          ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,high);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,low);
          ObjectSetInteger(0,name_object,OBJPROP_TIME,0,clickTime);
          ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
-         ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'95,95,95');
+         ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
          ObjectSetString(0,name_object,OBJPROP_TEXT,"ZONA DE COMPRAS - " + lvnametf);
          ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
          ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
          Print("COMPRAS", " high :",high, " low :",low);
-        }
+      }
+
+      if (lvtecla == 8)//Compras tecla numero 7 para cuartos de toda la vela
+      {
+         if (open > close)
+         {
+           high = close;
+         }
+         else
+         {
+            low = close;
+         }
+         ObjectsDeleteAll(0,"Cuartos");
+         string name_object = "Cuartos_";
+       
+         // Calcular el rango total de la vela
+         double range = high - low;
+         // Calcular los niveles de los cuartos
+
+         double levels[];
+         ArrayResize(levels, 5);
+         
+    
+         levels[0] = low;                    // Cuarto 0 (mínimo)
+         levels[1] = low + (range * 0.25);   // Cuarto 1
+         levels[2] = low + (range * 0.5);    // Cuarto 2 (mitad)
+         levels[3] = low + (range * 0.75);   // Cuarto 3
+         levels[4] = high;                   // Cuarto 4 (máximo)         
+               
+         for (int i = 0 ; i < 5; i++)
+         {
+           name_object = name_object + i;
+           ObjectCreate(0,name_object,OBJ_TREND,0,clickTime,levels[i],fecha_final,levels[i]);
+           ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
+           Print( "levels[i] : ",levels[i], " name_object : ",name_object);
+         
+         }
+         Print("Cuartos", " high :",high, " low :",low);
+      }   
     }
 }
 
@@ -4328,9 +4385,16 @@ void Alarmas()
 
    double lvresistencia = ObjectGetDouble (0,"Resistencia",OBJPROP_PRICE);
    double lvsoporte = ObjectGetDouble (0,"Soporte",OBJPROP_PRICE);
+   
+   string object_name = "ZONA_VENTAS";
+   double lvzona_ventas = ObjectGetDouble (0,object_name,OBJPROP_PRICE,1);
+   
+          object_name = "ZONA_COMPRAS";
+   double lvzona_compras = ObjectGetDouble (0,object_name,OBJPROP_PRICE);
+   
 
 
-   if (Bid > lvresistencia && VGVenta == 0)
+   if ((Bid > lvresistencia || Bid > lvzona_ventas) && VGVenta == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Resistencia",OBJPROP_STYLE);
       //if(lvstyle == STYLE_SOLID)
@@ -4342,7 +4406,7 @@ void Alarmas()
    
    }
 
-   if (Bid < lvsoporte && VGCompra == 0)
+   if ((Bid < lvsoporte || Bid < lvzona_compras) && VGCompra == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Soporte",OBJPROP_STYLE);
       //Print("g ", lvstyle,  STYLE_SOLID);
