@@ -2404,7 +2404,10 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,1, lvalto);
          //VGSoporte = VGMinimo1;  
       }
-
+      
+      datetime fecha_fibo_3 = TimeCurrent() + (5 * PeriodSeconds()) ;
+      ObjectSetInteger(0,"FIBO_3",OBJPROP_TIME,0,fecha_fibo_3);
+      ObjectSetInteger(0,"FIBO_3",OBJPROP_TIME,1,fecha_fibo_3);
 
       
       VGResistencia  = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
@@ -5015,31 +5018,51 @@ void ManejoStopLoss()
                Mivolumen = NormalizeDouble(Mivolumen * VGporcentaje_venta_lote,2);
             }
             //Print("Mivolumen :",Mivolumen);
+
+            double profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
+            
+            if (profit_money < 0)
+               profit_money =profit_money * -1;
+
+
             if((Tipo == POSITION_TYPE_BUY))
             {
+               double lvalto = ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,0);
+               double lvbajo = ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,1);
+               
+               double tp1 = lvalto + ((lvalto - lvbajo ) *  2.5);
+               //Print(" tp1 : ",tp1, " lvalto : ",lvalto , " lvbajo : ",lvbajo );
+               
                if ( ObjectExiste1 < 0) // No existe 
                {
-                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,lvresistencia,fecha_final,lvresistencia);
+                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,tp1,fecha_final,tp1);
                
                }
                if(  Bid >=  lvtp1 && lvtp1 > 0)
                {
                   MiTrade.PositionClosePartial(Ticket,Mivolumen);
-                  ObjectDelete(0,"TP1");
+                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,lvresistencia,fecha_final,lvresistencia);
                   Print(" lvtp1 : ", lvtp1 );
                }  
             }
             if((Tipo == POSITION_TYPE_SELL))
             {
+               
+               double lvalto = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,0);
+               double lvbajo = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,1);
+               
+               double tp1 = lvbajo - ((lvalto - lvbajo)  *  2.5);
+               //Print(" tp1 : ",tp1, " lvalto : ",lvalto , " lvbajo : ",lvbajo );
+
                if ( ObjectExiste1 < 0) // No existe 
                {
-                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,lvsoporte,fecha_final,lvsoporte);
+                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,tp1,fecha_final,tp1);
                
                }
                if(  Bid <=  lvtp1 && lvtp1 > 0)
                {
                   MiTrade.PositionClosePartial(Ticket,Mivolumen);
-                  ObjectDelete(0,"TP1");
+                  ObjectCreate(0,name_object,OBJ_TREND,0,fecha_inicial,lvsoporte,fecha_final,lvsoporte);
                   Print(" lvtp1 : ", lvtp1 );
                }  
             }
@@ -5048,7 +5071,7 @@ void ManejoStopLoss()
             ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrWhite);
             ObjectSetInteger(0,name_object,OBJPROP_TIME,0,fecha_inicial);
             ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
-            ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " Porcentaje : " + VGporcentaje_venta_lote + " Volumen : " + Mivolumen);
+            ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " Porcentaje : " + VGporcentaje_venta_lote + " Volumen : " + DoubleToString(Mivolumen,2) +   " Profit : "  + DoubleToString(profit_money,2));
          }
 
          if(Symbol() == Symbolo && sl_pf_Btn1 == true ) 
@@ -5256,7 +5279,8 @@ void verificar_ordenes_Abiertas()
 
       for(int i=TotalPosiciones-1; i>=0; i--)
       {
-         string   Symbolo           = PositionGetString(POSITION_SYMBOL);
+         ulong    Ticket  = PositionGetTicket(i);
+         string   Symbolo = PositionGetString(POSITION_SYMBOL);
          if(Symbolo == Symbol() )
          {
             return;
@@ -9509,8 +9533,9 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
           ObjectSetDouble(0, name, OBJPROP_PRICE,1, lvbajo);
           //VGcontadorAlertasBajista++;       
       }
-       ObjectSetInteger(0, name, OBJPROP_TIME,0, hora_inicio);
-       ObjectSetInteger(0, name, OBJPROP_TIME,1, hora_final);
+       datetime fecha_fibo_3 = TimeCurrent() + (5 * PeriodSeconds());
+       ObjectSetInteger(0, name, OBJPROP_TIME,0, fecha_fibo_3);
+       ObjectSetInteger(0, name, OBJPROP_TIME,1, fecha_fibo_3);
 
       //if(timeframe == PERIOD_M1)
       //{
