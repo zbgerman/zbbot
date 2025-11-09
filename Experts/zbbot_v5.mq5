@@ -1901,7 +1901,7 @@ void OnTimer()
       
       VGAlarma_modelo2022 = false;
       //DrawBarFractals(Time_Frame_M2022, 500, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022     
-      if (VGHoraNewYork.sec > 0)//  || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 45)// || VGHoraNewYork.sec == 45 || VGHoraNewYork.sec == 58 )
+      if (VGHoraNewYork.sec == 01  || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 45)// || VGHoraNewYork.sec == 45 || VGHoraNewYork.sec == 58 )
          DrawBarFractals(Time_Frame_M2022, 50, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022     
 
 //      {
@@ -2583,78 +2583,26 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       
       //Print( " Id :", id, " lparam : " , lparam, " dparam: ",dparam, " sparam : ", sparam, " VGtecla ",VGtecla);
       // Obtener el estado de las teclas modificadoras
-      if (VGtecla == 6 || VGtecla == 7 ||  VGtecla == 8 )// Para ventas
+      if (VGtecla ==8 )
       {
-         DetectClickedCandle(lparam,dparam,VGtecla);
+         DetectClickedCandle(lparam,dparam, VGtecla);
          VGtecla = 0;
-      }
+         return;
+      }   
       if (id == 4)
       {
-            static ulong clickTimeMemory;
+
+
+               static ulong clickTimeMemory;
                ulong clickTime = GetTickCount();
+
                if(clickTime < clickTimeMemory + 300)
+
                {
-                  //VGResistencia  = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
-                  //VGSoporte      = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
-                  //VGMidPrice     = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
-                  //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGResistencia ); 
-                  //ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGMidPrice );
-                  //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGMidPrice );
-                  //ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGSoporte ); 
-                  //ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
-                  //ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
 
-                    int lvcolor = ObjectGetInteger(0, "maximo_M15", OBJPROP_COLOR);
-                    
-                    if (lvcolor == -1)
-                    {
-                        double lvresistencia  = ObjectGetDouble(0,"Resistencia",OBJPROP_PRICE);
-                        double lvsoporte      = ObjectGetDouble(0,"Soporte",OBJPROP_PRICE);
-                        
-                        if(VGMaximo2 > lvresistencia)
-                           VGMaximo2 = lvresistencia;
-
-                        if(VGMinimo1 < lvsoporte)
-                           VGMinimo1 = lvsoporte;
-                           
-                        double lvMidPrice     = VGMaximo2 + (VGMinimo1 - VGMaximo2) / 2.0;
-                        ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,VGMaximo2 ); 
-                        ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,lvMidPrice );
-                        ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,lvMidPrice );
-                        ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGMinimo1 ); 
-                        ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
-                        ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
-                        // Ocultar todos los objetos de trading
-                        //ChartSetInteger(0, CHART_SHOW_TRADE_LEVELS, false);
-                        string obj_nombre = "maximo_M15";
-                        VGMaximo2 = ObjectGetDouble (0,obj_nombre,OBJPROP_PRICE,0);
-                        VGMaximo1 = ObjectGetDouble (0,obj_nombre,OBJPROP_PRICE,1);
+                  DetectClickedCandle(lparam,dparam, VGtecla);
+                  ChartRedraw(); 
                   
-                        obj_nombre = "minimo_M15";
-                        VGMinimo2 = ObjectGetDouble (0,obj_nombre,OBJPROP_PRICE,0);
-                        VGMinimo1= ObjectGetDouble (0,obj_nombre,OBJPROP_PRICE,1);
-                    }
-                    else
-                    {
-                        //ObjectSetInteger(0, "Text_Venta", OBJPROP_COLOR, clrNONE);
-                        //ObjectSetInteger(0, "Text_Compra", OBJPROP_COLOR, clrNONE);
-                        ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
-                        ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
-                        ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
-                        ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
-                        // Ocultar todos los objetos de trading
-                        //ChartSetInteger(0, CHART_SHOW_TRADE_LEVELS, true);
-                    } 
-                  
-                    //ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
-                    
-                    //int prueba1 = ObjectGetInteger(0, "maximo_M15", OBJPROP_COLOR); 
-                    //int prueba2 = ObjectGetInteger(0, "minimo_M15", OBJPROP_COLOR); 
-                    //Print("prueba1 :",prueba1," prueba2 : ",prueba2);
-                   //ObjectSetInteger(0, rectName, OBJPROP_TIMEFRAMES, OBJ_NO_PERIODS);
-                   ChartRedraw(); 
-
-                  //Print("just detected a doubleclick");
                   clickTimeMemory = 0;
                }
                else
@@ -3083,7 +3031,7 @@ void DetectClickedCandle(int lparam, int dparam, int lvtecla)
          // Mostrar información
          //Print("German", " high :",high, " low :",low);
       }
-      if (lvtecla == 6)//Ventas tecla numero 5
+      if (Bid < low )//Ventas 
       {
          string name_object = "ZONA_VENTAS";
          ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
@@ -3099,7 +3047,7 @@ void DetectClickedCandle(int lparam, int dparam, int lvtecla)
          Print("VENTAS", " high :",high, " low :",low);
          
       }
-      if (lvtecla == 7)//Compras tecla numero 6
+      if (Bid >  high)//Compras 
       {
          string name_object = "ZONA_COMPRAS";
          ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
@@ -5855,22 +5803,22 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
             {
               //Print("german : contadorFVGbullish = ",contadorFVGbullish,  " low : ", low0, " high2 :",high2, " VGlowestLow : ",VGlowestLow);
                   //Print("VGvalor_fractal_alto :",VGvalor_fractal_alto, " VGvalor_fractal_bajo :",VGvalor_fractal_bajo ," low2 : ",low2, " high0 :",high0 );
-              if(VGcontadorAlertasAlcista > 0 ) // && (timeframe == Time_Frame_M2022)
-              {
+              //if(VGcontadorAlertasAlcista > 0 ) // && (timeframe == Time_Frame_M2022)
+              //{
                   VGcontadorFVG++;
-                  //Print("VGvalor_fractal_alto_5 :",VGvalor_fractal_alto_5, " VGvalor_fractal_bajo_5 :",VGvalor_fractal_bajo_5 ," low2 : ",low2, " high0 :",high0 );
-                  if (VGvalor_fractal_alto_5 > low0 && VGvalor_fractal_alto_5 < high2)
+                  //Print("VGvalor_fractal_alto_5 :",VGvalor_fractal_alto_5, " VGvalor_fractal_bajo_5 :",VGvalor_fractal_bajo_5 ," low0 : ",low0, " high2 :",high2 );
+                  if (VGvalor_fractal_alto_5 < low0 && VGvalor_fractal_alto_5 > high2)
                   {
                      VGbag = true;
                      name1 =  TimeframeToString(timeframe);
-                     string lvmensaje = "\"Breakaway Gap en " +  _Symbol + "  " + name1 + \"";
-                     //textohablado(lvmensaje,true);
+                     string lvmensaje = "\"Breaker block Bullish en " +  _Symbol + "  " + name1 + \"";
+                     textohablado(lvmensaje,true);
                      //VGcontadorAlertasAlcista = 3;
                   }   
                   //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,high2);
                   continue;
                   //Print("contador_fvg alcista : ",VGcontadorFVG);
-              }
+              //}
               
               double lvpuntos = MathAbs(high2  - low0 ) / Puntos;
               lvpuntosfvg = lvpuntosfvg * 1.5;
@@ -5957,23 +5905,23 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
 
             if( fvgwidh == 5)//Para verificar si el precio esta actualmente en un FVG
             {
-              if(VGcontadorAlertasBajista > 0)// && timeframe == Time_Frame_M2022)
-              {
+              //if(VGcontadorAlertasBajista > 0)// && timeframe == Time_Frame_M2022)
+              //{
                   //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,low2);
                   VGcontadorFVG++;
-                  //Print("VGvalor_fractal_alto :",VGvalor_fractal_alto, " VGvalor_fractal_bajo :",VGvalor_fractal_bajo ," low2 : ",low2, " high0 :",high0 );
+                  //Print("VGvalor_fractal_alto_5 :",VGvalor_fractal_alto_5, " VGvalor_fractal_bajo_5 :",VGvalor_fractal_bajo_5 ," low2 : ",low2, " high0 :",high0 );
                   if (VGvalor_fractal_bajo_5 < low2  && VGvalor_fractal_bajo_5 > high0)
                   {
                      VGbag = true;
                      name1 =  TimeframeToString(timeframe);
-                     string lvmensaje = "\"Breakaway Gap en " +  _Symbol + "  " + name1 + \"";
-                     //textohablado(lvmensaje,true);
+                     string lvmensaje = "\"Breaker block Bearish en " +  _Symbol + "  " + name1 + \"";
+                     textohablado(lvmensaje,true);
                      //VGcontadorAlertasBajista = 3;
 
                   }
                   continue;
                   //Print("contador_fvg bajista : ",VGcontadorFVG);
-              }
+              //}
 
               double lvpuntos = MathAbs(low2  - high0 ) / Puntos;
               lvpuntosfvg = lvpuntosfvg * 1.5;
@@ -9306,7 +9254,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       lvclose = iClose(_Symbol,PERIOD_M1,0);
       
       //VGHTF_Name = TimeframeToString(Time_Frame_M2022);
-      //DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
+      DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
    
    
       //double lot = CalculateLotSize(valor_fractal_bajo_1, lvresistencia, 1 ); // porcentajeRiesgo1); //calcular el tamano del lote  con 1% de riesgo    
@@ -9645,7 +9593,9 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    
 //       double lvalto = valor_fractal_alto_1;
 //       double lvbajo = valor_fractal_bajo_1;
-//      string name = "FIBO_3";
+
+      string name = "FIBO_3";
+
 //      if(VGCompra == 1 && Bid > lvbajo)
 //      {
 //          ObjectSetDouble(0, name, OBJPROP_PRICE,0, lvbajo);    
@@ -9659,10 +9609,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //          ObjectSetDouble(0, name, OBJPROP_PRICE,1, lvbajo);
 //          //VGcontadorAlertasBajista++;       
 //      }
-//       datetime fecha_fibo_3 = TimeCurrent() + (5 * PeriodSeconds());
-//       ObjectSetInteger(0, name, OBJPROP_TIME,0, fecha_fibo_3);
-//       ObjectSetInteger(0, name, OBJPROP_TIME,1, fecha_fibo_3);
-//       ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES,OBJ_ALL_PERIODS);
+
+
+       datetime fecha_fibo_3 = TimeCurrent() + (5 * PeriodSeconds());
+       ObjectSetInteger(0, name, OBJPROP_TIME,0, fecha_fibo_3);
+       ObjectSetInteger(0, name, OBJPROP_TIME,1, fecha_fibo_3);
+       ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES,OBJ_ALL_PERIODS);
 
       //if(timeframe == PERIOD_M1)
       //{
