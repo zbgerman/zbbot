@@ -2572,7 +2572,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       }
 
 
-      if (VGtecla == 8)
+      if (VGtecla == 8 || VGtecla == 9 )
           ObjectsDeleteAll(0,"Cuartos");
       
     }     
@@ -2583,7 +2583,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       
       //Print( " Id :", id, " lparam : " , lparam, " dparam: ",dparam, " sparam : ", sparam, " VGtecla ",VGtecla);
       // Obtener el estado de las teclas modificadoras
-      if (VGtecla ==8 )
+      if (VGtecla ==8 ||  VGtecla ==9)
       {
          DetectClickedCandle(lparam,dparam, VGtecla);
          VGtecla = 0;
@@ -3062,32 +3062,54 @@ void DetectClickedCandle(int lparam, int dparam, int lvtecla)
          Print("COMPRAS", " high :",high, " low :",low);
       }
 
-      if (lvtecla == 8)//Compras tecla numero 7 para cuartos de toda la vela
+      if (lvtecla == 8 || lvtecla == 9 )// tecla numero 7 para cuartos mecha superior 8 mechas parte inferior
       {
-         if (open > close)
-         {
-           high = close;
+         double range;
+ 
+         if(lvtecla == 8)
+         {    
+            if (open > close) // Bajista
+            {
+               range = high - open;
+               low = open;
+            }
+            else
+            {
+               range =  high - close;
+               low = close;
+            }
          }
-         else
-         {
-            low = close;
+         if(lvtecla == 9)
+         {    
+            if (open > close) //Bajista
+            {
+               range = close - low;
+               high = close;
+            }
+            else
+            {
+               range =  open - low;
+               high = open;
+            }
          }
+         
+            
          ObjectsDeleteAll(0,"Cuartos");
          string name_object = "Cuartos_";
        
          // Calcular el rango total de la vela
-         double range = high - low;
+         //double range = high - low;
          // Calcular los niveles de los cuartos
 
          double levels[];
          ArrayResize(levels, 5);
          
     
-         levels[0] = low;                    // Cuarto 0 (mínimo)
+         levels[0] = high;                    // Cuarto 0 (mínimo)
          levels[1] = low + (range * 0.25);   // Cuarto 1
          levels[2] = low + (range * 0.5);    // Cuarto 2 (mitad)
          levels[3] = low + (range * 0.75);   // Cuarto 3
-         levels[4] = high;                   // Cuarto 4 (máximo)         
+         levels[4] = low;                   // Cuarto 4 (máximo)         
                
          for (int i = 0 ; i < 5; i++)
          {
