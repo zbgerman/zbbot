@@ -4570,7 +4570,7 @@ void Alarmas()
 
 
 
-   if (Bid > lvresistencia)
+   if ((VGTendencia_interna_M15 == "Bajista" &&  VGTendencia_interna_M1 == "Bajista" && VGPorcentaje_fibo_M1 >= 45)) // || Bid > lvresistencia )
    {
 
       
@@ -4601,7 +4601,7 @@ void Alarmas()
    
    }
 
-   if (Bid < lvsoporte) //&& VGContadorAlertasZona == 0)
+   if ( (VGTendencia_interna_M15 == "Alcista" && VGTendencia_interna_M1 == "Alcista" && VGPorcentaje_fibo_M1 >= 45)) // || Bid < lvsoporte ) //&& VGContadorAlertasZona == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Soporte",OBJPROP_STYLE);
       //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvbajo);
@@ -9166,6 +9166,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
          if(lvflag == "2")
            VGTendencia_externa = lvtendencia;
 
+
          int vlvelas = 1; 
          int vlvelasparadetectarfibo = 1;
          if(lvflag == "1")
@@ -9245,11 +9246,25 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
               if (lvtendencia == "Alcista" )
               {
                   //VGPorcentaje_fibo = (lvresistencia - Bid) / (lvresistencia - lvsoporte) * 100;
-                  VGPorcentaje_fibo = (lvresistencia - vllowestLow) / (lvresistencia - lvsoporte) * 100;
+                  if(VGvalor_fractal_alto > lvresistencia)
+                  {
+                     VGPorcentaje_fibo = (VGvalor_fractal_alto - vllowestLow) / (VGvalor_fractal_alto - VGvalor_fractal_bajo) * 100;
+                  }
+                  else
+                  {
+                     VGPorcentaje_fibo = (lvresistencia - vllowestLow) / (lvresistencia - lvsoporte) * 100;
+                  }
               }
               else
               {
-                  VGPorcentaje_fibo = (vlhighestHigh - lvsoporte ) / (lvresistencia - lvsoporte) * 100;        
+                  if(VGvalor_fractal_bajo < lvsoporte)
+                  {
+                     VGPorcentaje_fibo = (vlhighestHigh - VGvalor_fractal_bajo) / (VGvalor_fractal_alto - VGvalor_fractal_bajo) * 100;
+                  }
+                  else
+                  {
+                     VGPorcentaje_fibo = (vlhighestHigh - lvsoporte ) / (lvresistencia - lvsoporte) * 100; 
+                  }          
               }
 
             if(timeframe == PERIOD_M1)
