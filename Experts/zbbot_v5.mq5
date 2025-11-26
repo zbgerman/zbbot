@@ -477,7 +477,7 @@ int OnInit()
    VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
    ObjectSetDouble(0, "midPrice", OBJPROP_PRICE,0,VGMidPrice );
    
-   if (VGResistencia >0)
+   if (VGResistencia > 0)
    {
 
     if(VGResistencia < Bid ||  VGSoporte  > Bid)
@@ -505,7 +505,7 @@ int OnInit()
    {
          ObjectCreate(0,"Resistencia",OBJ_HLINE,0,0,0);
          ObjectCreate(0,"Soporte",OBJ_HLINE,0,0,0);
-         DrawBarFractals(PERIOD_M3, 300, 30, "8"); // 8 para hallar soporte y resistencia 
+         DrawBarFractals(PERIOD_M15, 300, 30, "8"); // 8 para hallar soporte y resistencia 
          ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,VGResistencia);  
          ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,VGSoporte);  
 
@@ -2566,7 +2566,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          //Print("tecla : ",VGtecla, " ID ", id, " VGResistencia :",VGResistencia, " VGSoporte :",VGSoporte);
          ObjectCreate(0,"Resistencia",OBJ_HLINE,0,0,0);
          ObjectCreate(0,"Soporte",OBJ_HLINE,0,0,0);
-         DrawBarFractals(PERIOD_M3, 300, 30, "8"); // 8 para hallar soporte y resistencia 
+         DrawBarFractals(PERIOD_M15, 300, 30, "8"); // 8 para hallar soporte y resistencia 
          ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,VGResistencia);  
          ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,VGSoporte);  
          VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
@@ -2586,6 +2586,8 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          ObjectSetInteger(0,"Soporte",OBJPROP_SELECTED,true); 
          ObjectSetString(0,"Soporte",OBJPROP_TEXT, "SSL");
          VGtecla = 0;     
+         VGCompra = 0;
+         VGVenta =0;
       }
 
 
@@ -4591,61 +4593,60 @@ void Alarmas()
    
 
 
-
-   if (VGTendencia_interna_M3 == "Bajista")
-   {
-      if ( VGPorcentaje_fibo_M3 >= 50 || (VGTendencia_interna_M1 == "Bajista" && VGPorcentaje_fibo_M1 >= 50))
-      {
-         VGVenta = 1;
-         VGCompra = 0;
-      }
-      
-      else
-      {
-         VGVenta = 0;
-         VGCompra = 0;
-      }
+//
+//   if (VGTendencia_interna_M3 == "Bajista")
+//   {
+//      if ( VGPorcentaje_fibo_M3 >= 50 || (VGTendencia_interna_M1 == "Bajista" && VGPorcentaje_fibo_M1 >= 50))
+//      {
+//         VGVenta = 1;
+//         VGCompra = 0;
+//      }
+//      
+//      else
+//      {
+//         VGVenta = 0;
+//         VGCompra = 0;
+//      }
    
-   }
+// }
 
-   if (( Bid > lvzona_ventas) && VGContadorAlertasZona == 0)
+   if (( Bid > lvresistencia ))// && VGContadorAlertasZona == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Resistencia",OBJPROP_STYLE);
       //if(lvstyle == STYLE_SOLID)
       //{
-         //VGVenta = 1;
-         //VGCompra = 0;
+         VGVenta = 1;
+         VGCompra = 0;
          //textohablado("\"Zona de Ventas "+ _Symbol +\"", true);
          VGContadorAlertasZona++;
       //}
    
    }
 
-   if (VGTendencia_interna_M3 == "Alcista")
-   {
-      if ( VGPorcentaje_fibo_M3 >= 50 ||  (VGTendencia_interna_M1 == "Alcista" && VGPorcentaje_fibo_M1 >= 50) )
-      {
-         VGVenta = 0;
-         VGCompra = 1;
-      
-      }
-      else
-      {
-         VGVenta = 0;
-         VGCompra = 0;
-      
-      }
-   
-   }
+//   if (VGTendencia_interna_M3 == "Alcista")
+//   {
+//      if ( VGPorcentaje_fibo_M3 >= 50 ||  (VGTendencia_interna_M1 == "Alcista" && VGPorcentaje_fibo_M1 >= 50) )
+//      {
+//         VGVenta = 0;
+//         VGCompra = 1;
+//      
+//      }
+//      else
+//      {
+//         VGVenta = 0;
+//         VGCompra = 0;
+//      
+//      }
+//   }
 
-   if (( Bid < lvzona_compras) && VGContadorAlertasZona == 0)
+   if (( Bid < lvsoporte))// && VGContadorAlertasZona == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Soporte",OBJPROP_STYLE);
       //Print("g ", lvstyle,  STYLE_SOLID);
       //if(lvstyle == STYLE_SOLID)
       //{
-         //VGVenta = 0;
-         //VGCompra = 1;
+         VGVenta = 0;
+         VGCompra = 1;
          //textohablado("\"Zona de Compras "+ _Symbol +\"", true);
          VGContadorAlertasZona++;
       //}
@@ -5216,6 +5217,7 @@ void ManejoStopLoss()
          { 
             string name_object;
             double profit_money;
+            double lvporcentaje;
             
             //Print(" ObjectExiste1 : ",ObjectExiste1);
             datetime fecha_inicial = ObjectGetInteger(0,"maximo_M15",OBJPROP_TIME,0);
@@ -5237,14 +5239,24 @@ void ManejoStopLoss()
 
             if((Tipo == POSITION_TYPE_BUY))
             {
-               name_object = "BUY_TP1";
+               name_object = "BUY_TP1_" + Ticket;
                double lvtp1 = ObjectGetDouble(0,name_object,OBJPROP_PRICE);
                int ObjectExiste1 = ObjectFind(0,name_object);
 
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
+
+               if(StopLossAnterior <= 0)
+               {
+                  StopLossAnterior = ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,1);
+               }
                
+               double distanciaEntradaSL = PrecioApertura - StopLossAnterior;
+               double distanciaEntradaTP = lvtp1 - PrecioApertura;
+               lvporcentaje = (distanciaEntradaTP / distanciaEntradaSL) * 100.0;    
+
                if (profit_money < 0)
                   profit_money = profit_money * -1;
+                  
                
                double tp1 = PrecioApertura + ((PrecioApertura - StopLossAnterior ) *  2.5);
                //Print(" tp1 : ",tp1, " lvalto : ",lvalto , " lvbajo : ",lvbajo );
@@ -5265,17 +5277,30 @@ void ManejoStopLoss()
                   MoveToBreakEven();
                   Print(" lvtp1 : ", lvtp1 );
                }  
+               ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " % : " + VGporcentaje_venta_lote + " Volumen : " + DoubleToString(Mivolumen,2) +   " Profit : "  + DoubleToString(profit_money,2) + " % " + lvporcentaje );
             }
+
             if((Tipo == POSITION_TYPE_SELL))
             {
                
-               name_object = "SELL_TP1";
+               name_object = "SELL_TP1_" + Ticket;
                int ObjectExiste1 = ObjectFind(0,name_object);
                double lvtp1 = ObjectGetDouble(0,name_object,OBJPROP_PRICE);
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
                
+               if(StopLossAnterior <= 0)
+               {
+                  StopLossAnterior = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE);
+               }
+
+               double distanciaEntradaSL = PrecioApertura - StopLossAnterior;
+               double distanciaEntradaTP = lvtp1 - PrecioApertura;
+               lvporcentaje = (distanciaEntradaTP / distanciaEntradaSL) * 100.0;    
+               
+               
                if (profit_money < 0)
                   profit_money = profit_money * -1;
+                  
                
                double tp1 = PrecioApertura - ((StopLossAnterior - PrecioApertura)  *  2.5);
                //Print(" tp1 : ",tp1, " lvalto : ",lvalto , " lvbajo : ",lvbajo );
@@ -5296,13 +5321,13 @@ void ManejoStopLoss()
                   MoveToBreakEven();
                   Print(" lvtp1 : ", lvtp1 );
                }  
+               ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " % : " + VGporcentaje_venta_lote + " Volumen : " + DoubleToString(Mivolumen,2) +   " Profit : "  + DoubleToString(profit_money,2) + " % " + lvporcentaje );
             }
             ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
             ObjectSetInteger(0,name_object,OBJPROP_SELECTED,true);
             ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrYellow);
             ObjectSetInteger(0,name_object,OBJPROP_TIME,0,fecha_inicial);
             ObjectSetInteger(0,name_object,OBJPROP_TIME,1,fecha_final);
-            ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " Porcentaje : " + VGporcentaje_venta_lote + " Volumen : " + DoubleToString(Mivolumen,2) +   " Profit : "  + DoubleToString(profit_money,2));
          }
 
          if(Symbol() == Symbolo && sl_pf_Btn1 == true ) 
@@ -5566,14 +5591,14 @@ void verificar_ordenes_Abiertas()
       
       if (lvcontador <=0)
       {
-         ObjectDelete(0,"BUY_TP1");
-         ObjectDelete(0,"SELL_TP1");
+         ObjectsDeleteAll(0,"BUY_TP1");
+         ObjectsDeleteAll(0,"SELL_TP1");
       }   
    }
    else
    {
-      ObjectDelete(0,"BUY_TP1");
-      ObjectDelete(0,"SELL_TP1");
+      ObjectsDeleteAll(0,"BUY_TP1");
+      ObjectsDeleteAll(0,"SELL_TP1");
    }
 
    VGmodelo2022 = false ;
@@ -9029,14 +9054,14 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       VGResistencia = lvresistencia;
       VGSoporte = lvsoporte;
    
-      if(VGTendencia_interna_M1 == "Alcista")
+      if(VGCompra == 1)
       {
 
          ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,0, lvsoporte);    
          ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,1, lvresistencia);
 
       }
-      else
+      if(VGVenta == 1)
       {
 
          ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,0, lvresistencia);    
