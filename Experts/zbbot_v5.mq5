@@ -3171,7 +3171,7 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
    {    
       if (clickPrice > Bid )//Ventas 
       {
-         string name_object = "ZONA_VENTAS_"+lvnametf;
+         string name_object = "ZONA_VENTAS";
          ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,high);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,low);
@@ -3187,7 +3187,7 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
       }
       if (clickPrice <  Bid )//Compras 
       {
-         string name_object = "ZONA_COMPRAS_"+lvnametf;
+         string name_object = "ZONA_COMPRAS";
          ObjectCreate(0,name_object,OBJ_RECTANGLE,0,fecha_final,fecha_final);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,high);
          ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,low);
@@ -4610,7 +4610,7 @@ void Alarmas()
    
 // }
 
-   if (( Bid > lvresistencia ))// && VGContadorAlertasZona == 0)
+   if (( Bid > lvzona_ventas && lvzona_ventas > 0))// && VGContadorAlertasZona == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Resistencia",OBJPROP_STYLE);
       //if(lvstyle == STYLE_SOLID)
@@ -4639,7 +4639,7 @@ void Alarmas()
 //      }
 //   }
 
-   if (( Bid < lvsoporte))// && VGContadorAlertasZona == 0)
+   if (( Bid < lvzona_compras && lvzona_compras > 0))// && VGContadorAlertasZona == 0)
    {
       int lvstyle = ObjectGetInteger(0,"Soporte",OBJPROP_STYLE);
       //Print("g ", lvstyle,  STYLE_SOLID);
