@@ -2076,9 +2076,9 @@ void OnTimer()
    if(now - fvglastAction >= fvgInterval) // 180 segundos
    {
 
-      double lvnumero_velas_verificar_fvg =  3;
+      double lvnumero_velas_verificar_fvg =  5;
 
-      //DrawFVG(PERIOD_M1, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg dentro del rango de precios
+      DrawFVG(PERIOD_M1, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg dentro del rango de precios
 
       fvglastAction = now;
 
@@ -6065,24 +6065,19 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               {
                   //Print(" lvpuntos : ",lvpuntos , " lvpuntosfvg : ",lvpuntosfvg);
                   lvcontadorfvg++;
-              }    
-              if(lvcontadorfvg >= 1)
-              {
-                     
-                     string lvmensaje = "\"Displacement leg " + contadorFVGbullish + " " + _Symbol + "  " + nametimeframe + \"";
-                     //textohablado(lvmensaje,true);
-                     break;
-              }
-                continue;
+              }  
+                
+              continue;
+              
             }
 
-            if( fvgwidh == 9 && contadorFVGbullish >= 3)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbullish >= 4)//Para verificar si el precio esta actualmente en un FVG
             {
                double vlbajo = 0;
                int vlbag = 1;
                
                
-               string lvmensaje = "\" " + contadorFVGbullish + " FVG ALCISTA !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
+               string lvmensaje = "\" " + contadorFVGbullish + " Displacement leg Bajista!!! : " + " " + _Symbol + "  " + nametimeframe + \"";
                textohablado(lvmensaje,true);
                break;
 
@@ -6182,23 +6177,19 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   //Print(" lvpuntos : ",lvpuntos , " lvpuntosfvg : ",lvpuntosfvg);
                   lvcontadorfvg++;
               }    
-              if(lvcontadorfvg >= 1)
-              {
-                     string lvmensaje = "\"Displacement leg " + contadorFVGbearish + " " + _Symbol + "  " + nametimeframe + \"";
-                     //textohablado(lvmensaje,true);
-                     break;
-              }
-                continue;
+
+              continue;
+ 
             }
             
-            if( fvgwidh == 9 && contadorFVGbearish >= 3)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbearish >= 4)//Para verificar si el precio esta actualmente en un FVG
             {
             
                double vlalto = 0;
                int vlbag = 1;
                   
                  
-               string lvmensaje = "\" "  + contadorFVGbearish + " FVG BAJISTA!!! : " + " " + _Symbol + "  " + nametimeframe + \"";
+               string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Alcista!! : " + " " + _Symbol + "  " + nametimeframe + \"";
                textohablado(lvmensaje,true);
                break;
 
