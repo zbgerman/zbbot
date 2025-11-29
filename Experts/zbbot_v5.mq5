@@ -2245,8 +2245,8 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
      if (trans.type == TRADE_TRANSACTION_ORDER_DELETE)
      {
      
-        ObjectDelete(0,"BUY_TP1_" + trans.order);
-        ObjectDelete(0,"SELL_TP1_" + trans.order);
+        ObjectDelete(0,"BUY_TP1_" + trans.position);
+        ObjectDelete(0,"SELL_TP1_" + trans.position);
      
         PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f \nVolumen: %.5f \nPosition: %d",
                     trans.type, trans.order, trans.price, trans.volume, trans.position);
@@ -2505,7 +2505,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       datetime fecha_inicial = ObjectGetInteger(0,"maximo_M15",OBJPROP_TIME,0);
       datetime fecha_final   = ObjectGetInteger(0,"maximo_M15",OBJPROP_TIME,1);
       
-      if(VGCompra == 1 && (object_name == "minimo_M15" || object_name == "maximo_M15"))
+      if(buyButton.ColorBackground() == clrBlue && (object_name == "minimo_M15" || object_name == "maximo_M15"))
       {
          double lvalto = ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,0);
          double lvbajo = ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,1);
@@ -2517,7 +2517,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       }
       
 
-      if(VGVenta == 1 && (object_name == "minimo_M15" || object_name == "maximo_M15"))
+      if(sellButton.ColorBackground() == clrBlue == 1 && (object_name == "minimo_M15" || object_name == "maximo_M15"))
       {
          double lvalto = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,0);
          double lvbajo = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,1);
@@ -3116,7 +3116,7 @@ void compra_venta(int lvtecla)
 
       }
 
-      if(lvtecla == 21 ) //tecla numero 21 activar el panel
+      if(lvtecla == 21 ) //Activar panel compras
       {
 
          color lvcolor1 = buyButton.ColorBackground();
@@ -3165,7 +3165,7 @@ void compra_venta(int lvtecla)
       }
 
 
-      if(lvtecla == 31 ) //tecla numero 2 ventas
+      if(lvtecla == 31 ) //Activar panel ventas
       {
 
          color lvcolor1 = sellButton.ColorBackground();
