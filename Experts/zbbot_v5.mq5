@@ -24,7 +24,6 @@
 
 
 
-
 //+------------------------------------------------------------------+
 //| Resources                                                        |
 //+------------------------------------------------------------------+
@@ -133,6 +132,12 @@ CButton m15Btn;
 CButton h1Btn;
 CButton h4Btn;
 CButton d1Btn;
+
+
+
+CButton *buyButton; 
+CButton *sellButton;
+int lastChartWidth = 0;
 
 
 //+------------------------------------------------------------------+
@@ -403,7 +408,7 @@ int intervalFvgM15 = 15*60; //15 son los minutos
 
 
 // Intervalos en segundos
-int fvgInterval = 1 * 60;
+int fvgInterval = 5 * 60;
 int fiboInterval = 60; 
 int intervalB = 60;//Macros
 int intervalC = 15 * 60; // 5 son los minutos
@@ -458,7 +463,8 @@ datetime lastTime = 0; //Ejecucion en un minuto en ontick en vez de ontimer
 //+------------------------------------------------------------------+
 int OnInit()
   {
-  
+ 
+  CreateButtons();  
   double lote_maximo_permitido = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
   double realLeverage = AccountInfoInteger(ACCOUNT_LEVERAGE);
   Print( " lote_maximo_permitido : ",lote_maximo_permitido, " realLeverage :",realLeverage);
@@ -1446,90 +1452,90 @@ int OnInit()
       showFvgBtn.Text("Show Fvg");
    }
 
-
-   m1Btn.Create(0, M1_BTN_NAME, 0, 0 , 205, 0, 0);
-   ObjectSetString(0, m1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M1 ");
-   m1Btn.Width(COL_WIDTH);
-   m1Btn.Height(ROW_HEIGHT);
-   m1Btn.ColorBackground(clrGray);
-   m1Btn.Text("M1");
-   m1Btn.Font("Arial");
-   m1Btn.FontSize(FONT_SIZE);
-   m1Btn.Color(colorbtn);
-   m1Btn.ColorBorder(clrBlack);
-   m1Btn.ZOrder(99999);
-   panel.Add(m1Btn);  
-
-
-//--- Tendencia M3 - M15 - H1 - H5 - D1
-   m3Btn.Create(0, M3_BTN_NAME, 0, 0 , 225, 0, 0);
-   ObjectSetString(0, m3Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M3 ");
-   m3Btn.Width(COL_WIDTH);
-   m3Btn.Height(ROW_HEIGHT);
-   m3Btn.ColorBackground(clrGray);
-   m3Btn.Text("M3");
-   m3Btn.Font("Arial");
-   m3Btn.FontSize(FONT_SIZE);
-   m3Btn.Color(colorbtn);
-   m3Btn.ColorBorder(clrBlack);
-   m3Btn.ZOrder(99999);
-   panel.Add(m3Btn);  
-
- 
-   m15Btn.Create(0, M15_BTN_NAME, 0, 0 , 245, 0, 0);
-   ObjectSetString(0, m15Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M15 ");
-   m15Btn.Width(COL_WIDTH);
-   m15Btn.Height(ROW_HEIGHT);
-   m15Btn.ColorBackground(clrGray);
-   m15Btn.Text("M15");
-   m15Btn.Font("Arial");
-   m15Btn.FontSize(FONT_SIZE);
-   m15Btn.Color(colorbtn);
-   m15Btn.ColorBorder(clrBlack);
-   m15Btn.ZOrder(99999);
-   panel.Add(m15Btn);  
-
-
-   h1Btn.Create(0, H1_BTN_NAME, 0, 0 , 265, 0, 0);
-   ObjectSetString(0, h1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H1 ");
-   h1Btn.Width(COL_WIDTH);
-   h1Btn.Height(ROW_HEIGHT);
-   h1Btn.ColorBackground(clrGray);
-   h1Btn.Text("H1");
-   h1Btn.Font("Arial");
-   h1Btn.FontSize(FONT_SIZE);
-   h1Btn.Color(colorbtn);
-   h1Btn.ColorBorder(clrBlack);
-   h1Btn.ZOrder(99999);
-   panel.Add(h1Btn);  
-
-
-   h4Btn.Create(0, H4_BTN_NAME, 0, 0 , 285, 0, 0);
-   ObjectSetString(0, h4Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H4 ");
-   h4Btn.Width(COL_WIDTH);
-   h4Btn.Height(ROW_HEIGHT);
-   h4Btn.ColorBackground(clrGray);
-   h4Btn.Text("H4");
-   h4Btn.Font("Arial");
-   h4Btn.FontSize(FONT_SIZE);
-   h4Btn.Color(colorbtn);
-   h4Btn.ColorBorder(clrBlack);
-   h4Btn.ZOrder(99999);
-   panel.Add(h4Btn);  
+//
+//   m1Btn.Create(0, M1_BTN_NAME, 0, 0 , 205, 0, 0);
+//   ObjectSetString(0, m1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M1 ");
+//   m1Btn.Width(COL_WIDTH);
+//   m1Btn.Height(ROW_HEIGHT);
+//   m1Btn.ColorBackground(clrGray);
+//   m1Btn.Text("M1");
+//   m1Btn.Font("Arial");
+//   m1Btn.FontSize(FONT_SIZE);
+//   m1Btn.Color(colorbtn);
+//   m1Btn.ColorBorder(clrBlack);
+//   m1Btn.ZOrder(99999);
+//   panel.Add(m1Btn);  
+//
+//
+////--- Tendencia M3 - M15 - H1 - H5 - D1
+//   m3Btn.Create(0, M3_BTN_NAME, 0, 0 , 225, 0, 0);
+//   ObjectSetString(0, m3Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M3 ");
+//   m3Btn.Width(COL_WIDTH);
+//   m3Btn.Height(ROW_HEIGHT);
+//   m3Btn.ColorBackground(clrGray);
+//   m3Btn.Text("M3");
+//   m3Btn.Font("Arial");
+//   m3Btn.FontSize(FONT_SIZE);
+//   m3Btn.Color(colorbtn);
+//   m3Btn.ColorBorder(clrBlack);
+//   m3Btn.ZOrder(99999);
+//   panel.Add(m3Btn);  
+//
+// 
+//   m15Btn.Create(0, M15_BTN_NAME, 0, 0 , 245, 0, 0);
+//   ObjectSetString(0, m15Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M15 ");
+//   m15Btn.Width(COL_WIDTH);
+//   m15Btn.Height(ROW_HEIGHT);
+//   m15Btn.ColorBackground(clrGray);
+//   m15Btn.Text("M15");
+//   m15Btn.Font("Arial");
+//   m15Btn.FontSize(FONT_SIZE);
+//   m15Btn.Color(colorbtn);
+//   m15Btn.ColorBorder(clrBlack);
+//   m15Btn.ZOrder(99999);
+//   panel.Add(m15Btn);  
+//
+//
+//   h1Btn.Create(0, H1_BTN_NAME, 0, 0 , 265, 0, 0);
+//   ObjectSetString(0, h1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H1 ");
+//   h1Btn.Width(COL_WIDTH);
+//   h1Btn.Height(ROW_HEIGHT);
+//   h1Btn.ColorBackground(clrGray);
+//   h1Btn.Text("H1");
+//   h1Btn.Font("Arial");
+//   h1Btn.FontSize(FONT_SIZE);
+//   h1Btn.Color(colorbtn);
+//   h1Btn.ColorBorder(clrBlack);
+//   h1Btn.ZOrder(99999);
+//   panel.Add(h1Btn);  
 
 
-   d1Btn.Create(0, D1_BTN_NAME, 0, 0 , 305, 0, 0);
-   ObjectSetString(0, d1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia D1 ");
-   d1Btn.Width(COL_WIDTH);
-   d1Btn.Height(ROW_HEIGHT);
-   d1Btn.ColorBackground(clrGray);
-   d1Btn.Text("D1");
-   d1Btn.Font("Arial");
-   d1Btn.FontSize(FONT_SIZE);
-   d1Btn.Color(colorbtn);
-   d1Btn.ColorBorder(clrBlack);
-   d1Btn.ZOrder(99999);
-   panel.Add(d1Btn);  
+   //h4Btn.Create(0, H4_BTN_NAME, 0, 0 , 285, 0, 0);
+   //ObjectSetString(0, h4Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H4 ");
+   //h4Btn.Width(COL_WIDTH);
+   //h4Btn.Height(ROW_HEIGHT);
+   //h4Btn.ColorBackground(clrGray);
+   //h4Btn.Text("H4");
+   //h4Btn.Font("Arial");
+   //h4Btn.FontSize(FONT_SIZE);
+   //h4Btn.Color(colorbtn);
+   //h4Btn.ColorBorder(clrBlack);
+   //h4Btn.ZOrder(99999);
+   //panel.Add(h4Btn);  
+
+
+   //d1Btn.Create(0, D1_BTN_NAME, 0, 0 , 305, 0, 0);
+   //ObjectSetString(0, d1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia D1 ");
+   //d1Btn.Width(COL_WIDTH);
+   //d1Btn.Height(ROW_HEIGHT);
+   //d1Btn.ColorBackground(clrGray);
+   //d1Btn.Text("D1");
+   //d1Btn.Font("Arial");
+   //d1Btn.FontSize(FONT_SIZE);
+   //d1Btn.Color(colorbtn);
+   //d1Btn.ColorBorder(clrBlack);
+   //d1Btn.ZOrder(99999);
+   //panel.Add(d1Btn);  
 
 
 //run the panel
@@ -1572,6 +1578,16 @@ void OnDeinit(const int reason)
   
    panel.Destroy(reason);
   
+   if(buyButton != NULL)
+   {
+      buyButton.Destroy();
+      delete buyButton;
+   }  
+   if(sellButton != NULL)
+   {
+      sellButton.Destroy();
+      delete sellButton;
+   }  
    //ObjectsDeleteAll(0, -1, -1);  // Eliminar todos los objetos
       
    //ObjectsDeleteAll(0);
@@ -2049,7 +2065,7 @@ void OnTimer()
         // Verificar si el nombre del objeto comienza con el prefijo
         if(StringFind(name_object, "ZONA_VENTAS") >=0)
         {
-            Print("name_object : ",name_object);
+            //Print("name_object : ",name_object);
             ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
             ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
             ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
@@ -2059,7 +2075,7 @@ void OnTimer()
         if(StringFind(name_object, "ZONA_COMPRAS") >=0)
         {
         
-            Print("name_object : ",name_object);
+            //Print("name_object : ",name_object);
             ObjectSetInteger(0,name_object,OBJPROP_COLOR,clrMediumSlateBlue);
             ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
             ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
@@ -2076,9 +2092,9 @@ void OnTimer()
    if(now - fvglastAction >= fvgInterval) // 180 segundos
    {
 
-      double lvnumero_velas_verificar_fvg =  5;
+      double lvnumero_velas_verificar_fvg =  2;
 
-      DrawFVG(PERIOD_M1, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg dentro del rango de precios
+      DrawFVG(PERIOD_M5, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg dentro del rango de precios
 
       fvglastAction = now;
 
@@ -2214,19 +2230,29 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
         trans.type == TRADE_TRANSACTION_ORDER_UPDATE ||
         trans.type == TRADE_TRANSACTION_DEAL_ADD ||
         trans.type == TRADE_TRANSACTION_DEAL_UPDATE ||
-        trans.order_state == TRADE_ACTION_PENDING
+        trans.order_state == TRADE_ACTION_PENDING 
         )
     {
-        //PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f",
-        //            trans.type, trans.order, trans.price);
         CrearLineaPromedio();            
         ActualizarLineaPromedio();
         //Manejor stop loss
         VGtotalOrdenesAbiertas = 0;
         ManejoStopLoss();
+        
+        
         //verificar_ordenes_Abiertas();
-            
-    }         
+    }    
+     if (trans.type == TRADE_TRANSACTION_ORDER_DELETE)
+     {
+     
+        ObjectDelete(0,"BUY_TP1_" + trans.order);
+        ObjectDelete(0,"SELL_TP1_" + trans.order);
+     
+        PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f \nVolumen: %.5f \nPosition: %d",
+                    trans.type, trans.order, trans.price, trans.volume, trans.position);
+     
+     }
+           
 }
 
 ////+------------------------------------------------------------------+
@@ -2836,6 +2862,40 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
            Print(" sparam o nombre objeto : ",sparam);
           return;
       }
+      if(sparam=="BuyButton" )
+      {
+         compra_venta(21);
+      }
+      if(sparam=="SellButton" )
+      {
+         compra_venta(31);
+      }
+
+      if(sparam==m1Btn.Name())
+      {
+        ChartSetSymbolPeriod(0, _Symbol, PERIOD_M1);
+      }
+      if(sparam==m3Btn.Name())
+      {
+        ChartSetSymbolPeriod(0, _Symbol, PERIOD_M3);
+      }
+      if(sparam==m15Btn.Name())
+      {
+        ChartSetSymbolPeriod(0, _Symbol, PERIOD_M15);
+      }
+      if(sparam==h1Btn.Name())
+      {
+        ChartSetSymbolPeriod(0, _Symbol, PERIOD_H1);
+      }
+      if(sparam==h4Btn.Name())
+      {
+        ChartSetSymbolPeriod(0, _Symbol, PERIOD_H4);
+      }
+      if(sparam==d1Btn.Name())
+      {
+        ChartSetSymbolPeriod(0, _Symbol, PERIOD_D1);
+      }
+
       if(sparam=="Resistencia" || sparam=="Soporte" )
         {
             int lvstyle = ObjectGetInteger(0,"Resistencia",OBJPROP_STYLE);
@@ -3032,13 +3092,13 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
 
 void compra_venta(int lvtecla)
 {
+
       verificar_ordenes_Abiertas();
       int lvcolor = ObjectGetInteger(0,"maximo_M15",OBJPROP_COLOR);
             
       if(lvtecla == 2 ) //tecla numero 1 compras
       {
-         VGcontadorAlertasAlcista = 0;
-         VGcontadorAlertasBajista = 0;
+         VGtecla = 0;     
          ObjectDelete(0,"TP1_Temporal");
          if( lvcolor > 0) //Desaciva el panel
          {
@@ -3047,11 +3107,43 @@ void compra_venta(int lvtecla)
             ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
             ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
 
-            //VGCompra = 0;
-            //VGVenta  = 0;
             return;
          }
 
+
+         ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
+         ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+
+      }
+
+      if(lvtecla == 21 ) //tecla numero 21 activar el panel
+      {
+
+         color lvcolor1 = buyButton.ColorBackground();
+
+         if (lvcolor1 == clrGray)
+         {
+            buyButton.ColorBackground(clrBlue);
+            sellButton.ColorBackground(clrGray);
+         
+         }
+         if (lvcolor1 == clrBlue)
+         {
+            if (lvcolor > 0)
+            {
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
+            }
+            else
+            {
+   
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+            }
+            return;            
+         }
          double lvresistencia = ObjectGetDouble(0, "Resistencia", OBJPROP_PRICE);
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0,lvresistencia );
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_alto_5 );
@@ -3070,30 +3162,38 @@ void compra_venta(int lvtecla)
          double lot=StringToDouble(lotSizeBuy.Text()); 
          
          tp("TP1_Temporal",lvalto,lvbajo,1,lot);
-
-
-         VGtecla = 0;     
-         VGCompra = 1;
-         VGVenta  = 0;
-      
       }
-            
-      if(lvtecla == 3 ) //tecla numero 2 ventas
-      {
-         VGcontadorAlertasAlcista = 0;
-         VGcontadorAlertasBajista = 0;
-         ObjectDelete(0,"TP1_Temporal");
-         if( lvcolor > 0)//Desaciva el panel
-         {
-            ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
-            ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
-            ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
-            ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
-            //VGCompra = 0;
-            //VGVenta  = 0;
-            return;
-         }
 
+
+      if(lvtecla == 31 ) //tecla numero 2 ventas
+      {
+
+         color lvcolor1 = sellButton.ColorBackground();
+
+         if (lvcolor1 == clrGray)
+         {
+            sellButton.ColorBackground(clrBlue);
+            buyButton.ColorBackground(clrGray);
+         
+         }
+         if (lvcolor1 == clrBlue)
+         {
+            if (lvcolor > 0)
+            {
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
+            }
+            else
+            {
+   
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+            }
+            return;            
+         
+         }
          double lvsoporte = ObjectGetDouble(0, "Soporte", OBJPROP_PRICE);
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0, VGvalor_fractal_alto_5);
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
@@ -3103,8 +3203,6 @@ void compra_venta(int lvtecla)
          ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
          ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
 
-         //ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,0, VGvalor_fractal_alto_5);    
-         //ObjectSetDouble(0, "FIBO_3", OBJPROP_PRICE,1, VGvalor_fractal_bajo_5);  
 
          double lvalto = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,0);
          double lvbajo = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,1);
@@ -3112,11 +3210,9 @@ void compra_venta(int lvtecla)
          double lot=StringToDouble(lotSizeSell.Text()); 
 
          tp("TP1_Temporal",lvbajo,lvalto,2,lot);
-         VGtecla = 0;     
-         //VGCompra = 0;
-         //VGVenta  = 1;
       
       }
+
 
 }
 
@@ -5245,10 +5341,7 @@ void ManejoStopLoss()
 
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
 
-               if(StopLossAnterior <= 0)
-               {
-                  StopLossAnterior = ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,1);
-               }
+               double lvsl =ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,1);
                
                double distanciaEntradaSL = PrecioApertura - StopLossAnterior;
                double distanciaEntradaTP = lvtp1 - PrecioApertura;
@@ -5288,10 +5381,7 @@ void ManejoStopLoss()
                double lvtp1 = ObjectGetDouble(0,name_object,OBJPROP_PRICE);
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
                
-               if(StopLossAnterior <= 0)
-               {
-                  StopLossAnterior = ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE);
-               }
+               
 
                double distanciaEntradaSL = PrecioApertura - StopLossAnterior;
                double distanciaEntradaTP = lvtp1 - PrecioApertura;
@@ -6019,7 +6109,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
    int lvvelainicial = 0;
    
    if (fvgwidh == 9) //9 para detectar el ultimo fvg con solo 2 velas
-      lvvelainicial = 0; //1 es para detectar fvg ya formado y 0 que se esta formando
+      lvvelainicial = 1; //1 es para detectar fvg ya formado y 0 que se esta formando
         
    
    for(int i = lvvelainicial; i <= candlesToCheck; i++) // Comenzar desde atrás
@@ -6071,13 +6161,13 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               
             }
 
-            if( fvgwidh == 9 && contadorFVGbullish >= 4)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbullish >= 1)//Para verificar si el precio esta actualmente en un FVG
             {
                double vlbajo = 0;
                int vlbag = 1;
                
                
-               string lvmensaje = "\" " + contadorFVGbullish + " Displacement leg Bajista!!! : " + " " + _Symbol + "  " + nametimeframe + \"";
+               string lvmensaje = "\" " + contadorFVGbullish + " Displacement leg Alcista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
                textohablado(lvmensaje,true);
                break;
 
@@ -6182,14 +6272,14 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
  
             }
             
-            if( fvgwidh == 9 && contadorFVGbearish >= 4)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbearish >= 1)//Para verificar si el precio esta actualmente en un FVG
             {
             
                double vlalto = 0;
                int vlbag = 1;
                   
                  
-               string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Alcista!! : " + " " + _Symbol + "  " + nametimeframe + \"";
+               string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Bajista!! : " + " " + _Symbol + "  " + nametimeframe + \"";
                textohablado(lvmensaje,true);
                break;
 
@@ -11298,6 +11388,141 @@ void CalculateDailyLoss()
     }
     
     Print (" Gannacia o perdida del dia : ",DoubleToString(MathAbs(dailyLoss),2)); // Retorna valor positivo
+}
+
+
+//+------------------------------------------------------------------+
+//| Crear botón derecho                                              |
+//+------------------------------------------------------------------+
+void CreateButtons()
+{
+   buyButton = new CButton();
+   sellButton = new CButton();
+   int chartWidth = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS);
+   lastChartWidth = chartWidth;
+   
+   int buttonWidth = 30;
+   int buttonHeight = 25;
+   int xPos = chartWidth - buttonWidth - 100;
+   int yPos = 5;
+   
+   if(sellButton.Create(0, "SellButton", 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight))
+   {
+      sellButton.Text("Sell");
+      sellButton.ColorBackground(clrGray);
+      sellButton.Color(clrWhite);
+      sellButton.FontSize(9);
+      sellButton.ColorBorder(clrWhite);
+   }
+   xPos = xPos - 40;
+   if(buyButton.Create(0, "BuyButton", 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight))
+   {
+      buyButton.Text("Buy");
+      buyButton.ColorBackground(clrGray);
+      buyButton.Color(clrWhite);
+      buyButton.FontSize(9);
+      buyButton.ColorBorder(clrWhite);
+   }
+   
+   buttonWidth = 50;
+   xPos = xPos - 50;
+   if (d1Btn.Create(0, D1_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
+   {
+      ObjectSetString(0, d1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia D1 ");
+      d1Btn.Text("D1");
+      d1Btn.ColorBackground(clrGray);
+      d1Btn.Color(clrWhite);      
+      d1Btn.FontSize(FONT_SIZE);
+      d1Btn.ColorBorder(clrWhite);
+   }
+
+   xPos = xPos - 50;
+   if (h4Btn.Create(0, H4_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
+   {
+      ObjectSetString(0, h4Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H4 ");
+      h4Btn.Text("H4");
+      h4Btn.ColorBackground(clrGray);
+      h4Btn.Color(clrWhite);      
+      h4Btn.FontSize(FONT_SIZE);
+      h4Btn.ColorBorder(clrWhite);
+   }
+
+   xPos = xPos - 50;
+   if (h1Btn.Create(0, H1_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
+   {
+      ObjectSetString(0, h1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia H1 ");
+      h1Btn.Text("H1");
+      h1Btn.ColorBackground(clrGray);
+      h1Btn.Color(clrWhite);      
+      h1Btn.FontSize(FONT_SIZE);
+      h1Btn.ColorBorder(clrWhite);
+   }
+
+   xPos = chartWidth - 220;
+   yPos = 40;
+   
+   if (m15Btn.Create(0, M15_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
+   {
+      ObjectSetString(0, m15Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M15 ");
+      m15Btn.Text("M15");
+      m15Btn.ColorBackground(clrGray);
+      m15Btn.Color(clrWhite);      
+      m15Btn.FontSize(FONT_SIZE);
+      m15Btn.ColorBorder(clrWhite);
+   }
+
+   xPos = xPos - 50;
+   if (m3Btn.Create(0, M3_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
+   {
+      ObjectSetString(0, m3Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M3 ");
+      m3Btn.Text("M3");
+      m3Btn.ColorBackground(clrGray);
+      m3Btn.Color(clrWhite);      
+      m3Btn.FontSize(FONT_SIZE);
+      m3Btn.ColorBorder(clrWhite);
+   }
+
+   xPos = xPos - 50;
+   if (m1Btn.Create(0, M1_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
+   {
+      ObjectSetString(0, m1Btn.Name(), OBJPROP_TOOLTIP, "Tendencia M1 ");
+      m1Btn.Text("M1");
+      m1Btn.ColorBackground(clrGray);
+      m1Btn.Color(clrWhite);      
+      m1Btn.FontSize(FONT_SIZE);
+      m1Btn.ColorBorder(clrWhite);
+   }
+
+
+   
+}
+
+//+------------------------------------------------------------------+
+//| Ajustar posición del botón                                       |
+//+------------------------------------------------------------------+
+void AdjustButtonPosition()
+{
+   int chartWidth = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS);
+   
+   if(chartWidth != lastChartWidth && buyButton != NULL)
+   {
+      int buttonWidth = 100;
+      int buttonHeight = 25;
+      int xPos = chartWidth - buttonWidth - 5;
+      int yPos = 5;
+      
+      buyButton.Move(xPos, yPos);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Acción al hacer clic en el botón                                 |
+//+------------------------------------------------------------------+
+void OnButtonClick()
+{
+   Print("Botón superior derecho activado");
+   // Aquí puedes agregar tu lógica personalizada
+   // Por ejemplo: abrir operaciones, mostrar diálogos, etc.
 }
 
 //+------------------------------------------------------------------+
