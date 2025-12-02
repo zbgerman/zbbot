@@ -133,10 +133,9 @@ CButton h1Btn;
 CButton h4Btn;
 CButton d1Btn;
 
+CButton buyButton; 
+CButton sellButton;
 
-
-CButton *buyButton; 
-CButton *sellButton;
 int lastChartWidth = 0;
 
 
@@ -379,6 +378,10 @@ double VGfibo_nivel_value_externa;
 
 double VGvalor_fractal_alto;
 double VGvalor_fractal_bajo;
+
+double VGvalor_fractal_alto_M1;
+double VGvalor_fractal_bajo_M1;
+
 double VGvalor_fractal_alto_5;
 double VGvalor_fractal_bajo_5;
 
@@ -411,7 +414,7 @@ int intervalFvgM15 = 15*60; //15 son los minutos
 int fvgInterval = 5 * 60;
 int fiboInterval = 60; 
 int intervalB = 60;//Macros
-int intervalC = 15 * 60; // 5 son los minutos
+int intervalC = 60 * 60; // 5 son los minutos
 int RejectionBlockInterval = 15 * 60; 
 int NoticiasInterval = 7 * 60;
 
@@ -458,17 +461,24 @@ color VGcolor_zona_compra_venta = C'30,30,0'; //34,34,0
 datetime lastTime = 0; //Ejecucion en un minuto en ontick en vez de ontimer
 
 
+//void OnStart()
+//{
+//   Print("fdffdddfdf");
+//   CreateButtons();
+//}
+
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 int OnInit()
   {
- 
-  CreateButtons();  
+
+   CreateButtons();
+    
   double lote_maximo_permitido = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
   double realLeverage = AccountInfoInteger(ACCOUNT_LEVERAGE);
   Print( " lote_maximo_permitido : ",lote_maximo_permitido, " realLeverage :",realLeverage);
-  
+     
 //--- Desactivar autoajuste y forzar margen
    ChartSetInteger(0, CHART_SHIFT, true);    
    ChartSetDouble(0, CHART_SHIFT_SIZE, 25);    // Desactiva Chart Shift temporalmente
@@ -1578,16 +1588,16 @@ void OnDeinit(const int reason)
   
    panel.Destroy(reason);
   
-   if(buyButton != NULL)
-   {
-      buyButton.Destroy();
-      delete buyButton;
-   }  
-   if(sellButton != NULL)
-   {
-      sellButton.Destroy();
-      delete sellButton;
-   }  
+   //if(buyButton != NULL)
+   //{
+   //   buyButton.Destroy();
+   //   delete buyButton;
+   //}  
+   //if(sellButton != NULL)
+   //{
+   //   sellButton.Destroy();
+   //   delete sellButton;
+   //}  
    //ObjectsDeleteAll(0, -1, -1);  // Eliminar todos los objetos
       
    //ObjectsDeleteAll(0);
@@ -2094,7 +2104,7 @@ void OnTimer()
 
       double lvnumero_velas_verificar_fvg =  2;
 
-      DrawFVG(PERIOD_M5, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg dentro del rango de precios
+      //DrawFVG(PERIOD_M5, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg dentro del rango de precios
 
       fvglastAction = now;
 
@@ -2171,7 +2181,7 @@ void OnTimer()
    //AlarmaImmediateRebalance(PERIOD_H4, "H4");
 
  
-   if(now - lastActionC >= intervalC) //15  Segundos
+   if(now - lastActionC >= intervalC) //15  Minutos
    {
        //para detectar en cada segundo la posible compra o venta
       //DrawBarFractals(PERIOD_CURRENT, 500, 6, "1" );// Fractal para soporte y resistencia del periodo actual  
@@ -2245,8 +2255,8 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
      if (trans.type == TRADE_TRANSACTION_ORDER_DELETE)
      {
      
-        ObjectDelete(0,"BUY_TP1_" + trans.position);
-        ObjectDelete(0,"SELL_TP1_" + trans.position);
+        //ObjectDelete(0,"BUY_TP1_" + trans.position);
+        //ObjectDelete(0,"SELL_TP1_" + trans.position);
      
         PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f \nVolumen: %.5f \nPosition: %d",
                     trans.type, trans.order, trans.price, trans.volume, trans.position);
@@ -3117,6 +3127,21 @@ void compra_venta(int lvtecla)
       verificar_ordenes_Abiertas();
       int lvcolor = ObjectGetInteger(0,"maximo_M15",OBJPROP_COLOR);
             
+
+      
+      if(lvtecla == 1  && buyButton.ColorBackground() ==  clrGray && sellButton.ColorBackground() ==  clrGray) 
+      {
+         ObjectDelete(0,"TP1_Temporal");
+
+         ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
+         ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
+         ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
+         ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
+         return;
+
+      }
+
+
       if(lvtecla == 2 ) //tecla numero 1 compras
       {
          VGtecla = 0;     
@@ -4719,20 +4744,27 @@ void Alarmas()
    
 
 
-//
-//   if (VGTendencia_interna_M3 == "Bajista")
-//   {
-//      if ( VGPorcentaje_fibo_M3 >= 50 || (VGTendencia_interna_M1 == "Bajista" && VGPorcentaje_fibo_M1 >= 50))
-//      {
-//         VGVenta = 1;
-//         VGCompra = 0;
-//      }
-//      
-//      else
-//      {
-//         VGVenta = 0;
-//         VGCompra = 0;
-//      }
+
+   if (VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasZona_M1 > 0)
+   {
+      if ( Bid > VGvalor_fractal_alto_M1)
+      {
+         textohablado("\" Cambio de tendencia Alcista  en M1 "+ _Symbol +\"", true);
+         VGContadorAlertasOte_M1 = 0;
+         VGContadorAlertasZona_M1 = 0;
+      }
+   }   
+
+   if (VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasZona_M1 > 0)
+   {
+      if ( Bid < VGvalor_fractal_bajo_M1)
+      {
+         textohablado("\" Cambio de tendencia Bajista  en M1 "+ _Symbol +\"", true);
+         VGContadorAlertasOte_M1 = 0;
+         VGContadorAlertasZona_M1 = 0;
+      }
+   }   
+      
    
 // }
 
@@ -4764,6 +4796,7 @@ void Alarmas()
 //      
 //      }
 //   }
+
 
    if (( Bid < lvzona_compras && lvzona_compras > 0))// && VGContadorAlertasZona == 0)
    {
@@ -6309,7 +6342,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                int vlbag = 1;
                   
                  
-               string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Bajista!! : " + " " + _Symbol + "  " + nametimeframe + \"";
+               string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Bajista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
                textohablado(lvmensaje,true);
                break;
 
@@ -8729,49 +8762,49 @@ void fibo(string lvflag) // flag: 1 = internal swing estructue 2 = Swing estruct
       return;
    }   
    
-   int mas_velas = 50;
+   //int mas_velas = 50;
    
-   int lvvelas1 = 7;
-   int lvvelas2 = 12;
+   int lvvelas1;
+   int lvvelas2;
    
-   //Print( "Scala : ",lvscale);
+   //Print( "Scala : ",VGscale);
    
    if (VGscale == 0)
    {
       lvvelas1 = 128;
-      lvvelas2 = 300;
+      lvvelas2 = 360;
    }   
 
    if (VGscale == 1)
    {
       lvvelas1 = 64;
-      lvvelas2 = 150;
+      lvvelas2 = 180;
    }   
 
    if (VGscale == 2)
    {
       lvvelas1 = 32;
-      lvvelas2 = 75;
+      lvvelas2 = 90;
    }   
 
 
    if (VGscale == 3)
    {
       lvvelas1 = 16;
-      lvvelas2 = 37;
+      lvvelas2 = 45;
    }   
 
 
    if (VGscale == 4)
    {
       lvvelas1 = 8;
-      lvvelas2 = 18;
+      lvvelas2 = 22;
    }   
 
    if (VGscale == 5)
    {
       lvvelas1 = 4;
-      lvvelas2 = 10;
+      lvvelas2 = 12;
    }   
 
    int      periodSeconds = PeriodSeconds(PERIOD_CURRENT);
@@ -8850,98 +8883,133 @@ void fibo(string lvflag) // flag: 1 = internal swing estructue 2 = Swing estruct
    
    lvporcentaje = lvvalor - (range * 0.0); 
       
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 0, 0.0);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 0, "0.0 Profit ");// + DoubleToString(lvporcentaje,Digits())); 
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,0, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,0, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,0, 1);
+   int lvnivel = 0;
+      
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE,  lvnivel, 0.0);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT,   lvnivel, "0.0 Profit ");// + DoubleToString(lvporcentaje,Digits())); 
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, lvnivel, 1);
+   
+   lvnivel++;
    
    lvporcentaje = lvvalor - (range * 0.23);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 1, 0.23 );
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 1, "0.23 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,1, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,1, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,1, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.23 );
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "0.23 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
+
+   lvporcentaje = lvvalor - (range * 0.38);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.38 );
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "0.38 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
+   lvporcentaje = lvvalor - (range * 0.50);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.50);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "0.50 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * 0.50);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 2, 0.50);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 2, "0.50 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,2, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,2, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,2, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.618);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "0.618 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+   
+   
+   lvnivel++;
 
-   lvporcentaje = lvvalor - (range * 0.50);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 3, 0.618);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 3, "0.618 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,3, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,3, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,3, 1);
-   
-   
    lvporcentaje = lvvalor - (range * 0.705);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 4, 0.705);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 4, "OTE 0.705 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,4, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,4, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,4, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.705);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "OTE 0.705 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
    
    
+   lvnivel++;
+
    lvporcentaje = lvvalor - (range * 0.79);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 5, 0.79);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 5, "0.79 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,5, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,5, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,5, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.79);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "0.79 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * 0.90);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 6, 0.90);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 6, "0.90 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,6, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,6, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,6, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 0.90);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "0.90 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * 1);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 7, 1);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 7, "1 SL ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,7, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,7, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,7, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, 1);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "1 SL ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
 
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * -0.27);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 8, -0.27);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 8, "-0.27 T 1 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,8, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,8, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,8, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, -0.27);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "-0.27 T 1 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * -0.62);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 9, -0.62);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 9, "-0.62 T 2 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,9, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,9, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,9, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, -0.62);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel, "-0.62 T 2 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR,lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE,lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH,lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * -1);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 10, -1);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 10 , "-1 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, 10, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, 10, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, 10, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, -1);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel , "-1 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * -2);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 11, -2);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 11 , "-2 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, 11, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, 11, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, 11, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, -2);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel , "-2 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, lvnivel, 1);
+
+   lvnivel++;
 
    lvporcentaje = lvvalor - (range * -2.5);
-   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, 12, -2.5);
-   ObjectSetString(0, name, OBJPROP_LEVELTEXT, 12 , "-2.5 ");// + DoubleToString(lvporcentaje,Digits()));
-   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, 12, clrWhite);
-   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, 12, STYLE_DOT);
-   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, 12, 1);
+   ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, lvnivel, -2.5);
+   ObjectSetString(0, name, OBJPROP_LEVELTEXT, lvnivel , "-2.5 ");// + DoubleToString(lvporcentaje,Digits()));
+   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, lvnivel, clrWhite);
+   ObjectSetInteger(0, name, OBJPROP_LEVELSTYLE, lvnivel, STYLE_DOT);
+   ObjectSetInteger(0, name, OBJPROP_LEVELWIDTH, lvnivel, 1);
+
    
 } 
 
@@ -9162,8 +9230,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    if (lvflag == "8") //8 Dealing range
    {
 
-//      VGResistencia = lvresistencia;
-//      VGSoporte = lvsoporte;
+      VGResistencia = lvresistencia;
+      VGSoporte = lvsoporte;
 //   
 //      if(VGCompra == 1)
 //      {
@@ -9180,7 +9248,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //      
 //      }
 //      //Print("lvresistencia : ",lvresistencia, " lvsoporte : ",lvsoporte);
-//      return;
+      return;
    }
 
 
@@ -9479,24 +9547,28 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
             if(timeframe == PERIOD_M1)
             {
-              VGTendencia_interna_M1 = lvtendencia; 
+              VGTendencia_interna_M1 = lvtendencia;
+              
+              VGvalor_fractal_alto_M1 = VGvalor_fractal_alto;
+              VGvalor_fractal_bajo_M1 = VGvalor_fractal_bajo;
+               
               m1Btn.Text("M1: "+ DoubleToString(VGPorcentaje_fibo,0)+"%"); 
               VGPorcentaje_fibo_M1 = VGPorcentaje_fibo;
               
 
               if (VGPorcentaje_fibo_M1 > 50 && VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasZona_M1 <= 0)
               {
-                  //textohablado("\"Zona de descuento M1 " + _Symbol +\"",true);
+                  textohablado("\"Zona de descuento M1 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M1++;  
               }
               if (VGPorcentaje_fibo_M1 > 50 && VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasZona_M1 <= 0)
               {
-                  //textohablado("\"Zona Premiun M1 " + _Symbol +\"",true);
+                  textohablado("\"Zona Premiun M1 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M1++;  
               }
               if (VGPorcentaje_fibo_M1 > 70 && VGContadorAlertasOte_M1 <= 0)
               {
-                  //textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
+                  textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
                   VGContadorAlertasOte_M1++;  
               }
 
@@ -9509,17 +9581,17 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
               if (VGPorcentaje_fibo_M3 > 50 && VGTendencia_interna_M3 == "Alcista" && VGContadorAlertasZona_M3 <= 0)
               {
-                  //textohablado("\"Zona de descuento M3 " + _Symbol +\"",true);
+                  textohablado("\"Zona de descuento M3 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M3++;  
               }
               if (VGPorcentaje_fibo_M3 > 50 && VGTendencia_interna_M3 == "Bajista" && VGContadorAlertasZona_M3 <= 0)
               {
-                  //textohablado("\"Zona Premiun M3 " + _Symbol +\"",true);
+                  textohablado("\"Zona Premiun M3 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M3++;  
               }
               if (VGPorcentaje_fibo_M3 > 70 && VGContadorAlertasOte_M3 <= 0)
               {
-                  //textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
+                  textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
                   VGContadorAlertasOte_M3++;  
               }
 
@@ -11417,17 +11489,17 @@ void CalculateDailyLoss()
         }
     }
     
-    Print (" Gannacia o perdida del dia : ",DoubleToString(MathAbs(dailyLoss),2)); // Retorna valor positivo
+    Print (" Ganancia o perdida del dia : ",DoubleToString(MathAbs(dailyLoss),2)); // Retorna valor positivo
 }
 
 
 //+------------------------------------------------------------------+
-//| Crear botón derecho                                              |
+//| Crear botón                                                      |
 //+------------------------------------------------------------------+
 void CreateButtons()
 {
-   buyButton = new CButton();
-   sellButton = new CButton();
+   //buyButton = new CButton();
+   //sellButton = new CButton();
    int chartWidth = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS);
    lastChartWidth = chartWidth;
    
@@ -11436,14 +11508,26 @@ void CreateButtons()
    int xPos = chartWidth - buttonWidth - 100;
    int yPos = 5;
    
+  int lvxpos = ObjectGetInteger(0, "SellButton",OBJPROP_XDISTANCE);
+  
+  Print(" lvxpos : ",lvxpos);
+  
+  if (lvxpos > 0 && lvxpos < 3000 )
+      return;
+      
    if(sellButton.Create(0, "SellButton", 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight))
    {
+      Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
       sellButton.Text("Sell");
       sellButton.ColorBackground(clrGray);
       sellButton.Color(clrWhite);
       sellButton.FontSize(9);
       sellButton.ColorBorder(clrWhite);
    }
+
+   Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
+
+
    xPos = xPos - 40;
    if(buyButton.Create(0, "BuyButton", 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight))
    {
@@ -11522,9 +11606,6 @@ void CreateButtons()
       m1Btn.FontSize(FONT_SIZE);
       m1Btn.ColorBorder(clrWhite);
    }
-
-
-   
 }
 
 //+------------------------------------------------------------------+
@@ -11534,15 +11615,15 @@ void AdjustButtonPosition()
 {
    int chartWidth = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS);
    
-   if(chartWidth != lastChartWidth && buyButton != NULL)
-   {
-      int buttonWidth = 100;
-      int buttonHeight = 25;
-      int xPos = chartWidth - buttonWidth - 5;
-      int yPos = 5;
-      
-      buyButton.Move(xPos, yPos);
-   }
+//   if(chartWidth != lastChartWidth && buyButton != NULL)
+//   {
+//      int buttonWidth = 100;
+//      int buttonHeight = 25;
+//      int xPos = chartWidth - buttonWidth - 5;
+//      int yPos = 5;
+//      
+//      buyButton.Move(xPos, yPos);
+//   }
 }
 
 //+------------------------------------------------------------------+
