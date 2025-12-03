@@ -682,7 +682,7 @@ int OnInit()
 
    //Print(" VGtime_Frame_Fractal : ",VGtime_Frame_Fractal);
    
-   DrawBarFractals(Time_Frame_M2022, 500, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022  
+   DrawBarFractals(Time_Frame_M2022, 50, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022  
         
    //DrawBarFractals(PERIOD_CURRENT, 500, 25, "1" );// Fractal para soporte y resistencia del periodo actual  
    //DrawBarFractals(_Period, 500, 4, "5" );
@@ -1954,7 +1954,7 @@ void OnTimer()
       if (VGHoraNewYork.sec == 01  || VGHoraNewYork.sec == 05 || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 45  )
       {
 
-         DrawBarFractals(Time_Frame_M2022, 50, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
+         //DrawBarFractals(Time_Frame_M2022, 50, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
        
       }
 //      {
@@ -2056,6 +2056,7 @@ void OnTimer()
       DrawBarFractals(PERIOD_M1, 500, 30, "1");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo 
       DrawBarFractals(PERIOD_M3, 500, 30, "1");// Fractal para el fibo de M15 y 1000 velas y 30 para detectar el fibo 
       DrawBarFractals(PERIOD_M1, 300, 10, "8");// Fractal para el fibo 3 y obtener el dealing range
+      DrawBarFractals(Time_Frame_M2022, 50, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
       
       Tendencia();
       
@@ -2068,6 +2069,8 @@ void OnTimer()
       ReglasModelo2022();
       
    }
+
+
 
    if(now - lastActionNoticias >= NoticiasInterval) // 180 segundos
    {
@@ -4757,105 +4760,115 @@ void Alarmas()
 
 
 
-   if (VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasZona_M1 > 0)
-   {
+   //if (VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasZona_M1 > 0)
+   //{
 
-      double     vlhighestHigh = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 30, 0));
-      
-      if ( vlhighestHigh > VGvalor_fractal_alto_M1)
-         return;
+//      double     vlhighestHigh = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 30, 0));
+//      
+//      if ( vlhighestHigh > VGvalor_fractal_alto_M1)
+//         return;
       
 
-      if ( iHigh(_Symbol,PERIOD_M1,1) > VGvalor_fractal_alto_M1 )
+      //if ( iHigh(_Symbol,PERIOD_M1,1) > VGvalor_fractal_alto_M1 &&   VGVenta == 0 )
+      //{
+      //   if (iClose(_Symbol,PERIOD_M1,1) > VGvalor_fractal_bajo_M1)
+      //   {
+      //      textohablado("\" Cambio de tendencia Alcista  en M1 "+ _Symbol +\"", true);
+      //   }
+      //   else
+      //   {
+      //      textohablado("\" Liquidity Sweep   en M1 "+ _Symbol +\"", true);
+      //   }
+      //   VGContadorAlertasZona_M1 = 0;
+      //   VGContadorAlertasOte_M1 = 0;
+      //   VGVenta = 1;
+      //   VGCompra = 0;
+      //}
+   //}   
+//
+//   if (VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasZona_M1 > 0)
+//   {
+//      double     vllowestLow = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 30, 0));
+//      
+//      if (vllowestLow < VGvalor_fractal_bajo_M1)
+//         return;
+//         
+      //if ( iLow(_Symbol,PERIOD_M1,1) < VGvalor_fractal_bajo_M1 && VGCompra == 0)
+      //{
+      //   if (iClose(_Symbol,PERIOD_M1,1) > VGvalor_fractal_bajo_M1)
+      //   {      
+      //      textohablado("\" Cambio de tendencia Bajista  en M1 "+ _Symbol +\"", true);
+      //   }
+      //   else
+      //   {
+      //      textohablado("\" Liquidity Sweep   en M1 "+ _Symbol +\"", true);
+      //   }
+      //   VGContadorAlertasZona_M1 = 0;
+      //   VGContadorAlertasOte_M1 = 0;
+      //   VGCompra = 1;
+      //   VGVenta = 0;
+      //}
+   //}   
+      
+//   if (VGTendencia_interna_M3 == "Bajista" && VGContadorAlertasZona_M3 > 0)
+//   {
+//      double     vlhighestHigh = iHigh(Symbol(), PERIOD_M3, iHighest(Symbol(), PERIOD_M3, MODE_HIGH, 5, 1));
+//      
+//      if ( vlhighestHigh > VGvalor_fractal_alto_M3)
+//         return;
+
+
+      if (iHigh(_Symbol,PERIOD_M3,1) > VGvalor_fractal_alto_M3 && VGVenta == 0)
       {
-         if (iClose(_Symbol,PERIOD_M1,1) > VGvalor_fractal_bajo_M1)
-         {
-            textohablado("\" Cambio de tendencia Alcista  en M1 "+ _Symbol +\"", true);
-         }
-         else
-         {
-            textohablado("\" Liquidity Sweet   en M1 "+ _Symbol +\"", true);
-         }
-         VGContadorAlertasZona_M1 = 0;
-         VGContadorAlertasOte_M1 = 0;
-         VGVenta = 1;
-         VGCompra = 0;
-      }
-   }   
-
-   if (VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasZona_M1 > 0)
-   {
-      double     vllowestLow = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 30, 0));
-      
-      if (vllowestLow < VGvalor_fractal_bajo_M1)
-         return;
+         double     vlhighestHigh = iHigh(Symbol(), PERIOD_M3, iHighest(Symbol(), PERIOD_M3, MODE_HIGH, 30, 2));
          
-      if ( iLow(_Symbol,PERIOD_M1,1) < VGvalor_fractal_bajo_M1 )
-      {
-         if (iClose(_Symbol,PERIOD_M1,1) > VGvalor_fractal_bajo_M1)
-         {      
-            textohablado("\" Cambio de tendencia Bajista  en M1 "+ _Symbol +\"", true);
-         }
-         else
-         {
-            textohablado("\" Liquidity Sweet   en M1 "+ _Symbol +\"", true);
-         }
-         VGContadorAlertasZona_M1 = 0;
-         VGContadorAlertasOte_M1 = 0;
-         VGCompra = 1;
-         VGVenta = 0;
-      }
-   }   
-      
-   if (VGTendencia_interna_M3 == "Bajista" && VGContadorAlertasZona_M3 > 0)
-   {
-      double     vlhighestHigh = iHigh(Symbol(), PERIOD_M3, iHighest(Symbol(), PERIOD_M3, MODE_HIGH, 30, 0));
-      
-      if ( vlhighestHigh > VGvalor_fractal_alto_M3)
-         return;
+         if ( vlhighestHigh > VGvalor_fractal_alto_M3)
+            return;
 
-
-      if (iHigh(_Symbol,PERIOD_M3,1) > VGvalor_fractal_alto_M3)
-      {
          if (iClose(_Symbol,PERIOD_M3,1) > VGvalor_fractal_bajo_M3)
          {
             textohablado("\" Cambio de tendencia Alcista  en M3 "+ _Symbol +\"", true);
          }
          else
          {
-            textohablado("\" Liquidity Sweet   en M3 "+ _Symbol +\"", true);
+            textohablado("\" Liquidity Sweep   en M3 "+ _Symbol +\"", true);
          }
          VGContadorAlertasZona_M3 = 0;
          VGContadorAlertasOte_M3 = 0;
-         VGCompra = 1;
-         VGVenta = 0;
+         VGCompra = 0;
+         VGVenta = 1;
       }
-   }   
+   //}   
 
-   if (VGTendencia_interna_M3 == "Alcista" && VGContadorAlertasZona_M3 > 0)
-   {
+//   if (VGTendencia_interna_M3 == "Alcista" && VGContadorAlertasZona_M3 > 0)
+//   {
+//
+//      double     vllowestLow = iLow(Symbol(), PERIOD_M3, iLowest(Symbol(), PERIOD_M3, MODE_LOW, 30, 0));
+//      
+//      if (vllowestLow < VGvalor_fractal_bajo_M3)
+//         return;
 
-      double     vllowestLow = iLow(Symbol(), PERIOD_M3, iLowest(Symbol(), PERIOD_M3, MODE_LOW, 30, 0));
-      
-      if (vllowestLow < VGvalor_fractal_bajo_M3)
-         return;
-
-      if (iLow(_Symbol,PERIOD_M3,1) < VGvalor_fractal_bajo_M3)
+      if (iLow(_Symbol,PERIOD_M3,1) < VGvalor_fractal_bajo_M3 &&  VGCompra == 0 )
       {
+         double     vllowestLow = iLow(Symbol(), PERIOD_M3, iLowest(Symbol(), PERIOD_M3, MODE_LOW, 30, 2));
+         
+         if (vllowestLow < VGvalor_fractal_bajo_M3)
+            return;
+
          if (iClose(_Symbol,PERIOD_M3,1) < VGvalor_fractal_bajo_M3)
          {
             textohablado("\" Cambio de tendencia Bajista  en M3 "+ _Symbol +\"", true);
          }
          else
          {
-            textohablado("\" Liquidity Sweet   en M3 "+ _Symbol +\"", true);
+            textohablado("\" Liquidity Sweep   en M3 "+ _Symbol +\"", true);
          }
          VGContadorAlertasZona_M3 = 0;
          VGContadorAlertasOte_M3 = 0;
          VGCompra = 1;
          VGVenta = 0;
       }
-   }   
+   //}   
 
 
    if (VGTendencia_interna_M15 == "Bajista" && VGContadorAlertasZona_M15 > 0)
@@ -4876,7 +4889,7 @@ void Alarmas()
          }
          else
          {
-            textohablado("\" Liquidity Sweet   en M3 "+ _Symbol +\"", true);
+            textohablado("\" Liquidity Sweep   en M3 "+ _Symbol +\"", true);
          }
       }
    }   
@@ -4897,7 +4910,7 @@ void Alarmas()
          }
          else
          {
-            textohablado("\" Liquidity Sweet   en M15 "+ _Symbol +\"", true);
+            textohablado("\" Liquidity Sweep   en M15 "+ _Symbol +\"", true);
          }
       }
    }   
@@ -6337,7 +6350,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   {
                      VGbag = true;
                      string lvmensaje = "\"Bullish Breaker block  en " +  _Symbol + "  " + nametimeframe + \"";
-                     textohablado(lvmensaje,true);
+                     //textohablado(lvmensaje,true);
                      VGContadorAlertasBreaker++;
                      //VGCompra = 0;
                      //compra_venta(2); 
@@ -6368,7 +6381,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                
                
                string lvmensaje = "\" " + contadorFVGbullish + " Displacement leg Alcista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
-               textohablado(lvmensaje,true);
+               //textohablado(lvmensaje,true);
                break;
 
 
@@ -9358,6 +9371,11 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 30);
          }  
 
+         if (lvflag == "8" )
+         {
+           ObjectSetInteger(0, name, OBJPROP_COLOR, clrNONE);
+         }    
+
         if (contador_fractal_bajo >= 5 && contador_fractal_alto >=  5 && lvflag == "5")
             ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 1);
             //break; //cuando encuentra el segundo fractal finaliza 
@@ -9695,22 +9713,22 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
               if (VGPorcentaje_fibo_M1 > 50 && VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasZona_M1 <= 0)
               {
-                  textohablado("\"Zona de descuento M1 " + _Symbol +\"",true);
+                  //textohablado("\"Zona de descuento M1 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M1++;  
               }
               if (VGPorcentaje_fibo_M1 > 50 && VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasZona_M1 <= 0)
               {
-                  textohablado("\"Zona Premiun M1 " + _Symbol +\"",true);
+                  //textohablado("\"Zona Premiun M1 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M1++;  
               }
               if (VGPorcentaje_fibo_M1 > 70 && VGTendencia_interna_M1 == "Alcista" && VGContadorAlertasOte_M1 <= 0)
               {
-                  textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
+                  //textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
                   VGContadorAlertasOte_M1++;  
               }
               if (VGPorcentaje_fibo_M1 > 70 && VGTendencia_interna_M1 == "Bajista" && VGContadorAlertasOte_M1 <= 0)
               {
-                  textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
+                  //textohablado("\"Zona OTE M1 " + _Symbol +\"",true);
                   VGContadorAlertasOte_M1++;  
               }
 
@@ -9727,24 +9745,30 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
               if (VGPorcentaje_fibo_M3 > 50 && VGTendencia_interna_M3 == "Alcista" && VGContadorAlertasZona_M3 <= 0)
               {
-                  textohablado("\"Zona de descuento M3 " + _Symbol +\"",true);
+                  //textohablado("\"Zona de descuento M3 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M3++;  
               }
               if (VGPorcentaje_fibo_M3 > 50 && VGTendencia_interna_M3 == "Bajista" && VGContadorAlertasZona_M3 <= 0)
               {
-                  textohablado("\"Zona Premiun M3 " + _Symbol +\"",true);
+                  //textohablado("\"Zona Premiun M3 " + _Symbol +\"",true);
                   VGContadorAlertasZona_M3++;  
               }
               if (VGPorcentaje_fibo_M3 > 70 &&  VGTendencia_interna_M3 == "Alcista" && VGContadorAlertasOte_M3 <= 0)
               {
-                  textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
+                  //textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
                   VGContadorAlertasOte_M3++;  
               }
               if (VGPorcentaje_fibo_M3 > 70 &&  VGTendencia_interna_M3 == "Bajista" && VGContadorAlertasOte_M3 <= 0)
               {
-                  textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
+                  //textohablado("\"Zona OTE M3 " + _Symbol +\"",true);
                   VGContadorAlertasOte_M3++;  
               }
+              
+              if(VGPorcentaje_fibo_M3 > 50 && VGPorcentaje_fibo_M3 < 90)
+              {
+                  VGCompra = 0;
+                  VGVenta  = 0;
+              }     
 
             }
             if(timeframe == PERIOD_M15)
@@ -10091,13 +10115,13 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                if( VGContadorPosible2022 == 1 )// && VGContadorAlertasZona_M1 > 0 && VGcontadorAlertasBajista == 0)
                {
                   lvmensaje = "\"Oportunidad de Venta con vela grande : " +  _Symbol + " " + lv_timeframe +  " Contador : " + VGcontadorAlertasBajista +\"";
-                  textohablado(lvmensaje, true);
+                  //textohablado(lvmensaje, true);
                }
 
                if ( VGVenta == 1)//VGTendencia_interna_M15 == "Bajista" && VGPorcentaje_fibo_M15 > 50 || VGVenta == 1)
                { 
                      lvmensaje = "\"Oportunidad de Venta " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasBajista + \"";
-                     textohablado(lvmensaje, false);
+                     //textohablado(lvmensaje, false);
                }
                
                
@@ -10212,13 +10236,13 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                if( VGContadorPosible2022 == 1)// && VGContadorAlertasZona_M1 > 0 && VGcontadorAlertasAlcista == 0)
                {
                   lvmensaje = "\"Oportunidad de compra con vela grande : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                  textohablado(lvmensaje, true);
+                  //textohablado(lvmensaje, true);
                }
 
                if( VGCompra == 1)//VGTendencia_interna_M15 == "Alcista" && VGPorcentaje_fibo_M15 > 50 || VGCompra == 1)
                {
                      lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                     textohablado(lvmensaje, false);
+                     //textohablado(lvmensaje, false);
                }
 
 
