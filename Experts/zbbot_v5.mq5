@@ -2715,8 +2715,8 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
 
       if (VGtecla == 8 )
           ObjectsDeleteAll(0,"Cuartos");
-      if (VGtecla == 9 )
-          ObjectsDeleteAll(0,"IFVG");
+      //if (VGtecla == 9 )
+          //ObjectsDeleteAll(0,"IFVG");
       
    }
      
@@ -3559,7 +3559,7 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
             }
          }
          ObjectsDeleteAll(0,"Cuartos");
-         ObjectsDeleteAll(0,"IFVG");
+         //ObjectsDeleteAll(0,"IFVG");
          
          string nombre_objeto = sparam;
          
@@ -3578,7 +3578,7 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
 
          if (lvtecla == 9)// tecla numero 8 para IFVG 
          {
-           string name_object = "IFVG_"+lvnametf;
+           string name_object = "IFVG_"+lvnametf + "_" + clickTime;
            ObjectCreate(0,name_object,OBJ_RECTANGLE,0,clickTime,high,fecha_final,low);
            ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'77,18,129');
            ObjectSetInteger(0,name_object,OBJPROP_FILL,true);
@@ -6554,7 +6554,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
    double lvpuntosfvg = StringToDouble(puntosFvg.Text());
    int lvcontadorfvg = 0;
    
-   int lvvelainicial = 0;
+   int lvvelainicial = 1;
    
    if (fvgwidh == 9) //9 para detectar el ultimo fvg con solo 2 velas
       lvvelainicial = 1; //1 es para detectar fvg ya formado y 0 que se esta formando
@@ -6569,7 +6569,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
       low2 = iLow(NULL, timeframe, i+2);
       
       // Bullish FVG: Low de la vela i > High de la vela i+2
-      if(low0 > high2 && IsFVGReplenished_Bullish(timeframe, i, low0, high2))
+      if(low0 > high2 && IsFVGReplenished_Bullish(timeframe, i, low0, high2, contadorFVGbullish))
         {
         
             contadorFVGbullish++;
@@ -6679,7 +6679,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
         
 
       // Bearish FVG: High de la vela i < Low de la vela i+2
-      if(high0 < low2 && IsFVGReplenished_Bearish(timeframe, i,low2, high0))
+      if(high0 < low2 && IsFVGReplenished_Bearish(timeframe, i,low2, high0, contadorFVGbearish))
         {
 
             contadorFVGbearish++;
@@ -6867,13 +6867,13 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
 //+------------------------------------------------------------------+
 //| Verifica si el FVG ha sido rellenado                             |
 //+------------------------------------------------------------------+
-bool IsFVGReplenished_Bullish(ENUM_TIMEFRAMES timeframe, int startIndex, double top, double bottom)
+bool IsFVGReplenished_Bullish(ENUM_TIMEFRAMES timeframe, int startIndex, double top, double bottom, int lvcontador)
   {
    for(int j = 1 ; j <= startIndex; j++)
      {
       //double candleClose = iLow(NULL, timeframe, j);
       double candleClose = iClose(NULL, timeframe, j);
-      if(candleClose < bottom)
+      if(candleClose < bottom && lvcontador >= 1)
         {
           //Print( " candleClose:",candleClose, " bottom:",bottom, " Top: ", top, " Index: ",j);
          return false;
@@ -6883,13 +6883,13 @@ bool IsFVGReplenished_Bullish(ENUM_TIMEFRAMES timeframe, int startIndex, double 
   }
 
 
-bool IsFVGReplenished_Bearish(ENUM_TIMEFRAMES timeframe, int startIndex, double top, double bottom)
+bool IsFVGReplenished_Bearish(ENUM_TIMEFRAMES timeframe, int startIndex, double top, double bottom, int lvcontador)
   {
    for(int j = 1 ; j <= startIndex ; j++)
      {
       //double candleClose = iHigh(NULL, timeframe, j);
       double candleClose = iClose(NULL, timeframe, j);
-      if(candleClose > top)
+      if(candleClose > top && lvcontador >= 1)
         {
          return false;
         }
