@@ -2708,6 +2708,8 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
 
       if (VGtecla == 8 )
           ObjectsDeleteAll(0,"Cuartos");
+      if (VGtecla == 9 )
+          ObjectsDeleteAll(0,"IFVG");
       
    }
      
@@ -2719,7 +2721,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       // Obtener el estado de las teclas modificadoras
       
 
-      if (VGtecla == 8 )
+      if (VGtecla == 8)
       {
          DetectClickedCandle(lparam,dparam, "", VGtecla);
          return;
@@ -2945,7 +2947,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
       color lvcolor;
       
       
-      if (VGtecla == 8)
+      if (VGtecla == 8 || VGtecla == 9)
       {
           DetectClickedCandle(lparam,dparam, sparam, VGtecla);
            Print(" sparam o nombre objeto : ",sparam);
@@ -3502,7 +3504,8 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
 
       double range;
 
-   if (lvtecla == 8)// tecla numero 7 para cuartos 
+
+   if (lvtecla == 8 || lvtecla == 9)// tecla numero 7 para cuartos 8 Para IFVG
    {
          if (open > close) // Bajista
          {
@@ -3549,6 +3552,7 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
             }
          }
          ObjectsDeleteAll(0,"Cuartos");
+         ObjectsDeleteAll(0,"IFVG");
          
          string nombre_objeto = sparam;
          
@@ -3557,11 +3561,25 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
              Print(" nombre_objeto :",nombre_objeto);
              high = ObjectGetDouble(0,nombre_objeto,OBJPROP_PRICE);
              low = ObjectGetDouble(0,nombre_objeto,OBJPROP_PRICE,1);
+             clickTime = ObjectGetInteger(0,nombre_objeto,OBJPROP_TIME,0);
+             
              range = high - low;
          }    
          // Calcular el rango total de la vela
          //double range = high - low;
          // Calcular los niveles de los cuartos
+
+         if (lvtecla == 9)// tecla numero 8 para IFVG 
+         {
+           string name_object = "IFVG_"+lvnametf;
+           ObjectCreate(0,name_object,OBJ_RECTANGLE,0,clickTime,high,fecha_final,low);
+           ObjectSetInteger(0,name_object,OBJPROP_COLOR,C'77,18,129');
+           ObjectSetInteger(0,name_object,OBJPROP_FILL,true);
+           //ObjectSetInteger(0,name_object,OBJPROP_STYLE,STYLE_SOLID);
+           ObjectSetInteger(0,name_object,OBJPROP_SELECTABLE,true);
+           VGtecla = 0;
+           return;
+         }
 
          double levels[];
          ArrayResize(levels, 5);
