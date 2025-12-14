@@ -2133,6 +2133,13 @@ void OnTimer()
         
         }
 
+        if(StringFind(name_object, "IFVG") >=0)
+        {
+        
+            //Print("name_object : ",name_object);
+            ObjectSetInteger(0,name_object,OBJPROP_TIME,1,futureTime);
+        
+        }
     }
       
       VGContadorAlertasBreaker = 0;
