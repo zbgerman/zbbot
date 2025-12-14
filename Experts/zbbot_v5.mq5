@@ -508,29 +508,6 @@ int OnInit()
       }   
    }
 
-   name = "FIBO_4";
-   if (ObjectFind(0, name) < 0)
-   {
-   
-       ObjectCreate(0, name, OBJ_FIBO, 0, 0, 0, 0, 0);
-           
-      // Configurar 12 niveles
-      ObjectSetInteger(0, name, OBJPROP_LEVELS, 12);
-      
-      // Configurar cada nivel (0.5, 1.0, 1.5, 2.0, ..., 6.0)
-      for(int i = 0; i < 12; i++)
-      {
-         double level_value = (i + 1) * 0.5; // 0.5, 1.0, 1.5, ..., 6.0
-         
-         // Establecer valor del nivel
-         level_value = level_value * -1;
-         ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, i, level_value);
-         
-         // Configurar descripción del nivel
-         ObjectSetString(0, name, OBJPROP_LEVELTEXT, i, DoubleToString(level_value, 1));       // Set visual properties
-      }   
-   }
-
     
   double lote_maximo_permitido = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
   double realLeverage = AccountInfoInteger(ACCOUNT_LEVERAGE);
@@ -3230,6 +3207,39 @@ void compra_venta(int lvtecla)
 {
 
       verificar_ordenes_Abiertas();
+
+      string name = "FIBO_4";
+      
+      int lvlevels_fibo = 12;
+      
+      if (ObjectFind(0, name) < 0)
+      {
+      
+          ObjectCreate(0, name, OBJ_FIBO, 0, 0, 0, 0, 0);
+              
+         // Configurar 12 niveles
+         ObjectSetInteger(0, name, OBJPROP_LEVELS, lvlevels_fibo);
+         
+         // Configurar cada nivel (0.5, 1.0, 1.5, 2.0, ..., 6.0)
+         for(int i = 0; i < lvlevels_fibo; i++)
+         {
+            double level_value = (i + 1) * 0.5; // 0.5, 1.0, 1.5, ..., 6.0
+            
+            // Establecer valor del nivel
+            level_value = level_value * -1;
+            ObjectSetDouble(0, name, OBJPROP_LEVELVALUE, i, level_value);
+            
+            // Configurar descripción del nivel
+            ObjectSetString(0, name, OBJPROP_LEVELTEXT, i, DoubleToString(level_value, 1));       // Set visual properties
+         }   
+      }
+      
+      ObjectSetInteger(0, name, OBJPROP_COLOR, clrNONE);
+      for(int i = 0; i < lvlevels_fibo; i++)
+      {
+         ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrWhite);
+      }   
+
       int lvcolor = ObjectGetInteger(0,"maximo_M15",OBJPROP_COLOR);
             
 
@@ -3281,18 +3291,27 @@ void compra_venta(int lvtecla)
          }
          if (lvcolor1 == clrBlue)
          {
+            
             if (lvcolor > 0)
             {
                ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, clrNONE);
                ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
                ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
                ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
+               
+               for(int i = 0; i < lvlevels_fibo; i++)
+               {
+                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrNONE);
+               }   
+
             }
             else
             {
    
                ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
                ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+
+
             }
             return;            
          }
@@ -3310,6 +3329,8 @@ void compra_venta(int lvtecla)
    
          //double lvmidprice = vlalto - (vlalto - vlbajo) / 2.0;
       
+         
+
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_alto_5);
          ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_alto_5);
          ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
@@ -3343,6 +3364,12 @@ void compra_venta(int lvtecla)
                ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
                ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
                ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
+
+               for(int i = 0; i < lvlevels_fibo; i++)
+               {
+                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrNONE);
+               }   
+
             }
             else
             {
@@ -5243,7 +5270,7 @@ void Alarmas()
    {
       VGContadorAlertasZona = 0;
       VGContadorAlertasOte  = 0;
-      lvfibo_3_0 = iHigh(_Symbol,Time_Frame_M2022,0);
+      lvfibo_3_0 = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 2, 0));
       ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,0,lvfibo_3_0);
       //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvresistencia);
       //ObjectSetInteger(0,"Resistencia",OBJPROP_STYLE,STYLE_SOLID);
@@ -5255,7 +5282,7 @@ void Alarmas()
    
    if(Bid < lvfibo_3_1 )
    {
-      lvfibo_3_1 = iLow(_Symbol,Time_Frame_M2022,0);
+      lvfibo_3_1 = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 2, 0));
       VGContadorAlertasZona = 0;
       VGContadorAlertasOte  = 0;
       ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,1,lvfibo_3_1);
@@ -10259,7 +10286,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //                  VGContadorPosible2022 = 1;
 //              }
 //         } 
-          if(lvclose < valor_fractal_bajo_1 && lvbajista == 0 && VGVenta == 1) // && VGcontadorAlertasAlcista >= 3) //&& VGVenta == 1 )// && VGcontadorAlertasAlcista == 1)// && VGContadorPosible2022 >= )// && VGTendencia_interna_M1 == "Bajista"  && VGTendencia_interna_M3 == "Bajista" || VGPorcentaje_fibo_M3 < 30 ))// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
+          if(lvclose < valor_fractal_bajo_1 && lvbajista == 0 ) // && VGcontadorAlertasAlcista >= 3) //&& VGVenta == 1 )// && VGcontadorAlertasAlcista == 1)// && VGContadorPosible2022 >= )// && VGTendencia_interna_M1 == "Bajista"  && VGTendencia_interna_M3 == "Bajista" || VGPorcentaje_fibo_M3 < 30 ))// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
           {
 
                
@@ -10392,7 +10419,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //                  VGContadorPosible2022 = 1;
 //              }
 //            }  
-            if( lvclose > valor_fractal_alto_1   && lvalcista == 0 &&  VGCompra == 1) // && VGcontadorAlertasBajista >= 3) //  &&  VGCompra == 1)// && VGcontadorAlertasBajista == 1 && VGContadorPosible2022 >= 1)// && VGTendencia_interna_M1 == "Alcista"  && VGTendencia_interna_M3 == "Alcista" || VGPorcentaje_fibo_M3 < 30 ))//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
+            if( lvclose > valor_fractal_alto_1   && lvalcista == 0 ) // && VGcontadorAlertasBajista >= 3) //  &&  VGCompra == 1)// && VGcontadorAlertasBajista == 1 && VGContadorPosible2022 >= 1)// && VGTendencia_interna_M1 == "Alcista"  && VGTendencia_interna_M3 == "Alcista" || VGPorcentaje_fibo_M3 < 30 ))//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
             {
 
                //if (Bid < VGbias_H4 && Bid < VGbias_D1 && Bid < VGbias_W1 )
@@ -10532,7 +10559,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
        datetime fecha_fibo = TimeCurrent() + (5 * PeriodSeconds());
        ObjectSetInteger(0, name, OBJPROP_TIME,0, fecha_fibo);
        ObjectSetInteger(0, name, OBJPROP_TIME,1, fecha_fibo);
-       ObjectSetInteger(0,"FIBO_3",OBJPROP_TIMEFRAMES,OBJ_PERIOD_M1|OBJ_PERIOD_M3|OBJ_PERIOD_M5);
+       ObjectSetInteger(0,"FIBO_3",OBJPROP_TIMEFRAMES,OBJ_ALL_PERIODS);
        
        name = "FIBO_4";
 
