@@ -2038,13 +2038,13 @@ void OnTimer()
       int minutes = (secondsRemaining % 3600) / 60;
       int seconds = secondsRemaining % 60;   
       
-      string timerText =   minutes + ":" + seconds + " " + DoubleToString(VGPorcentaje,0) + "%"; //  + " " + DoubleToString(VGPorcentaje_externa,0) + "%";
+      string timerText =   minutes + ":" + seconds + " " + DoubleToString(VGPorcentaje,0); //  + " " + DoubleToString(VGPorcentaje_externa,0) ;
       if (hours > 0)
-       timerText =  hours + ":" + minutes + ":" + seconds + " " + DoubleToString(VGPorcentaje,0) + "%"; //  + " " + DoubleToString(VGPorcentaje_externa,0) + "%";
+       timerText =  hours + ":" + minutes + ":" + seconds + " " + DoubleToString(VGPorcentaje,0) ; //  + " " + DoubleToString(VGPorcentaje_externa,0);
       
       // Obtener coordenadas de la vela futura
       //Print("timerText :",timerText);
-      datetime futureCandleTime = iTime(Symbol(), Period(), 0) + (5 * PeriodSeconds());
+      datetime futureCandleTime = iTime(Symbol(), PERIOD_CURRENT, 0) + (5 * PeriodSeconds());
       double bidPrice = SymbolInfoDouble(Symbol(), SYMBOL_BID); // Precio Bid actual
       // Actualizar el texto
       ObjectSetString(0, labelNameCandleTimer, OBJPROP_TEXT, timerText);
@@ -2301,16 +2301,38 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
         
         //verificar_ordenes_Abiertas();
     }    
-     if (trans.type == TRADE_TRANSACTION_ORDER_DELETE)
-     {
+          //PrintFormat("0 - Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f \nVolumen: %.5f \nPosition: %d",
+          //          trans.type, trans.order, trans.price, trans.volume, trans.position);
+
+
      
         //ObjectDelete(0,"BUY_TP1_" + trans.position);
         //ObjectDelete(0,"SELL_TP1_" + trans.position);
-     
-        PrintFormat("Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f \nVolumen: %.5f \nPosition: %d",
-                    trans.type, trans.order, trans.price, trans.volume, trans.position);
-     
-     }
+        
+        long lvposition = trans.position;
+        long lvticket  = trans.order;
+        
+        double volumen_order;
+        
+          if (trans.type == 0)
+          {
+            volumen_order = trans.volume;
+             //Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume);
+          }    
+        
+        if (PositionSelectByTicket(lvposition))
+        {          
+            double volumen_actual = PositionGetDouble(POSITION_VOLUME);
+            
+            //Print(" volumen_actual ",volumen_actual);
+            if (volumen_order >= volumen_actual)
+            {
+
+              ObjectDelete(0,"BUY_TP1_" + trans.position);
+              ObjectDelete(0,"SELL_TP1_" + trans.position);
+            
+            }
+        }
            
 }
 
@@ -9727,7 +9749,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                   }
                   //Print(" lvtendencia_alcista : ",lvtendencia_alcista);
                }
-               
+                              
                //if (lvtendencia_alcista == lvtendencia_bajista)
                //{
                   if(fecha_fractal_bajo > fecha_fractal_alto )
@@ -9803,7 +9825,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                         
                      if (fractal_bajo[1] > fractal_bajo[2])
                      {
-                        lvtendencia = "Alcista";
+                        lvtendencia = "Bajista";
                         break;
                      }
                   //}   
@@ -9840,72 +9862,106 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
          int vlvelas = 1; 
          int vlvelasparadetectarfibo = 1;
+
          if(lvflag == "1")
          {
+
               if (lvtendencia == "Alcista" )
               {
-                  if(fractal_alto[1] > lvresistencia)
-                  {
                      vlvelas = iBarShift(_Symbol,timeframe,fecha_fractal_alto) + 1;
+                     double masalto = 0;
                      for (int i = 1; i < vlvelas; i++ )
                      {
                        double alto = iHigh(_Symbol,timeframe,i);
                        //Print( " i : ",i, " alto :",alto, " fractal_alto[1] : ",fractal_alto[1]);
-                       if ( alto < fractal_alto[1])
+                       if ( alto > masalto)
                        {
-                           vlvelasparadetectarfibo++;
+                           masalto = alto;
+                           vlvelasparadetectarfibo = i;
                        }
                      }
-                  }
-                  else
-                  {
-                     for(int j = 0; j < 500; j++)
-                     {
-                        double alto = iHigh(_Symbol,timeframe,j);
-                        if (alto == lvresistencia )
-                        {
-                           break;
-                        }
-                        else
-                        {
-                           vlvelasparadetectarfibo++;
-                           continue;
-                        }
-                     }
-                  }
+
+
+
+                  //if(fractal_alto[1] > lvresistencia)
+                  //{
+                  //   vlvelas = iBarShift(_Symbol,timeframe,fecha_fractal_alto) + 1;
+                  //   for (int i = 1; i < vlvelas; i++ )
+                  //   {
+                  //     double alto = iHigh(_Symbol,timeframe,i);
+                  //     //Print( " i : ",i, " alto :",alto, " fractal_alto[1] : ",fractal_alto[1]);
+                  //     if ( alto < fractal_alto[1])
+                  //     {
+                  //         vlvelasparadetectarfibo++;
+                  //     }
+                  //   }
+                  //}
+                  //else
+                  //{
+                  //   for(int j = 0; j < 200; j++)
+                  //   {
+                  //      double alto = iHigh(_Symbol,timeframe,j);
+                  //      if (alto == lvresistencia )
+                  //      {
+                  //         break;
+                  //      }
+                  //      else
+                  //      {
+                  //         vlvelasparadetectarfibo++;
+                  //         continue;
+                  //      }
+                  //   }
+                  //}
               }
               if (lvtendencia == "Bajista" )
               {
-                  if(fractal_bajo[1] < lvsoporte)
-                  {
+
                      vlvelas = iBarShift(_Symbol,timeframe,fecha_fractal_bajo) + 1;
-                  
+                     
+                     double masbajo = 1000000;
                      for (int i = 1; i < vlvelas; i++ )
                      {
-                       double bajo = iHigh(_Symbol,timeframe,i);
-                       if ( bajo > fractal_bajo[1])
+                       double bajo = iLow(_Symbol,timeframe,i);
+                       
+                       if ( bajo < masbajo)
                        {
-                           vlvelasparadetectarfibo++;
+                           masbajo = bajo;
+                           vlvelasparadetectarfibo = i;
                        }
                      }  
-                  }
-                  else
-                  {
-                     for(int j = 0; j < 500; j++)
-                     {
-                        double bajo = iLow(_Symbol,timeframe,j);
-                        if (bajo == lvsoporte )
-                        {
-                           break;
-                        }
-                        else
-                        {
-                           vlvelasparadetectarfibo++;
-                           continue;
-                        }
-                     }
-                  
-                  }
+
+
+//
+//                  if(fractal_bajo[1] < lvsoporte)
+//                  {
+//                     vlvelas = iBarShift(_Symbol,timeframe,fecha_fractal_bajo) + 1;
+//                  
+//                     for (int i = 1; i < vlvelas; i++ )
+//                     {
+//                       double bajo = iHigh(_Symbol,timeframe,i);
+//                       if ( bajo > fractal_bajo[1])
+//                       {
+//                           vlvelasparadetectarfibo++;
+//                       }
+//                     }  
+//                  }
+//                  else
+//                  {
+//                     for(int j = 0; j < 200; j++)
+//                     {
+//                        double bajo = iLow(_Symbol,timeframe,j);
+//                        if (bajo == lvsoporte )
+//                        {
+//                           break;
+//                        }
+//                        else
+//                        {
+//                           vlvelasparadetectarfibo++;
+//                           continue;
+//                        }
+//                     }
+//                  
+//                  }
               }
               
               //Print("vlvelas : ",vlvelas, " timeframe : ",timeframe, " vlvelasparadetectarfibo : ",vlvelasparadetectarfibo );
@@ -9926,7 +9982,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                      VGPorcentaje_fibo = (lvresistencia - vllowestLow) / (lvresistencia - lvsoporte) * 100;
                   }
               }
-              else
+              
+              if (lvtendencia == "Bajista" )
               {
                   if(VGvalor_fractal_bajo < lvsoporte)
                   {
@@ -11952,14 +12009,14 @@ void CreateButtons()
    
   int lvxpos = ObjectGetInteger(0, "SellButton",OBJPROP_XDISTANCE);
   
-  Print(" lvxpos : ",lvxpos);
+  //Print(" lvxpos : ",lvxpos);
   
   if (lvxpos > 0 && lvxpos < 3000 )
       return;
       
    if(sellButton.Create(0, "SellButton", 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight))
    {
-      Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
+      //Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
       sellButton.Text("Sell");
       sellButton.ColorBackground(clrGray);
       sellButton.Color(clrWhite);
@@ -11967,7 +12024,7 @@ void CreateButtons()
       sellButton.ColorBorder(clrWhite);
    }
 
-   Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
+   //Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
 
 
    xPos = xPos - 40;
