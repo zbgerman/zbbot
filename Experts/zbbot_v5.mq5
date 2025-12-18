@@ -5303,17 +5303,17 @@ void Alarmas()
    {
       double lvfractal_bajo =  ObjectGetDouble(0,"Fractal_L_1_1",OBJPROP_PRICE);
       double lvfractal_alto =  ObjectGetDouble(0,"Fractal_H_1_1",OBJPROP_PRICE);
-      double vlhighestHigh = iHigh(Symbol(), PERIOD_M3, iHighest(Symbol(), PERIOD_M3, MODE_HIGH, 30, 0)); 
-      double vllowestLow = iLow(Symbol(), PERIOD_M3, iLowest(Symbol(), PERIOD_M3, MODE_LOW, 30, 0));     
+      double vlhighestHigh = iHigh(Symbol(), PERIOD_M3, iHighest(Symbol(), PERIOD_M3, MODE_HIGH, 10, 0)); 
+      double vllowestLow = iLow(Symbol(), PERIOD_M3, iLowest(Symbol(), PERIOD_M3, MODE_LOW, 10, 0));     
  
-      if( lvfibo_3_0 > lvfractal_alto && vlhighestHigh < lvfractal_alto )
+      if( lvfibo_3_0 > lvfractal_alto)// && vlhighestHigh < lvfractal_alto )
       {
-         ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,0,lvfractal_alto);
+         ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,0,vlhighestHigh);
       }   
    
-      if( lvfibo_3_1 < lvfractal_bajo && vllowestLow > lvfractal_bajo )
+      if( lvfibo_3_1 < lvfractal_bajo)// && vllowestLow > lvfractal_bajo )
       {
-         ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,1,lvfractal_bajo);
+         ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,1,vllowestLow);
       }   
 
    }
@@ -5322,8 +5322,12 @@ void Alarmas()
    {
       VGContadorAlertasZona = 0;
       VGContadorAlertasOte  = 0;
-      lvfibo_3_0 = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 2, 0));
+      lvfibo_3_0 = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 60, 0));
+      lvfibo_3_1 = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 60, 0));
       ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,0,lvfibo_3_0);
+      ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,1,lvfibo_3_1);
+      
+      
       //ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,lvresistencia);
       //ObjectSetInteger(0,"Resistencia",OBJPROP_STYLE,STYLE_SOLID);
       //ObjectSetInteger(0,"Soporte",OBJPROP_STYLE,STYLE_DOT);
@@ -5334,9 +5338,12 @@ void Alarmas()
    
    if(Bid < lvfibo_3_1 )
    {
-      lvfibo_3_1 = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 2, 0));
-      VGContadorAlertasZona = 0;
-      VGContadorAlertasOte  = 0;
+      //VGContadorAlertasZona = 0;
+      //VGContadorAlertasOte  = 0;
+
+      lvfibo_3_0 = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 60, 0));
+      lvfibo_3_1 = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 60, 0));
+      ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,0,lvfibo_3_0);
       ObjectSetDouble(0,"FIBO_3",OBJPROP_PRICE,1,lvfibo_3_1);
       
       //ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,lvsoporte);
