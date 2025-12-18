@@ -2328,13 +2328,15 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
             if (volumen_order >= volumen_actual)
             {
 
-              ObjectDelete(0,"BUY_TP1_" + trans.position);
-              ObjectDelete(0,"SELL_TP1_" + trans.position);
+              //ObjectDelete(0,"BUY_TP1_" + trans.position);
+              //ObjectDelete(0,"SELL_TP1_" + trans.position);
             
             }
         }
            
 }
+
+
 
 ////+------------------------------------------------------------------+
 ////| Tester function                                                  |
@@ -2710,7 +2712,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          ObjectDelete(0,"Soporte");
          ObjectCreate(0,"Resistencia",OBJ_HLINE,0,0,0);
          ObjectCreate(0,"Soporte",OBJ_HLINE,0,0,0);
-         DrawBarFractals(PERIOD_M3, 500, 30, "8"); // 8 para hallar soporte y resistencia 
+         DrawBarFractals(PERIOD_M15, 500, 30, "8"); // 8 para hallar soporte y resistencia 
          ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,VGResistencia);  
          ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,VGSoporte);  
          VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
@@ -3360,11 +3362,11 @@ void compra_venta(int lvtecla)
    
          //double lvmidprice = vlalto - (vlalto - vlbajo) / 2.0;
       
-         
+         double vlbajo = iLow(Symbol(), PERIOD_M1, iLowest(Symbol(), PERIOD_M1, MODE_LOW, 15, 0));
 
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_alto_5);
          ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_alto_5);
-         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
+         ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,1,vlbajo );
 
          ObjectSetDouble(0, "FIBO_4", OBJPROP_PRICE,1, VGvalor_fractal_alto_5);    
          ObjectSetDouble(0, "FIBO_4", OBJPROP_PRICE,0, VGvalor_fractal_bajo_5);
@@ -3428,7 +3430,10 @@ void compra_venta(int lvtecla)
 //         double lvmidprice = vlalto - (vlalto - vlbajo) / 2.0;
 //   
 //         //double lvsoporte = ObjectGetDouble(0, "Soporte", OBJPROP_PRICE);
-         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0, VGvalor_fractal_alto_5);
+
+         double vlalto = iHigh(Symbol(), PERIOD_M1, iHighest(Symbol(), PERIOD_M1, MODE_HIGH, 15, 0));
+         
+         ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,0, vlalto);
          ObjectSetDouble(0, "maximo_M15", OBJPROP_PRICE,1,VGvalor_fractal_bajo_5 );
          ObjectSetDouble(0, "minimo_M15", OBJPROP_PRICE,0,VGvalor_fractal_bajo_5 ); 
       
