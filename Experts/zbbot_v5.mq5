@@ -2313,26 +2313,60 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
         long lvticket  = trans.order;
         
         double volumen_order;
+        double volumen_actual;
         
-          if (trans.type == 0)
-          {
+//        if (PositionSelectByTicket(lvposition) && trans.symbol == _Symbol)
+//        {          
+//            volumen_actual = PositionGetDouble(POSITION_VOLUME);
+//            
+//            Print(" volumen_actual ",volumen_actual);
+//        }
+
+        if (trans.type == 6 && trans.symbol == _Symbol)
+        {
+
+            if (PositionSelectByTicket(lvposition) && trans.symbol == _Symbol)
+            {          
+               volumen_actual = PositionGetDouble(POSITION_VOLUME);
+               
+               //Print(" volumen_actual ",volumen_actual);
+            }
             volumen_order = trans.volume;
-             //Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume);
-          }    
+            //Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume, " lvposition : ",lvposition, " trans.order :",trans.order, " ", " trans.symbol : ",trans.symbol);
         
-        if (PositionSelectByTicket(lvposition))
-        {          
-            double volumen_actual = PositionGetDouble(POSITION_VOLUME);
-            
-            //Print(" volumen_actual ",volumen_actual);
+               
             if (volumen_order >= volumen_actual)
             {
-
-              //ObjectDelete(0,"BUY_TP1_" + trans.position);
-              //ObjectDelete(0,"SELL_TP1_" + trans.position);
+            
+              ObjectDelete(0,"BUY_TP1_" + trans.position);
+              ObjectDelete(0,"SELL_TP1_" + trans.position);
             
             }
+
         }
+        
+          //if (trans.type == 9)
+          //{
+            //volumen_order = trans.volume;
+            // Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume, " lvposition : ",lvposition, " trans.order :",trans.order);
+          //}    
+        
+        //Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume, " lvposition : ",lvposition, " trans.order :",trans.order);
+        
+//        if (PositionSelectByTicket(lvposition))
+//        {          
+//            double volumen_actual = PositionGetDouble(POSITION_VOLUME);
+//            
+//            //Print(" volumen_actual ",volumen_actual);
+//            
+//            if (volumen_order >= volumen_actual)
+//            {
+//
+//              ObjectDelete(0,"BUY_TP1_" + trans.position);
+//              ObjectDelete(0,"SELL_TP1_" + trans.position);
+//            
+//            }
+//        }
            
 }
 
@@ -5843,8 +5877,8 @@ void ManejoStopLoss()
                   MiTrade.PositionClosePartial(Ticket,Mivolumen);
                   ObjectSetDouble(0,name_object,OBJPROP_PRICE,0,lvresistencia);
                   ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,lvresistencia);
-                  MoveToBreakEven();
-                  Print(" lvtp1 : ", lvtp1 );
+                  //MoveToBreakEven();
+                  //Print(" lvtp1 : ", lvtp1 );
                }  
                ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " % : " + VGporcentaje_venta_lote + " Volumen : " + DoubleToString(Mivolumen,2) +   " Profit : "  + DoubleToString(profit_money,2) + " % " + lvporcentaje );
             }
@@ -5857,7 +5891,7 @@ void ManejoStopLoss()
                double lvtp1 = ObjectGetDouble(0,name_object,OBJPROP_PRICE);
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
                
-               double lvsl =ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,1);
+               double lvsl =ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,0);
                
                if(StopLossAnterior == 0)
                  StopLossAnterior = lvsl;
@@ -5888,8 +5922,8 @@ void ManejoStopLoss()
                   MiTrade.PositionClosePartial(Ticket,Mivolumen);
                   ObjectSetDouble(0,name_object,OBJPROP_PRICE,0,lvsoporte);
                   ObjectSetDouble(0,name_object,OBJPROP_PRICE,1,lvsoporte);
-                  MoveToBreakEven();
-                  Print(" lvtp1 : ", lvtp1 );
+                  //MoveToBreakEven();
+                  //Print(" lvtp1 : ", lvtp1 );
                }  
                ObjectSetString(0,name_object,OBJPROP_TEXT,name_object + " % : " + VGporcentaje_venta_lote + " Volumen : " + DoubleToString(Mivolumen,2) +   " Profit : "  + DoubleToString(profit_money,2) + " % " + lvporcentaje );
             }
@@ -6607,7 +6641,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
         {
         
             contadorFVGbullish++;
-            if( fvgwidh == 5)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == "cambiar por numero 5")//Para verificar si el precio esta actualmente en un FVG
             {
               //Print("german : contadorFVGbullish = ",contadorFVGbullish,  " low : ", low0, " high2 :",high2, " VGlowestLow : ",VGlowestLow);
                   //Print("VGvalor_fractal_alto :",VGvalor_fractal_alto, " VGvalor_fractal_bajo :",VGvalor_fractal_bajo ," low2 : ",low2, " high0 :",high0 );
@@ -6718,7 +6752,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
 
             contadorFVGbearish++;
 
-            if( fvgwidh == 5)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == "cambiar por numero 5")// 5 es Para verificar si el precio esta actualmente en un FVG
             {
               //if(VGcontadorAlertasBajista > 0)// && timeframe == Time_Frame_M2022)
               //{
@@ -10208,6 +10242,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
    //if (VGHoraNewYork.hour >= 02 &&  VGHoraNewYork.hour <= 08 || VGHoraNewYork.hour >= 09 && VGHoraNewYork.hour <= 12 || VGHoraNewYork.hour == 14 
    //   || VGHoraNewYork.hour >= 20 && VGHoraNewYork.hour <= 22  )
    double lvclose;
+   
    string lvmensaje;
    
     
@@ -10241,38 +10276,42 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
      double  lvpuntosvela = StringToDouble(puntosFvg.Text());
      double lvpuntosvelaanterior = 0;
-     for (int i = 1; i<6; i++)
-     {
-        //double lvopen = iOpen(_Symbol,PERIOD_M1,i);
-        //double lvclose = iClose(_Symbol,PERIOD_M1,i);
-        double lvhigh = iHigh(_Symbol,PERIOD_M1,i);
-        double lvlow = iLow(_Symbol,PERIOD_M1,i);
-        lvpuntosvelaanterior = MathAbs(lvhigh  - lvlow ) / Puntos;
 
-        //if ( lvopen > lvclose)
-        //{
-        //    lvpuntosvelaanterior = MathAbs(lvhigh  - lvlow ) / Puntos;
-        //}
-        //else
-        //{
-        //    lvpuntosvelaanterior = MathAbs(lvclose - lvopen ) / Puntos;
-        //}
-
-        if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
-        {
-            VGContadorPosible2022 = 1;
-            break;
-        }
-        if (lvpuntosvelaanterior > lvpuntosvela)
-        {
-            VGContadorPosible2022 = 2;
-            break;
-        }
-     }
+//     for (int i = 1; i<6; i++)
+//     {
+//        //double lvopen = iOpen(_Symbol,PERIOD_M1,i);
+//        //double lvclose = iClose(_Symbol,PERIOD_M1,i);
+//        double lvhigh = iHigh(_Symbol,PERIOD_M1,i);
+//        double lvlow = iLow(_Symbol,PERIOD_M1,i);
+//        lvpuntosvelaanterior = MathAbs(lvhigh  - lvlow ) / Puntos;
+//
+//        //if ( lvopen > lvclose)
+//        //{
+//        //    lvpuntosvelaanterior = MathAbs(lvhigh  - lvlow ) / Puntos;
+//        //}
+//        //else
+//        //{
+//        //    lvpuntosvelaanterior = MathAbs(lvclose - lvopen ) / Puntos;
+//        //}
+//
+//        if (lvpuntosvelaanterior > lvpuntosvela * inpumbral )
+//        {
+//            VGContadorPosible2022 = 1;
+//            break;
+//        }
+//        if (lvpuntosvelaanterior > lvpuntosvela)
+//        {
+//            VGContadorPosible2022 = 2;
+//            break;
+//        }
+//     }
      
      //Print( "VGContadorPosible2022 : ",VGContadorPosible2022, " lvpuntosvelaanterior : ",lvpuntosvelaanterior , " lvpuntosvela : ",lvpuntosvela);
      
       lvclose = iClose(_Symbol,PERIOD_M1,0);
+      
+      double lvbajo = iLow(_Symbol,PERIOD_M1,0);
+      double lvalto = iHigh(_Symbol,PERIOD_M1,0);
       
       //VGHTF_Name = TimeframeToString(Time_Frame_M2022);
       DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
@@ -10380,7 +10419,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //                  VGContadorPosible2022 = 1;
 //              }
 //         } 
-          if(lvclose < valor_fractal_bajo_1 && lvbajista == 0 ) // && VGcontadorAlertasAlcista >= 3) //&& VGVenta == 1 )// && VGcontadorAlertasAlcista == 1)// && VGContadorPosible2022 >= )// && VGTendencia_interna_M1 == "Bajista"  && VGTendencia_interna_M3 == "Bajista" || VGPorcentaje_fibo_M3 < 30 ))// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
+          
+          if(lvbajo < valor_fractal_bajo_1 && lvbajista == 0 ) // && VGcontadorAlertasAlcista >= 3) //&& VGVenta == 1 )// && VGcontadorAlertasAlcista == 1)// && VGContadorPosible2022 >= )// && VGTendencia_interna_M1 == "Bajista"  && VGTendencia_interna_M3 == "Bajista" || VGPorcentaje_fibo_M3 < 30 ))// && VGcontadorAlertasBajista <= 0)// && VGcontadorAlertasBajista == 0) // && VGTendencia_interna_M3 == "Alcista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value )// && VGTendencia_interna == "Bajista")// && valor_fractal_alto_1 > valor_fractal_alto_2)
           {
 
                
@@ -10513,7 +10553,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //                  VGContadorPosible2022 = 1;
 //              }
 //            }  
-            if( lvclose > valor_fractal_alto_1   && lvalcista == 0 ) // && VGcontadorAlertasBajista >= 3) //  &&  VGCompra == 1)// && VGcontadorAlertasBajista == 1 && VGContadorPosible2022 >= 1)// && VGTendencia_interna_M1 == "Alcista"  && VGTendencia_interna_M3 == "Alcista" || VGPorcentaje_fibo_M3 < 30 ))//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
+            if( lvalto > valor_fractal_alto_1   && lvalcista == 0 ) // && VGcontadorAlertasBajista >= 3) //  &&  VGCompra == 1)// && VGcontadorAlertasBajista == 1 && VGContadorPosible2022 >= 1)// && VGTendencia_interna_M1 == "Alcista"  && VGTendencia_interna_M3 == "Alcista" || VGPorcentaje_fibo_M3 < 30 ))//&& VGcontadorAlertasAlcista <= 0 )// && VGTendencia_interna_M3 == "Bajista" && VGPorcentaje_fibo_M3 < 50 &&  VGPorcentaje_fibo_M3 > 30)// && lvpuntos_vela > tolerance_value ) //&& valor_fractal_bajo_1 < valor_fractal_bajo_2
             {
 
                //if (Bid < VGbias_H4 && Bid < VGbias_D1 && Bid < VGbias_W1 )
