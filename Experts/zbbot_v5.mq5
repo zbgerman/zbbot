@@ -2044,7 +2044,7 @@ void OnTimer()
       
       // Obtener coordenadas de la vela futura
       //Print("timerText :",timerText);
-      datetime futureCandleTime = iTime(Symbol(), PERIOD_CURRENT, 0) + (5 * PeriodSeconds());
+      datetime futureCandleTime = iTime(Symbol(), PERIOD_CURRENT, 0) + (2 * PeriodSeconds());
       double bidPrice = SymbolInfoDouble(Symbol(), SYMBOL_BID); // Precio Bid actual
       // Actualizar el texto
       ObjectSetString(0, labelNameCandleTimer, OBJPROP_TEXT, timerText);
@@ -2301,72 +2301,17 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
         
         //verificar_ordenes_Abiertas();
     }    
-          //PrintFormat("0 - Nueva transacción detectada: \nTipo: %d\nOrden: %d\nPrecio: %.5f \nVolumen: %.5f \nPosition: %d",
-          //          trans.type, trans.order, trans.price, trans.volume, trans.position);
-
-
-     
-        //ObjectDelete(0,"BUY_TP1_" + trans.position);
-        //ObjectDelete(0,"SELL_TP1_" + trans.position);
         
-        long lvposition = trans.position;
-        long lvticket  = trans.order;
-        
-        double volumen_order;
-        double volumen_actual;
-        
-//        if (PositionSelectByTicket(lvposition) && trans.symbol == _Symbol)
-//        {          
-//            volumen_actual = PositionGetDouble(POSITION_VOLUME);
-//            
-//            Print(" volumen_actual ",volumen_actual);
-//        }
-
-        if (trans.type == 6 && trans.symbol == _Symbol)
-        {
-
-            if (PositionSelectByTicket(lvposition) && trans.symbol == _Symbol)
-            {          
-               volumen_actual = PositionGetDouble(POSITION_VOLUME);
-               
-               //Print(" volumen_actual ",volumen_actual);
-            }
-            volumen_order = trans.volume;
-            //Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume, " lvposition : ",lvposition, " trans.order :",trans.order, " ", " trans.symbol : ",trans.symbol);
-        
-               
-            if (volumen_order >= volumen_actual)
-            {
-            
-              ObjectDelete(0,"BUY_TP1_" + trans.position);
-              ObjectDelete(0,"SELL_TP1_" + trans.position);
-            
-            }
-
-        }
-        
-          //if (trans.type == 9)
-          //{
-            //volumen_order = trans.volume;
-            // Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume, " lvposition : ",lvposition, " trans.order :",trans.order);
-          //}    
-        
-        //Print(" trans.type : ",trans.type," volumen_order ",volumen_order, " trans.volume : ",trans.volume, " lvposition : ",lvposition, " trans.order :",trans.order);
-        
-//        if (PositionSelectByTicket(lvposition))
-//        {          
-//            double volumen_actual = PositionGetDouble(POSITION_VOLUME);
-//            
-//            //Print(" volumen_actual ",volumen_actual);
-//            
-//            if (volumen_order >= volumen_actual)
-//            {
-//
-//              ObjectDelete(0,"BUY_TP1_" + trans.position);
-//              ObjectDelete(0,"SELL_TP1_" + trans.position);
-//            
-//            }
-//        }
+   long lvposition = trans.position;
+   
+   // Verificar si la posición específica existe
+   bool posicionExiste = PositionSelectByTicket(lvposition);
+   
+   if ( posicionExiste == false && trans.symbol == _Symbol)
+   {
+     ObjectDelete(0,"BUY_TP1_" + trans.position);
+     ObjectDelete(0,"SELL_TP1_" + trans.position);
+   }
            
 }
 
@@ -2746,7 +2691,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          ObjectDelete(0,"Soporte");
          ObjectCreate(0,"Resistencia",OBJ_HLINE,0,0,0);
          ObjectCreate(0,"Soporte",OBJ_HLINE,0,0,0);
-         DrawBarFractals(PERIOD_M15, 500, 30, "8"); // 8 para hallar soporte y resistencia 
+         DrawBarFractals(PERIOD_CURRENT, 500, 30, "8"); // 8 para hallar soporte y resistencia 
          ObjectSetDouble(0,"Resistencia",OBJPROP_PRICE,VGResistencia);  
          ObjectSetDouble(0,"Soporte",OBJPROP_PRICE,VGSoporte);  
          VGMidPrice = VGResistencia + (VGSoporte - VGResistencia) / 2.0;
@@ -10468,7 +10413,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                else
                { 
                      lvmensaje = "\"Oportunidad de Venta " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasBajista + \"";
-                     textohablado(lvmensaje, false);
+                     textohablado(lvmensaje, true);
                }
                
                VGcontadorAlertasBajista++ ;
@@ -10598,7 +10543,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                else
                {
                      lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                     textohablado(lvmensaje, false);
+                     textohablado(lvmensaje, true);
                }
                
                VGcontadorAlertasAlcista++;
