@@ -10512,7 +10512,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                //  //VGContadorPosible2022++;
                //}
                //if (Bid < VGbias_H4 )
-               //{
+               //
                //  lvmensaje = "\"Oportunidad de compras con el Bias H4 " +  _Symbol + " " + lv_timeframe +  \"";
                //  //VGContadorPosible2022++;
                //  VGvalor_fractal_alto = VGbias_H4;
@@ -12001,7 +12001,7 @@ void CreateButtons()
    
    int buttonWidth = 30;
    int buttonHeight = 25;
-   int xPos = chartWidth - buttonWidth - 100;
+   int xPos = chartWidth - buttonWidth - 30;
    int yPos = 5;
    
   int lvxpos = ObjectGetInteger(0, "SellButton",OBJPROP_XDISTANCE);
@@ -12011,15 +12011,6 @@ void CreateButtons()
   if (lvxpos > 0 && lvxpos < 3000 )
       return;
       
-   if(sellButton.Create(0, "SellButton", 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight))
-   {
-      //Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
-      sellButton.Text("Sell");
-      sellButton.ColorBackground(clrGray);
-      sellButton.Color(clrWhite);
-      sellButton.FontSize(9);
-      sellButton.ColorBorder(clrWhite);
-   }
 
    //Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
 
@@ -12068,8 +12059,21 @@ void CreateButtons()
       h1Btn.ColorBorder(clrWhite);
    }
 
-   xPos = chartWidth - 220;
+   xPos = chartWidth - 100;
    yPos = 40;
+
+
+   if(sellButton.Create(0, "SellButton", 0, xPos, yPos, xPos + 30, yPos + buttonHeight))
+   {
+      //Print(" sellButton.ColorBackground() ",sellButton.ColorBackground());
+      sellButton.Text("Sell");
+      sellButton.ColorBackground(clrGray);
+      sellButton.Color(clrWhite);
+      sellButton.FontSize(9);
+      sellButton.ColorBorder(clrWhite);
+   }
+
+   xPos = xPos - 50;
    
    if (m15Btn.Create(0, M15_BTN_NAME, 0, xPos, yPos, xPos + buttonWidth, yPos + buttonHeight));
    {
