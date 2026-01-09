@@ -3524,7 +3524,9 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
          {
             if(clickPrice > close && clickPrice < open) //Cuartos vela completa7
             {
-               range = high - low;
+               range =  open - close;
+               high = open;
+               low = close;
             }
             else
             {
@@ -3538,17 +3540,19 @@ void DetectClickedCandle(int lparam, int dparam, string sparam, int lvtecla)
                   range = high - open;
                   low = open;
                }
-               if(clickPrice > close && clickPrice < open) //Cuartos vela completa7
-               {
-                  range = high - low;
-               }
+               //if(clickPrice > close && clickPrice < open) //Cuartos vela completa
+               //{
+               //   range = close - open;
+               //}
             }
          }
          else //Alcista
          {
-            if(clickPrice < close && clickPrice > open) //Cuartos vela completa7
+            if(clickPrice < close && clickPrice > open) //Cuartos vela completa
             {
-               range = high - low;
+               range = close - open;
+               high = close;
+               low = open;
             }
             else
             {
