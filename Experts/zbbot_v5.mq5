@@ -535,7 +535,7 @@ int OnInit()
 
     if(VGResistencia < Bid ||  VGSoporte  > Bid)
     {
-      VGResistencia = 0;
+      //VGResistencia = 0;
     }
    }
  
@@ -5825,6 +5825,9 @@ void ManejoStopLoss()
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
 
                double lvsl =ObjectGetDouble(0,"minimo_M15",OBJPROP_PRICE,1);
+
+               if(lvsl > PrecioApertura )
+                  return;
                
                if(StopLossAnterior == 0)
                  StopLossAnterior = lvsl;
@@ -5862,12 +5865,16 @@ void ManejoStopLoss()
             if((Tipo == POSITION_TYPE_SELL))
             {
                
+               
                name_object = "SELL_TP1_" + Ticket;
                int ObjectExiste1 = ObjectFind(0,name_object);
                double lvtp1 = ObjectGetDouble(0,name_object,OBJPROP_PRICE);
                profit_money = CalculateMovementAndProfit(PrecioApertura, lvtp1, Mivolumen);
                
                double lvsl =ObjectGetDouble(0,"maximo_M15",OBJPROP_PRICE,0);
+               
+               if(lvsl < PrecioApertura )
+                  return;
                
                if(StopLossAnterior == 0)
                  StopLossAnterior = lvsl;
