@@ -1981,12 +1981,24 @@ void OnTimer()
       
       
       VGAlarma_modelo2022 = false;
-      //DrawBarFractals(Time_Frame_M2022, 500, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022     
-      if (VGHoraNewYork.sec == 01  || VGHoraNewYork.sec == 05 || VGHoraNewYork.sec == 10 || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 20 || VGHoraNewYork.sec == 25 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 35 || VGHoraNewYork.sec == 40 || VGHoraNewYork.sec == 45 || VGHoraNewYork.sec == 50 || VGHoraNewYork.sec == 55    )
+      //DrawBarFractals(Time_Frame_M2022, 500, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022  
+      if (Time_Frame_M2022 <= PERIOD_M3)
+      {   
+         if (VGHoraNewYork.sec == 01  || VGHoraNewYork.sec == 05 || VGHoraNewYork.sec == 10 || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 20 || VGHoraNewYork.sec == 25 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 35 || VGHoraNewYork.sec == 40 || VGHoraNewYork.sec == 45 || VGHoraNewYork.sec == 50 || VGHoraNewYork.sec == 55    )
+         {
+   
+            DrawBarFractals(Time_Frame_M2022, 300, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
+          
+         }
+      }   
+      else
       {
-
-         DrawBarFractals(Time_Frame_M2022, 300, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
-       
+         if (VGHoraNewYork.sec == 01)
+         {
+   
+            DrawBarFractals(Time_Frame_M2022, 300, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
+          
+         }
       }
 //      {
 //         if( VGfecha_noticia_anterior >  100)
