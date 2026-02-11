@@ -2042,7 +2042,7 @@ void OnTimer()
       if (VGminutos_noticias > 0)
       {
             newsButton.Visible(true);
-            newsButton.Text("NEWS : " + VGminutos_noticias);
+            newsButton.Text("NEWS:" + VGminutos_noticias);
             newsButton.ColorBackground(clrRed);
             newsButton.Color(clrWhite);      
             newsButton.FontSize(FONT_SIZE);
