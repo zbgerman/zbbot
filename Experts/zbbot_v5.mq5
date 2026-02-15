@@ -1866,12 +1866,12 @@ void OnTick()
          DetectImmediateRebalancePattern(PERIOD_M10);
          DetectImmediateRebalancePattern(PERIOD_M15);
          DetectImmediateRebalancePattern(PERIOD_H1);
-         //DetectImmediateRebalancePattern(PERIOD_H2);
-         //DetectImmediateRebalancePattern(PERIOD_H4);
-         //DetectImmediateRebalancePattern(PERIOD_H6);
-         //DetectImmediateRebalancePattern(PERIOD_H8);
-         //DetectImmediateRebalancePattern(PERIOD_H12);
-         //DetectImmediateRebalancePattern(PERIOD_D1);
+         DetectImmediateRebalancePattern(PERIOD_H2);
+         DetectImmediateRebalancePattern(PERIOD_H4);
+         DetectImmediateRebalancePattern(PERIOD_H6);
+         DetectImmediateRebalancePattern(PERIOD_H8);
+         DetectImmediateRebalancePattern(PERIOD_H12);
+         DetectImmediateRebalancePattern(PERIOD_D1);
          
          //PerfectPriceDelivered esta temporalmente suspenidad
          //PerfectPriceDelivered(PERIOD_M15, "M15");
@@ -11423,6 +11423,14 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
 
    double close_vela1 = iClose(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
    
+   double percentaje = 20;
+   
+   double rango = ( high_vela3 - low_vela3);
+   
+   double Bajista = low_vela3 + (rango * (percentaje / 100.0));
+   double Alsista = high_vela3 - (rango * (percentaje / 100.0));
+   
+   //Print(" Bajista : ",Bajista," Alsista : ",Alsista);
 
    //// --- Obtenemos los precios de las velas relevantes --- en la vela actual
    //double high_vela1 = iHigh(_Symbol, lv_timeframes, 0); // Alto de la Vela 1
@@ -11442,44 +11450,16 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
      return;
    string lv_mensaje;
    
-   //if (lv_timeframes == PERIOD_M1)
-   //   ImmediateRebalanceTolerancePoints = 0;
-      
-    //Print (" VGcomodin : ",VGcomodin , " 0.8 * VGcomodin :  ",VGcomodin * 0.8);  
-//   if (lv_timeframes > PERIOD_M1 && lv_timeframes <= PERIOD_M3)
-//      ImmediateRebalanceTolerancePoints = 0 * VGcomodin;
-//      
-//   if (lv_timeframes > PERIOD_M3 && lv_timeframes <= PERIOD_M10)
-//      ImmediateRebalanceTolerancePoints = 0.3 * VGcomodin ;
-//      
-//   if (lv_timeframes >  PERIOD_M10 && lv_timeframes <= PERIOD_H1)
-//      ImmediateRebalanceTolerancePoints = 1 * VGcomodin;
-//      
-//
-//   if (lv_timeframes >  PERIOD_H1 && lv_timeframes <= PERIOD_H4)
-//      ImmediateRebalanceTolerancePoints = 1.5 * VGcomodin ;
-//
-//   if (lv_timeframes >  PERIOD_H4 && lv_timeframes <= PERIOD_H12)
-//      ImmediateRebalanceTolerancePoints = 5.0 * VGcomodin;
-//
-//   if (lv_timeframes >  OBJ_PERIOD_H12 )
-//      ImmediateRebalanceTolerancePoints = 8.0 * VGcomodin;
-//      
-//
-//   double tolerance_value = ImmediateRebalanceTolerancePoints * _Point;
-
-
-   //Print("ImmediateRebalanceTolerancePoints :",ImmediateRebalanceTolerancePoints);
    
    //Print(" high_vela1 :",high_vela1," low_vela3 :",low_vela3, " close_vela1 :",close_vela1);
    
-   //Print("   Diferencia Bajista : ", DoubleToString(high_vela1 - low_vela3, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ") "+ lv_tf);
-   //Print("   Diferencia Alcista : ", DoubleToString(high_vela3 - low_vela1, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ")"+ lv_tf);
+   //Print("   Diferencia Bajista : ", DoubleToString(high_vela1 - low_vela3, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ") "+ lv_nametf);
+   //Print("   Diferencia Alcista : ", DoubleToString(high_vela3 - low_vela1, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ") "+ lv_nametf);
 
    // --- Aplicar la condición: "bajo de la vela 3 debe apenas sobrepasar el alto de la vela 1" ---
    // 1. "debe sobrepasar": low_vela3 > high_vela1
    // 2. "apenas": la diferencia (low_vela3 - high_vela1) debe ser menor o igual a nuestra tolerancia.
-   if (low_vela3 < high_vela1 && high_vela1 < high_vela3 && low_vela3 > low_vela2  && close_vela1 < low_vela3 )
+   if (low_vela3 < high_vela1 && high_vela1 < high_vela3 && low_vela3 > low_vela2  && close_vela1 < low_vela3 && high_vela1 < Bajista)
    {
        if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , low_vela3))
        {
@@ -11516,8 +11496,8 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       //Print("   Diferencia: ", DoubleToString(high_vela1 - low_vela3, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ")");
    }
          
-   if (high_vela3  > low_vela1 && low_vela1 > low_vela3 && high_vela3 < high_vela2 && close_vela1 > high_vela3)
-   {
+   if (high_vela3  > low_vela1 && low_vela1 > low_vela3 && high_vela3 < high_vela2 && close_vela1 > high_vela3 && low_vela1 > Alsista)
+   { 
        if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , high_vela3))
        {
            Print("Error al crear la línea de tendencia: ", GetLastError());
