@@ -3375,11 +3375,13 @@ void compra_venta(int lvtecla)
                ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
                ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
                
-               for(int i = 0; i < lvlevels_fibo; i++)
-               {
-                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrBlack);
-               }  
-               ObjectSetInteger(0, name, OBJPROP_COLOR, clrBlack); 
+               ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, OBJ_NO_PERIODS);
+               
+               //for(int i = 0; i < lvlevels_fibo; i++)
+               //{
+               //   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrBlack);
+               //}  
+               //ObjectSetInteger(0, name, OBJPROP_COLOR, clrBlack); 
 
             }
             else
@@ -3388,7 +3390,7 @@ void compra_venta(int lvtecla)
                ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
                ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
 
-
+               ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, OBJ_ALL_PERIODS);
             }
             return;            
          }
@@ -3441,12 +3443,14 @@ void compra_venta(int lvtecla)
                ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, clrNONE);
                ObjectSetInteger(0, "maximo_M15", OBJPROP_SELECTED,false);
                ObjectSetInteger(0, "minimo_M15", OBJPROP_SELECTED,false);
+               
+               ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, OBJ_NO_PERIODS);
 
-               for(int i = 0; i < lvlevels_fibo; i++)
-               {
-                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrBlack);
-               }  
-               ObjectSetInteger(0, name, OBJPROP_COLOR, clrBlack); 
+               //for(int i = 0; i < lvlevels_fibo; i++)
+               //{
+               //   ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrBlack);
+               //}  
+               //ObjectSetInteger(0, name, OBJPROP_COLOR, clrBlack); 
 
             }
             else
@@ -3454,6 +3458,8 @@ void compra_venta(int lvtecla)
    
                ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
                ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+               
+               ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, OBJ_ALL_PERIODS);
             }
             return;            
          
@@ -11422,6 +11428,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    double low_vela3  = iLow(_Symbol, lv_timeframes, 3);     // Bajo de la Vela 3
 
    double close_vela1 = iClose(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
+   double open_vela1 = iOpen(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
    
    double percentaje = 20;
    
@@ -11459,7 +11466,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    // --- Aplicar la condición: "bajo de la vela 3 debe apenas sobrepasar el alto de la vela 1" ---
    // 1. "debe sobrepasar": low_vela3 > high_vela1
    // 2. "apenas": la diferencia (low_vela3 - high_vela1) debe ser menor o igual a nuestra tolerancia.
-   if (low_vela3 < high_vela1 && high_vela1 < high_vela3 && low_vela3 > low_vela2  && close_vela1 < low_vela3 && high_vela1 < Bajista)
+   if (low_vela3 < high_vela1 && high_vela1 < high_vela3 && low_vela3 > low_vela2  && close_vela1 < low_vela3 && high_vela1 < Bajista) // && close_vela1 < open_vela1)
    {
        if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , low_vela3))
        {
@@ -11496,7 +11503,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       //Print("   Diferencia: ", DoubleToString(high_vela1 - low_vela3, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ")");
    }
          
-   if (high_vela3  > low_vela1 && low_vela1 > low_vela3 && high_vela3 < high_vela2 && close_vela1 > high_vela3 && low_vela1 > Alsista)
+   if (high_vela3  > low_vela1 && low_vela1 > low_vela3 && high_vela3 < high_vela2 && close_vela1 > high_vela3 && low_vela1 > Alsista) // && close_vela1 > open_vela1)
    { 
        if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , high_vela3))
        {
