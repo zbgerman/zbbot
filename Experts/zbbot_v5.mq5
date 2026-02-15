@@ -51,6 +51,10 @@
 #define GETRGB(clr)    ((clr)&0xFFFFFF)
 
 
+#define BLOCK_LABEL "DL_BLOCK_LABEL"
+
+datetime ResetTime=0;
+
 #define PANEL_NAME "Order Panel"
 #define PANEL_WIDTH 150
 #define PANEL_HIEIGHT 350
@@ -165,6 +169,8 @@ CMoneyFixedRisk   MiMoney;
 string NombreLineaPromedio = "A_Linea_Promedio"; //Nombre Linea promedio
 
 
+input double MaxDailyLossPercent = 3.0; //MAxima perdida diaria en %
+
 input ENUM_TIMEFRAMES Time_Frame_HTF = PERIOD_D1; //Select time frame for high time frame
 input ENUM_TIMEFRAMES Time_Frame_M2022 = PERIOD_M3; //Select time frame for Model 2022
 input int velas_verificar_fractal = 4; // Velas verificar fractal modelo 2022
@@ -211,6 +217,12 @@ input color Color_Bearist_Current_CE = clrWhite;
 input int VelasSoporteResistencia = 5; //Velas Soporte resistencia o cambio de estructura Minimo 10
 input int VelasRecorrido = 100; //Velas recorrido en el for para buscar los mas altos y mas bajos - recomendable 200 para estructuras M15 - H1 para M1 puede ser 10 a 30
 
+
+
+string GV_BALANCE = "DL_BALANCE";
+string GV_DAY     = "DL_DAY";
+string GV_BLOCK   = "DL_BLOCK";
+string GV_RESET   = "DL_RESET";
 
 //+------------------------------------------------------------------+
 //| Idicador tendencia horizontal donde no se debe operar            |
@@ -291,6 +303,7 @@ string VGnameFVG;
 //Ganacia del simbolo actual
 double TotalMiGanancia = 0;
 double Ganancia = 0;
+double VGGanacia_Perdida;
 
 bool PosibleVenta;
 bool PosibleCompra;
@@ -482,6 +495,10 @@ datetime lastTime = 0; //Ejecucion en un minuto en ontick en vez de ontimer
 int OnInit()
   {
 
+   GetDailyStartingBalance();
+   
+   InitDailyControl();
+   
    CreateButtons();
    
    string name = "FIBO_3";
@@ -591,9 +608,7 @@ int OnInit()
    Bias(PERIOD_H4);
    Bias(PERIOD_H1);
    
-   
-   CalculateDailyLoss(); //Cacular las ganancias o perdidas diarias
-   
+      
    if ( MQLInfoInteger(MQL_TESTER))
       intervalC = 15 ;
 
@@ -741,9 +756,9 @@ int OnInit()
     
    //TextToSpeech("Esti es una prueba en "); 
    //CalculateSupportResistance(); 
-   GetDailyProfitLoss();
-   GetInitialDayBalance();
-   informacionCuenta();
+
+
+   //informacionCuenta();
    
    
    if (sl_pf_Btn1 == true)
@@ -1651,7 +1666,18 @@ void OnTick()
   {
 
 
-    static datetime lastAlertTime = 0;
+   DailyLossProtection();
+
+   // Forzar bloqueo SIEMPRE
+   EnforceTradingBlock();
+   
+   UpdateOverlay();
+   
+   if(!TradingAllowed())
+      return;    
+      
+   
+   static datetime lastAlertTime = 0;
 
         
     VGumbral = inpumbral;
@@ -1834,18 +1860,18 @@ void OnTick()
          //AlarmaImmediateRebalance_vela_1(PERIOD_MN1,"MN1");
          
          
-         //DetectImmediateRebalancePattern(PERIOD_M1);
-         //DetectImmediateRebalancePattern(PERIOD_M3);
-         //DetectImmediateRebalancePattern(PERIOD_M5);
-         //DetectImmediateRebalancePattern(PERIOD_M10);
-         //DetectImmediateRebalancePattern(PERIOD_M15);
+         DetectImmediateRebalancePattern(PERIOD_M1);
+         DetectImmediateRebalancePattern(PERIOD_M3);
+         DetectImmediateRebalancePattern(PERIOD_M5);
+         DetectImmediateRebalancePattern(PERIOD_M10);
+         DetectImmediateRebalancePattern(PERIOD_M15);
          DetectImmediateRebalancePattern(PERIOD_H1);
-         DetectImmediateRebalancePattern(PERIOD_H2);
-         DetectImmediateRebalancePattern(PERIOD_H4);
-         DetectImmediateRebalancePattern(PERIOD_H6);
-         DetectImmediateRebalancePattern(PERIOD_H8);
-         DetectImmediateRebalancePattern(PERIOD_H12);
-         DetectImmediateRebalancePattern(PERIOD_D1);
+         //DetectImmediateRebalancePattern(PERIOD_H2);
+         //DetectImmediateRebalancePattern(PERIOD_H4);
+         //DetectImmediateRebalancePattern(PERIOD_H6);
+         //DetectImmediateRebalancePattern(PERIOD_H8);
+         //DetectImmediateRebalancePattern(PERIOD_H12);
+         //DetectImmediateRebalancePattern(PERIOD_D1);
          
          //PerfectPriceDelivered esta temporalmente suspenidad
          //PerfectPriceDelivered(PERIOD_M15, "M15");
@@ -2023,7 +2049,8 @@ void OnTimer()
       " Minutos Noticias : ",VGminutos_noticias,
       " Prioridad : ",VGprioridad_noticias,
       " VGCompra : ",VGCompra,
-      " VGVenta : ",VGVenta);      
+      " VGVenta : ",VGVenta,
+      " VGGanacia_Perdida : ", DoubleToString(VGGanacia_Perdida,2));      
 
       //" Tendencia : Interna : ", VGTendencia_interna, 
       //" Externa : ", VGTendencia_externa, 
@@ -3262,7 +3289,7 @@ void compra_venta(int lvtecla)
       if (ObjectFind(0, name) < 0)
       {
       
-          ObjectCreate(0, name, OBJ_FIBO, 0, 0, 0, 0, 0);
+         ObjectCreate(0, name, OBJ_FIBO, 0, 0, 0, 0, 0);
               
          // Configurar 12 niveles
          ObjectSetInteger(0, name, OBJPROP_LEVELS, lvlevels_fibo);
@@ -3280,12 +3307,14 @@ void compra_venta(int lvtecla)
             ObjectSetString(0, name, OBJPROP_LEVELTEXT, i, DoubleToString(level_value, 1));       // Set visual properties
          }   
       }
+
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE,true);      
       
       ObjectSetInteger(0, name, OBJPROP_COLOR, clrNONE);
       for(int i = 0; i < lvlevels_fibo; i++)
       {
          ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrWhite);
-      }   
+      }  
 
       int lvcolor = ObjectGetInteger(0,"maximo_M15",OBJPROP_COLOR);
             
@@ -3348,8 +3377,9 @@ void compra_venta(int lvtecla)
                
                for(int i = 0; i < lvlevels_fibo; i++)
                {
-                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrNONE);
-               }   
+                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrBlack);
+               }  
+               ObjectSetInteger(0, name, OBJPROP_COLOR, clrBlack); 
 
             }
             else
@@ -3414,8 +3444,9 @@ void compra_venta(int lvtecla)
 
                for(int i = 0; i < lvlevels_fibo; i++)
                {
-                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrNONE);
-               }   
+                  ObjectSetInteger(0, name, OBJPROP_LEVELCOLOR, i, clrBlack);
+               }  
+               ObjectSetInteger(0, name, OBJPROP_COLOR, clrBlack); 
 
             }
             else
@@ -8005,77 +8036,6 @@ double GetLow(datetime start_time, datetime end_time)
 } 
 
 
-
-void GetDailyProfitLoss()
-{
-    double profit = 0;
-    double commision = 0;
-    datetime date_start = iTime(Symbol(), PERIOD_D1, 0); // Hora de apertura del día actual
-    datetime date_end = iTime(Symbol(), PERIOD_M1, 0); // Hora de apertura del día actual
-
-//--- solicitamos toda la historia disponible en la cuenta 
-   if(!HistorySelect(date_start,date_end)) 
-     { 
-      Print("HistorySelect() failed. Error ", GetLastError()); 
-      return; 
-     } 
-         
-    for(int i = HistoryDealsTotal() - 1; i >= 0; i--)
-    {
-        ulong ticket = HistoryDealGetTicket(i);
-        if(ticket > 0)
-        {
-            datetime close_time = HistoryDealGetInteger(ticket, DEAL_TIME);
-            if(close_time >= date_start) // Solo operaciones cerradas hoy
-            {
-                int deal_reason        = HistoryDealGetInteger(ticket, DEAL_REASON);
-                double deal_profit     = HistoryDealGetDouble(ticket, DEAL_PROFIT);
-                double deal_commision  = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
-                datetime time_deal     = HistoryDealGetInteger(ticket, DEAL_TIME);
-                //Print("deal_reason:",deal_reason," i:",i, " ticket: ",ticket, " time_deal: ",time_deal, " deal_profit :",deal_profit);
-                profit += deal_profit;
-                commision += deal_commision ;
-            }
-        }
-    }
-    //Print("profit del dia:",DoubleToString(profit,2), " commision:",DoubleToString(commision,2), " Net profit:",  DoubleToString(profit + commision,2), " HistoryDealsTotal :",HistoryDealsTotal());
-    //return profit;
-}
-
-
-void GetInitialDayBalance()
-{
-
-
-//    // Obtener la hora de inicio del día actual
-//    datetime startOfDay = iTime(_Symbol, PERIOD_D1, 0);
-//    
-//    // Obtener el historial de operaciones
-//    HistorySelect(startOfDay, TimeCurrent());
-//    
-//    // Obtener el número total de órdenes en el historial
-//    int totalOrders = HistoryOrdersTotal();
-//    
-//    // Recorrer las órdenes para encontrar el balance inicial
-//    double initialBalance = AccountInfoDouble(ACCOUNT_BALANCE);
-//    
-//    for(int i = 0; i < totalOrders; i++)
-//    {
-//        ulong orderTicket = HistoryOrderGetTicket(i);
-//        if(orderTicket > 0)
-//        {
-//            datetime orderTime = (datetime)HistoryOrderGetInteger(orderTicket, ORDER_TIME_DONE);
-//            if(orderTime >= startOfDay)
-//            {
-//                double orderProfit = HistoryOrderGetDouble(orderTicket, ORDER_);
-//                initialBalance -= orderProfit;
-//            }
-//        }
-//    }
-//    
-//    Print("initialBalance:", initialBalance);
-
-}
 void informacionCuenta()
 {
 
@@ -11448,22 +11408,27 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    // Vela 2: index + 1
    // Vela 3: index
    
-   return; //para desactivar
+   //return; //para desactivar
    
    double ImmediateRebalanceTolerancePoints = 0; // Valor por defecto: 5 puntos. AJUSTA ESTO.
 
-   //// --- Obtenemos los precios de las velas relevantes --- despues de terminar la vela
-   //double high_vela1 = iHigh(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
-   //double high_vela3 = iHigh(_Symbol, lv_timeframes, 3); // Alto de la Vela 1
-   //double low_vela1  = iLow(_Symbol, lv_timeframes, 1);     // Bajo de la Vela 3
-   //double low_vela3  = iLow(_Symbol, lv_timeframes, 3);     // Bajo de la Vela 3
+   // --- Obtenemos los precios de las velas relevantes --- despues de terminar la vela
+   double high_vela1 = iHigh(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
+   double high_vela2 = iHigh(_Symbol, lv_timeframes, 2); // Alto de la Vela 1
+   double high_vela3 = iHigh(_Symbol, lv_timeframes, 3); // Alto de la Vela 1
+
+   double low_vela1  = iLow(_Symbol, lv_timeframes, 1);     // Bajo de la Vela 3
+   double low_vela2  = iLow(_Symbol, lv_timeframes, 2);     // Bajo de la Vela 3
+   double low_vela3  = iLow(_Symbol, lv_timeframes, 3);     // Bajo de la Vela 3
+
+   double close_vela1 = iClose(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
    
 
-   // --- Obtenemos los precios de las velas relevantes --- en la vela actual
-   double high_vela1 = iHigh(_Symbol, lv_timeframes, 0); // Alto de la Vela 1
-   double high_vela3 = iHigh(_Symbol, lv_timeframes, 2); // Alto de la Vela 1
-   double low_vela1  = iLow(_Symbol, lv_timeframes, 0);     // Bajo de la Vela 3
-   double low_vela3  = iLow(_Symbol, lv_timeframes, 2);     // Bajo de la Vela 3
+   //// --- Obtenemos los precios de las velas relevantes --- en la vela actual
+   //double high_vela1 = iHigh(_Symbol, lv_timeframes, 0); // Alto de la Vela 1
+   //double high_vela3 = iHigh(_Symbol, lv_timeframes, 2); // Alto de la Vela 1
+   //double low_vela1  = iLow(_Symbol, lv_timeframes, 0);     // Bajo de la Vela 3
+   //double low_vela3  = iLow(_Symbol, lv_timeframes, 2);     // Bajo de la Vela 3
 
    
    // --- Convertir la tolerancia de puntos a valor de precio ---
@@ -11481,32 +11446,32 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    //   ImmediateRebalanceTolerancePoints = 0;
       
     //Print (" VGcomodin : ",VGcomodin , " 0.8 * VGcomodin :  ",VGcomodin * 0.8);  
-   if (lv_timeframes > PERIOD_M1 && lv_timeframes <= PERIOD_M3)
-      ImmediateRebalanceTolerancePoints = 0 * VGcomodin;
-      
-   if (lv_timeframes > PERIOD_M3 && lv_timeframes <= PERIOD_M10)
-      ImmediateRebalanceTolerancePoints = 0.3 * VGcomodin ;
-      
-   if (lv_timeframes >  PERIOD_M10 && lv_timeframes <= PERIOD_H1)
-      ImmediateRebalanceTolerancePoints = 1 * VGcomodin;
-      
-
-   if (lv_timeframes >  PERIOD_H1 && lv_timeframes <= PERIOD_H4)
-      ImmediateRebalanceTolerancePoints = 1.5 * VGcomodin ;
-
-   if (lv_timeframes >  PERIOD_H4 && lv_timeframes <= PERIOD_H12)
-      ImmediateRebalanceTolerancePoints = 5.0 * VGcomodin;
-
-   if (lv_timeframes >  OBJ_PERIOD_H12 )
-      ImmediateRebalanceTolerancePoints = 8.0 * VGcomodin;
-      
-
-   double tolerance_value = ImmediateRebalanceTolerancePoints * _Point;
+//   if (lv_timeframes > PERIOD_M1 && lv_timeframes <= PERIOD_M3)
+//      ImmediateRebalanceTolerancePoints = 0 * VGcomodin;
+//      
+//   if (lv_timeframes > PERIOD_M3 && lv_timeframes <= PERIOD_M10)
+//      ImmediateRebalanceTolerancePoints = 0.3 * VGcomodin ;
+//      
+//   if (lv_timeframes >  PERIOD_M10 && lv_timeframes <= PERIOD_H1)
+//      ImmediateRebalanceTolerancePoints = 1 * VGcomodin;
+//      
+//
+//   if (lv_timeframes >  PERIOD_H1 && lv_timeframes <= PERIOD_H4)
+//      ImmediateRebalanceTolerancePoints = 1.5 * VGcomodin ;
+//
+//   if (lv_timeframes >  PERIOD_H4 && lv_timeframes <= PERIOD_H12)
+//      ImmediateRebalanceTolerancePoints = 5.0 * VGcomodin;
+//
+//   if (lv_timeframes >  OBJ_PERIOD_H12 )
+//      ImmediateRebalanceTolerancePoints = 8.0 * VGcomodin;
+//      
+//
+//   double tolerance_value = ImmediateRebalanceTolerancePoints * _Point;
 
 
    //Print("ImmediateRebalanceTolerancePoints :",ImmediateRebalanceTolerancePoints);
    
-   //Print(" high_vela1 :",high_vela1," low_vela3 :",low_vela3, " tolerance_value :",tolerance_value);
+   //Print(" high_vela1 :",high_vela1," low_vela3 :",low_vela3, " close_vela1 :",close_vela1);
    
    //Print("   Diferencia Bajista : ", DoubleToString(high_vela1 - low_vela3, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ") "+ lv_tf);
    //Print("   Diferencia Alcista : ", DoubleToString(high_vela3 - low_vela1, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ")"+ lv_tf);
@@ -11514,9 +11479,9 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    // --- Aplicar la condición: "bajo de la vela 3 debe apenas sobrepasar el alto de la vela 1" ---
    // 1. "debe sobrepasar": low_vela3 > high_vela1
    // 2. "apenas": la diferencia (low_vela3 - high_vela1) debe ser menor o igual a nuestra tolerancia.
-   if (low_vela3 < high_vela1 && (high_vela1 - low_vela3) <= tolerance_value)
+   if (low_vela3 < high_vela1 && high_vela1 < high_vela3 && low_vela3 > low_vela2  && close_vela1 < low_vela3 )
    {
-       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , high_vela1))
+       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , low_vela3))
        {
            Print("Error al crear la línea de tendencia: ", GetLastError());
            return;
@@ -11532,18 +11497,18 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       if ( (high_vela1 - low_vela3) == 0 )
       {
          lv_mensaje = ""\" Perfect Price Bajista !!! " + _Symbol + " " + lv_nametf +  \"";
-         //ObjectSetString(0, ir_name, OBJPROP_TEXT, "PPD "+ lv_nametf);
+         ObjectSetString(0, ir_name, OBJPROP_TEXT, "PPD "+ lv_nametf);
       }
       else
       {
          lv_mensaje =  ""\" Immediate Rebalance Bajista !!! "  + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela1 - low_vela3),2) + \"";
-         //ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
+         ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
       }
 
       //SendNotification(LVPosibleTrade);
       //Alert(LVPosibleTrade);
       //TextToSpeech("\"Immediate Rebalance Bajista " +  _Symbol + lv_tf +\"");
-      //textohablado(lv_mensaje,false);
+      textohablado(lv_mensaje,false);
       ContadorSonido = 1;
       //Print("Patrón 'Immediate Rebalance Bajista ' detectado en : ",lv_tf);
       //Print("   Vela 1 (Alto): ", DoubleToString(high_vela1, _Digits));
@@ -11551,9 +11516,9 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       //Print("   Diferencia: ", DoubleToString(high_vela1 - low_vela3, _Digits), " (Tolerancia: ", DoubleToString(tolerance_value, _Digits), ")");
    }
          
-   if (high_vela3  > low_vela1 && (high_vela3 - low_vela1) <= tolerance_value)
+   if (high_vela3  > low_vela1 && low_vela1 > low_vela3 && high_vela3 < high_vela2 && close_vela1 > high_vela3)
    {
-       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,2) , low_vela1))
+       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , high_vela3))
        {
            Print("Error al crear la línea de tendencia: ", GetLastError());
            return;
@@ -11568,18 +11533,18 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
 
       if ( (low_vela1 - high_vela3) == 0 )
       {
-         //lv_mensaje = ""\" Perfect Price Alcista !!! " + _Symbol + " " + lv_nametf + \"";
-         //ObjectSetString(0, ir_name, OBJPROP_TEXT, "PPD "+ lv_nametf);
+         lv_mensaje = ""\" Perfect Price Alcista !!! " + _Symbol + " " + lv_nametf + \"";
+         ObjectSetString(0, ir_name, OBJPROP_TEXT, "PPD "+ lv_nametf);
       }
       else
       {
-         //lv_mensaje = ""\" Immediate Rebalance Alcista !!! " + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela3 - low_vela1),2) + \"";
-         //ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
+         lv_mensaje = ""\" Immediate Rebalance Alcista !!! " + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela3 - low_vela1),2) + \"";
+         ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
       }
       //SendNotification(LVPosibleTrade);
       //Alert(LVPosibleTrade);
       //TextToSpeech("\"Immediate Rebalance Bajista una Vela" +  _Symbol + lv_tf +\"");
-      //textohablado(lv_mensaje, false);
+      textohablado(lv_mensaje, false);
       ContadorSonido = 1;
 
       //Print("Patrón 'Immediate Rebalance Alcista ' detectado en : ",lv_tf);
@@ -12006,46 +11971,6 @@ void Tendencia()
 }
 
 
-//+------------------------------------------------------------------+
-//| Función para calcular pérdidas del día                          |
-//+------------------------------------------------------------------+
-void CalculateDailyLoss()
-{
-    double dailyLoss = 0.0;
-    
-    // Obtener la fecha de inicio del día actual
-    MqlDateTime today;
-    TimeCurrent(today);
-    today.hour = 0;
-    today.min = 0;
-    today.sec = 0;
-    datetime startOfDay = StructToTime(today);
-    
-    // Recorrer todas las órdenes cerradas hoy
-    HistorySelect(startOfDay, TimeCurrent());
-    int totalOrders = HistoryDealsTotal();
-    
-    for(int i = 0; i < totalOrders; i++)
-    {
-        ulong ticket = HistoryDealGetTicket(i);
-        if(ticket > 0)
-        {
-            double profit = HistoryDealGetDouble(ticket, DEAL_PROFIT);
-            double swap = HistoryDealGetDouble(ticket, DEAL_SWAP);
-            double commission = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
-            
-            double netProfit = profit + swap + commission;
-            
-            // Solo sumar si es pérdida
-            if(netProfit < 0)
-            {
-                dailyLoss += netProfit;
-            }
-        }
-    }
-    
-    Print (" Ganancia o perdida del dia : ",DoubleToString(MathAbs(dailyLoss),2)); // Retorna valor positivo
-}
 
 
 //+------------------------------------------------------------------+
@@ -12181,32 +12106,283 @@ void CreateButtons()
    ChartRedraw();
 }
 
-//+------------------------------------------------------------------+
-//| Ajustar posición del botón                                       |
-//+------------------------------------------------------------------+
-void AdjustButtonPosition()
+
+void InitDailyControl()
 {
-   int chartWidth = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS);
+   datetime now = TimeCurrent();
+   MqlDateTime tm;
+   TimeToStruct(now, tm);
+
+   int today = tm.year*10000 + tm.mon*100 + tm.day;
+
+   double balance = AccountInfoDouble(ACCOUNT_BALANCE);
+
+   bool reset=false;
+
+   if(!GlobalVariableCheck(GV_DAY))
+      reset=true;
+
+   if(!GlobalVariableCheck(GV_BALANCE))
+      reset=true;
+
+   // Detectar valores incorrectos
+   double storedBalance = GlobalVariableGet(GV_BALANCE);
+   if(storedBalance <= 0 || storedBalance > balance*10 || storedBalance < balance*0.1 || balance != storedBalance)
+      reset=true;
+
+   if(reset)
+   {
+      Print("Reset inicial protección diaria");
+
+      GlobalVariableSet(GV_DAY, today);
+      //GlobalVariableSet(GV_BALANCE, 0);
+      GlobalVariableSet(GV_BLOCK, 0);
+   }
    
-//   if(chartWidth != lastChartWidth && buyButton != NULL)
-//   {
-//      int buttonWidth = 100;
-//      int buttonHeight = 25;
-//      int xPos = chartWidth - buttonWidth - 5;
-//      int yPos = 5;
-//      
-//      buyButton.Move(xPos, yPos);
-//   }
+   if(!GlobalVariableCheck(GV_RESET))
+   {
+      SetResetCountdown();
+   }
+   
 }
 
-//+------------------------------------------------------------------+
-//| Acción al hacer clic en el botón                                 |
-//+------------------------------------------------------------------+
-void OnButtonClick()
+
+void CheckNewDay()
 {
-   Print("Botón superior derecho activado");
-   // Aquí puedes agregar tu lógica personalizada
-   // Por ejemplo: abrir operaciones, mostrar diálogos, etc.
+   datetime now = TimeCurrent();
+   MqlDateTime tm;
+   TimeToStruct(now, tm);
+
+   int today = tm.year*10000 + tm.mon*100 + tm.day;
+   int stored = (int)GlobalVariableGet(GV_DAY);
+   
+   
+   //Print("today : ",today, " stored ",stored);
+
+   if(today != stored)
+   {
+      Print("Nuevo día -> Reset protección");
+
+      GlobalVariableSet(GV_DAY, today);
+      GlobalVariableSet(GV_BALANCE, AccountInfoDouble(ACCOUNT_BALANCE));
+      GlobalVariableSet(GV_BLOCK, 0);
+   }
+}
+
+
+void CloseAllPositions_1()
+{
+   for(int i=PositionsTotal()-1; i>=0; i--)
+   {
+      ulong ticket = PositionGetTicket(i);
+      if(PositionSelectByTicket(ticket))
+      {
+         string symbol = PositionGetString(POSITION_SYMBOL);
+         double volume = PositionGetDouble(POSITION_VOLUME);
+         long type = PositionGetInteger(POSITION_TYPE);
+
+         MqlTradeRequest req;
+         MqlTradeResult res;
+         ZeroMemory(req);
+
+         req.action   = TRADE_ACTION_DEAL;
+         req.position = ticket;
+         req.symbol   = symbol;
+         req.volume   = volume;
+         req.deviation= 30;
+
+         req.type = (type==POSITION_TYPE_BUY)
+                     ? ORDER_TYPE_SELL
+                     : ORDER_TYPE_BUY;
+
+         req.price = (req.type==ORDER_TYPE_BUY)
+                     ? SymbolInfoDouble(symbol,SYMBOL_ASK)
+                     : SymbolInfoDouble(symbol,SYMBOL_BID);
+
+         OrderSend(req,res);
+      }
+   }
+
+   // Eliminar pendientes
+   for(int i=OrdersTotal()-1;i>=0;i--)
+   {
+      ulong ticket = OrderGetTicket(i);
+      if(OrderSelect(ticket))
+      {
+         MqlTradeRequest req;
+         MqlTradeResult res;
+         ZeroMemory(req);
+
+         req.action = TRADE_ACTION_REMOVE;
+         req.order  = ticket;
+
+         OrderSend(req,res);
+      }
+   }
+}
+
+
+void DailyLossProtection()
+{
+   CheckNewDay();
+
+   double startBalance = GlobalVariableGet(GV_BALANCE);
+   double equity       = AccountInfoDouble(ACCOUNT_EQUITY);
+
+   double lossPercent = 100.0 * (startBalance - equity) / startBalance;
+   
+   VGGanacia_Perdida = lossPercent * -1;
+
+   bool blocked = (GlobalVariableGet(GV_BLOCK) == 1);
+
+   // 🔴 Si supera límite → bloquear
+   if(lossPercent >= MaxDailyLossPercent)
+   {
+      if(!blocked)
+      {
+         Print("MAX LOSS HIT -> Bloqueando trading");
+         CloseAllPositions();
+         GlobalVariableSet(GV_BLOCK,1);
+         SetResetCountdown();
+      }
+   }
+   // 🟢 Si vuelve dentro del límite → desbloquear automático
+   else
+   {
+      if(blocked)
+      {
+         Print("Equity dentro del límite -> Desbloqueando");
+         GlobalVariableSet(GV_BLOCK,0);
+         ObjectDelete(0,BLOCK_LABEL);
+      }
+   }
+}
+
+
+bool TradingAllowed()
+{
+   return (GlobalVariableGet(GV_BLOCK) == 0);
+}
+
+void EnforceTradingBlock()
+{
+   if(GlobalVariableGet(GV_BLOCK) != 1)
+      return;
+
+   // Cerrar cualquier posicion que aparezca
+   if(PositionsTotal() > 0)
+      CloseAllPositions();
+
+   // Eliminar pendientes
+   for(int i=OrdersTotal()-1;i>=0;i--)
+   {
+      ulong ticket = OrderGetTicket(i);
+      if(OrderSelect(ticket))
+      {
+         MqlTradeRequest req;
+         MqlTradeResult res;
+         ZeroMemory(req);
+
+         req.action = TRADE_ACTION_REMOVE;
+         req.order  = ticket;
+
+         OrderSend(req,res);
+      }
+   }
+}
+
+void ShowBlockOverlay()
+{
+   if(ObjectFind(0,BLOCK_LABEL) >= 0)
+      return;
+
+   ObjectCreate(0,BLOCK_LABEL,OBJ_LABEL,0,0,0);
+
+   ObjectSetInteger(0,BLOCK_LABEL,OBJPROP_CORNER,CORNER_LEFT_UPPER);
+   ObjectSetInteger(0,BLOCK_LABEL,OBJPROP_XDISTANCE,20);
+   ObjectSetInteger(0,BLOCK_LABEL,OBJPROP_YDISTANCE,40);
+
+   ObjectSetInteger(0,BLOCK_LABEL,OBJPROP_FONTSIZE,18);
+   ObjectSetInteger(0,BLOCK_LABEL,OBJPROP_COLOR,clrRed);
+   ObjectSetString(0,BLOCK_LABEL,OBJPROP_FONT,"Arial Black");
+}
+
+void UpdateOverlay()
+{
+   if(GlobalVariableGet(GV_BLOCK) != 1)
+      return;
+
+   ShowBlockOverlay();
+
+   datetime reset = (datetime)GlobalVariableGet(GV_RESET);
+   int seconds = (int)(reset - TimeCurrent());
+
+   if(seconds < 0) seconds = 0;
+
+   int h = seconds/3600;
+   int m = (seconds%3600)/60;
+   int s = seconds%60;
+
+   string txt =
+      "🚫 DAILY LOSS LIMIT HIT\n"
+      "TRADING DISABLED\n\n"
+      "Reset in: "
+      + IntegerToString(h)+":"
+      + IntegerToString(m)+":"
+      + IntegerToString(s);
+
+   ObjectSetString(0,BLOCK_LABEL,OBJPROP_TEXT,txt);
+}
+
+
+
+void SetResetCountdown()
+{
+   MqlDateTime tm;
+   TimeToStruct(TimeCurrent(),tm);
+
+   tm.hour = 23;
+   tm.min  = 59;
+   tm.sec  = 59;
+
+   datetime reset = StructToTime(tm);
+
+   GlobalVariableSet(GV_RESET, (double)reset);
+}
+
+void GetDailyStartingBalance()
+{
+   // 1. Definir el inicio del día (00:00 hora del servidor)
+   datetime fechaInicio = iTime(_Symbol, PERIOD_D1, 0); 
+   datetime fechaFin    = TimeCurrent();
+
+   // 2. Cargar el historial de hoy
+   HistorySelect(fechaInicio, fechaFin);
+
+   double beneficioHoy = 0;
+   int totalDeals = HistoryDealsTotal();
+
+   // 3. Sumar beneficios, comisiones y swaps de las operaciones cerradas hoy
+   for(int i = 0; i < totalDeals; i++)
+   {
+      ulong ticket = HistoryDealGetTicket(i);
+      if(ticket > 0)
+      {
+         double profit     = HistoryDealGetDouble(ticket, DEAL_PROFIT);
+         double commission = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
+         double swap       = HistoryDealGetDouble(ticket, DEAL_SWAP);
+         
+         beneficioHoy += (profit + commission + swap);
+      }
+   }
+
+   // 4. Balance Inicial = Balance Actual - Beneficio Neto de hoy
+   double balanceActual = AccountInfoDouble(ACCOUNT_BALANCE);
+   double balanceInicial = balanceActual - beneficioHoy;
+   
+   GlobalVariableSet(GV_BALANCE, balanceInicial);
+
+   Print ( " balanceInicial : ",balanceInicial);
 }
 
 //+------------------------------------------------------------------+
