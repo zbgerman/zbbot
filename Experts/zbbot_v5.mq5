@@ -1860,18 +1860,19 @@ void OnTick()
          //AlarmaImmediateRebalance_vela_1(PERIOD_MN1,"MN1");
          
          
-         DetectImmediateRebalancePattern(PERIOD_M1);
-         DetectImmediateRebalancePattern(PERIOD_M3);
-         DetectImmediateRebalancePattern(PERIOD_M5);
-         DetectImmediateRebalancePattern(PERIOD_M10);
-         DetectImmediateRebalancePattern(PERIOD_M15);
-         DetectImmediateRebalancePattern(PERIOD_H1);
-         DetectImmediateRebalancePattern(PERIOD_H2);
-         DetectImmediateRebalancePattern(PERIOD_H4);
-         DetectImmediateRebalancePattern(PERIOD_H6);
-         DetectImmediateRebalancePattern(PERIOD_H8);
-         DetectImmediateRebalancePattern(PERIOD_H12);
-         DetectImmediateRebalancePattern(PERIOD_D1);
+         DetectImmediateRebalancePattern(PERIOD_M1,0);
+         DetectImmediateRebalancePattern(PERIOD_M3,0);
+         DetectImmediateRebalancePattern(PERIOD_M5,0);
+         DetectImmediateRebalancePattern(PERIOD_M10,0);
+         DetectImmediateRebalancePattern(PERIOD_M15,0);
+         DetectImmediateRebalancePattern(PERIOD_H1,0);
+         DetectImmediateRebalancePattern(PERIOD_H2,0);
+         DetectImmediateRebalancePattern(PERIOD_H3,0);
+         DetectImmediateRebalancePattern(PERIOD_H4,0);
+         DetectImmediateRebalancePattern(PERIOD_H6,0);
+         DetectImmediateRebalancePattern(PERIOD_H8,0);
+         DetectImmediateRebalancePattern(PERIOD_H12,0);
+         DetectImmediateRebalancePattern(PERIOD_D1,0);
          
          //PerfectPriceDelivered esta temporalmente suspenidad
          //PerfectPriceDelivered(PERIOD_M15, "M15");
@@ -11407,7 +11408,7 @@ void strategiajpyh20()
 //|                (0 es la barra actual, 1 es la barra anterior).    |
 //| Retorna: true si se detecta el patrón, false en caso contrario.  |
 //+------------------------------------------------------------------+
-void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
+void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_inicial)
 {
    // Necesitamos al menos 3 barras para este patrón:
    // Vela 1: index + 2
@@ -11419,16 +11420,16 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
    double ImmediateRebalanceTolerancePoints = 0; // Valor por defecto: 5 puntos. AJUSTA ESTO.
 
    // --- Obtenemos los precios de las velas relevantes --- despues de terminar la vela
-   double high_vela1 = iHigh(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
-   double high_vela2 = iHigh(_Symbol, lv_timeframes, 2); // Alto de la Vela 1
-   double high_vela3 = iHigh(_Symbol, lv_timeframes, 3); // Alto de la Vela 1
+   double high_vela1 = iHigh(_Symbol, lv_timeframes, lv_vela_inicial); 
+   double high_vela2 = iHigh(_Symbol, lv_timeframes, lv_vela_inicial + 1); 
+   double high_vela3 = iHigh(_Symbol, lv_timeframes, lv_vela_inicial + 2);
 
-   double low_vela1  = iLow(_Symbol, lv_timeframes, 1);     // Bajo de la Vela 3
-   double low_vela2  = iLow(_Symbol, lv_timeframes, 2);     // Bajo de la Vela 3
-   double low_vela3  = iLow(_Symbol, lv_timeframes, 3);     // Bajo de la Vela 3
+   double low_vela1  = iLow(_Symbol, lv_timeframes, lv_vela_inicial);     
+   double low_vela2  = iLow(_Symbol, lv_timeframes, lv_vela_inicial + 1);     
+   double low_vela3  = iLow(_Symbol, lv_timeframes, lv_vela_inicial + 2);     
 
-   double close_vela1 = iClose(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
-   double open_vela1 = iOpen(_Symbol, lv_timeframes, 1); // Alto de la Vela 1
+   double close_vela1 = iClose(_Symbol, lv_timeframes, lv_vela_inicial); 
+   double open_vela1 = iOpen(_Symbol, lv_timeframes, lv_vela_inicial); 
    
    double percentaje = 20;
    
@@ -11451,7 +11452,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
 
    string lv_nametf = TimeframeToString(lv_timeframes);
    
-   string ir_name = "ZB_ImmediateRebalance " + lv_nametf + " " + iTime(_Symbol,lv_timeframes,3);
+   string ir_name = "ZB_ImmediateRebalance " + lv_nametf + " " + iTime(_Symbol,lv_timeframes,lv_vela_inicial + 2);
    
    if(ObjectFind(0,ir_name) == 0)
      return;
@@ -11488,7 +11489,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       }
       else
       {
-         lv_mensaje =  ""\" Immediate Rebalance Bajista !!! "  + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela1 - low_vela3),2) + \"";
+         lv_mensaje =  ""\" IR Bajista !!! "  + _Symbol + " " + lv_nametf + \" ";// + DoubleToString( (high_vela1 - low_vela3),2) + \"";
          ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
       }
 
@@ -11525,7 +11526,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes)
       }
       else
       {
-         lv_mensaje = ""\" Immediate Rebalance Alcista !!! " + _Symbol + " " + lv_nametf + " " + DoubleToString( (high_vela3 - low_vela1),2) + \"";
+         lv_mensaje = ""\" IR Alcista !!! " + _Symbol + " " + lv_nametf  + \" " ; //+ DoubleToString( (high_vela3 - low_vela1),2) + \"";
          ObjectSetString(0, ir_name, OBJPROP_TEXT, "IR "+ lv_nametf);
       }
       //SendNotification(LVPosibleTrade);
@@ -12218,7 +12219,7 @@ void DailyLossProtection()
 
    double lossPercent = 100.0 * (startBalance - equity) / startBalance;
    
-   VGGanacia_Perdida = lossPercent * -1;
+   VGGanacia_Perdida = lossPercent;
 
    bool blocked = (GlobalVariableGet(GV_BLOCK) == 1);
 
