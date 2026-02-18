@@ -1828,7 +1828,7 @@ void OnTick()
 //      }
           //DrawBarFractals(PERIOD_CURRENT, 500, 6, "7" );// Parametro 7 es para solo actualizar el fractal
                     
-      CheckFVGAlerts(PERIOD_CURRENT);
+      //CheckFVGAlerts(PERIOD_CURRENT);
       
       VGHTF_Name = TimeframeToString(VGTime_Frame_HT);
       
@@ -10284,7 +10284,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       double lvalto = iHigh(_Symbol,PERIOD_M1,0);
       
       //VGHTF_Name = TimeframeToString(Time_Frame_M2022);
-      DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
+      
+      //DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
    
       //double lot = CalculateLotSize(valor_fractal_bajo_1, lvresistencia, 1 ); // porcentajeRiesgo1); //calcular el tamano del lote  con 1% de riesgo    
       //if(VGTendencia_interna_D1 == "Bajista" )
@@ -10438,12 +10439,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                if( VGContadorPosible2022 == 1)// && VGContadorAlertasZona_M1 > 0 && VGcontadorAlertasBajista == 0)
                {
                   lvmensaje = "\"Oportunidad de Venta con vela grande : " +  _Symbol + " " + lv_timeframe +  " Contador : " + VGcontadorAlertasBajista +\"";
-                  textohablado(lvmensaje, true);
+                  //textohablado(lvmensaje, true);
                }
                else
                { 
                      lvmensaje = "\"Oportunidad de Venta " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasBajista + \"";
-                     textohablado(lvmensaje, true);
+                     //textohablado(lvmensaje, true);
                }
                
 
@@ -10572,12 +10573,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                if( VGContadorPosible2022 == 1)// && VGContadorAlertasZona_M1 > 0 && VGcontadorAlertasAlcista == 0)
                {
                   lvmensaje = "\"Oportunidad de compra con vela grande : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                  textohablado(lvmensaje, true);
+                  //textohablado(lvmensaje, true);
                }
                else
                {
                      lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                     textohablado(lvmensaje, true);
+                     //textohablado(lvmensaje, true);
                }
                
 
