@@ -205,6 +205,10 @@ input int GrosorLineaPromedio = 2; ////Average Line width
 input int Velas_FVG_HTF = 10000; //Max bars back for calculate HTF
 input int Velas_FVG_Current = 1000; //Max bars back for calculate current time frame
 input ENUM_LINE_STYLE EstiloLineaPromedio = STYLE_SOLID;
+
+input color Color_Sell = C'89,9,24';//Color para ventas
+input color Color_Buy = C'0,105,108';//Color para compras  
+
 input color Color_Bullish_HTF = C'45,45,45';  
 input color Color_Bullish_HTF_CE = C'132,132,0';
 input color Color_Bearist_HTF = C'45,45,45';
@@ -1838,6 +1842,9 @@ void OnTick()
 
 
       DrawFVG(VGTime_Frame_Current, Velas_FVG_Current, Color_Bullish_Current, Color_Bearist_Current,1);
+      
+      int numero_velas = 5;
+      DrawFVG(Time_Frame_M2022, numero_velas, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg en el numero de velas para displacement leg
 
 
          if (StringFind(_Symbol,"USDJPY") >=0 )
@@ -2639,7 +2646,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
          }
       }
       
-      datetime fecha_fibo_4 = TimeCurrent() + (1 * PeriodSeconds()) ;
+      datetime fecha_fibo_4 = TimeCurrent() + (3 * PeriodSeconds()) ;
       ObjectSetInteger(0,"FIBO_4",OBJPROP_TIME,0,fecha_fibo_4);
       ObjectSetInteger(0,"FIBO_4",OBJPROP_TIME,1,fecha_fibo_4);
       
@@ -3349,8 +3356,8 @@ void compra_venta(int lvtecla)
          }
 
 
-         ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
-         ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+         ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, Color_Sell);
+         ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, Color_Buy);
 
       }
 
@@ -3388,8 +3395,8 @@ void compra_venta(int lvtecla)
             else
             {
    
-               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
-               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, Color_Sell);
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, Color_Buy);
 
                ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, OBJ_ALL_PERIODS);
             }
@@ -3457,8 +3464,8 @@ void compra_venta(int lvtecla)
             else
             {
    
-               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, C'89,9,24');
-               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, C'0,105,108');
+               ObjectSetInteger(0, "maximo_M15", OBJPROP_COLOR, Color_Sell);
+               ObjectSetInteger(0, "minimo_M15", OBJPROP_COLOR, Color_Buy);
                
                ObjectSetInteger(0, name, OBJPROP_TIMEFRAMES, OBJ_ALL_PERIODS);
             }
@@ -6359,7 +6366,7 @@ void MaximoMinimo()
       if (ObjectExiste < 0)
       {    
          ObjectCreate(current_chart_id,obj_name_maximo,OBJ_RECTANGLE,0, 0, vlalto, 0, vlbajo);
-         ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_COLOR,C'89,9,24');
+         ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_COLOR,Color_Sell);
          ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_SELECTABLE,true);
          //ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_SELECTED,true); 
          ObjectSetInteger(current_chart_id,obj_name_maximo,OBJPROP_ZORDER,29999); 
@@ -6389,7 +6396,7 @@ void MaximoMinimo()
          ObjectCreate(current_chart_id,obj_name_minimo,OBJ_RECTANGLE,0,0 , vlalto, 0, vlbajo);
          
          ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_COLOR,clrAqua); 
-         ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_COLOR,C'0,105,108');
+         ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_COLOR,Color_Buy);
          ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_SELECTABLE,true);
          //ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_SELECTED,true);     
          ObjectSetInteger(current_chart_id,obj_name_minimo,OBJPROP_ZORDER,29000); 
@@ -6710,14 +6717,14 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               
             }
 
-            if( fvgwidh == 9 && contadorFVGbullish >= 1)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbullish >= 3)//Para verificar si el precio esta actualmente en un FVG
             {
                double vlbajo = 0;
                int vlbag = 1;
                
                
                string lvmensaje = "\" " + contadorFVGbullish + " Displacement leg Alcista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
-               //textohablado(lvmensaje,true);
+               textohablado(lvmensaje,true);
                break;
 
 
@@ -6821,7 +6828,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
  
             }
             
-            if( fvgwidh == 9 && contadorFVGbearish >= 1)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbearish >= 3)//Para verificar si el precio esta actualmente en un FVG
             {
             
                double vlalto = 0;
@@ -6829,7 +6836,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   
                  
                string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Bajista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
-               textohablado(lvmensaje,true);
+               textohablado(lvmensaje,false);
                break;
 
                for ( int j = i ; j >= 1; j--)
@@ -7020,13 +7027,13 @@ void CreateFVGRectangle(string name, datetime startTime, double startPrice,
       ObjectSetInteger(0, name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_CURRENT,0) + 20 * periodSeconds);
       ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_FILL, false);
-      ObjectSetInteger(0, name, OBJPROP_STYLE,STYLE_DOT);
+      ObjectSetInteger(0, name, OBJPROP_STYLE,STYLE_SOLID);
       ObjectSetString(0, name, OBJPROP_TEXT, "NWOG");
    }
    if (type == 2)//para NDOG
    {
-      ObjectSetInteger(0, name, OBJPROP_TIME,0,iTime(_Symbol,PERIOD_CURRENT,0) + 10 * periodSeconds);
-      ObjectSetInteger(0, name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_CURRENT,0) + 20 * periodSeconds);
+      ObjectSetInteger(0, name, OBJPROP_TIME,0,iTime(_Symbol,PERIOD_CURRENT,0) + 40 * periodSeconds);
+      ObjectSetInteger(0, name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_CURRENT,0) + 50 * periodSeconds);
       ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_FILL, false);
       ObjectSetInteger(0, name, OBJPROP_STYLE,STYLE_DOT);      
@@ -10217,7 +10224,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
     //Print(" current_minutes : ", current_minutes, " start_minutes : ",start_minutes," end_minutes : ",end_minutes);
 
    
-   int lvnumero_velas_verificar_fvg = 3;
+   int lvnumero_velas_verificar_fvg = 5;
    
    if (current_minutes >= start_minutes && current_minutes <= end_minutes)
    {
@@ -10278,7 +10285,6 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       
       //VGHTF_Name = TimeframeToString(Time_Frame_M2022);
       DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
-   
    
       //double lot = CalculateLotSize(valor_fractal_bajo_1, lvresistencia, 1 ); // porcentajeRiesgo1); //calcular el tamano del lote  con 1% de riesgo    
       //if(VGTendencia_interna_D1 == "Bajista" )
@@ -10661,14 +10667,14 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 //      }
 
 
-       datetime fecha_fibo = TimeCurrent() + (5 * PeriodSeconds());
+       datetime fecha_fibo = TimeCurrent() + (7 * PeriodSeconds());
        ObjectSetInteger(0, name, OBJPROP_TIME,0, fecha_fibo);
        ObjectSetInteger(0, name, OBJPROP_TIME,1, fecha_fibo);
        ObjectSetInteger(0,"FIBO_3",OBJPROP_TIMEFRAMES,OBJ_ALL_PERIODS);
        
        name = "FIBO_4";
 
-       fecha_fibo = TimeCurrent() + (1 * PeriodSeconds());
+       fecha_fibo = TimeCurrent() + (3 * PeriodSeconds());
        ObjectSetInteger(0, name, OBJPROP_TIME,0, fecha_fibo);
        ObjectSetInteger(0, name, OBJPROP_TIME,1, fecha_fibo);
 
@@ -11452,10 +11458,25 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
 
    string lv_nametf = TimeframeToString(lv_timeframes);
    
-   string ir_name = "ZB_ImmediateRebalance " + lv_nametf + " " + iTime(_Symbol,lv_timeframes,lv_vela_inicial + 2);
+   string ir_name = "ZB_ImmediateRebalance " + lv_nametf + " " + iTime(_Symbol,lv_timeframes, lv_vela_inicial + 2);
+   
+   color lvcolor = ObjectGetInteger(0, ir_name,OBJPROP_COLOR);
    
    if(ObjectFind(0,ir_name) == 0)
-     return;
+   {
+      //Print(" Objeto color : ",lvcolor);
+      if( (lvcolor == clrRed && high_vela1 > Bajista) || (lvcolor == clrBlue && low_vela1 < Alsista))
+      {
+        Print("Borrar objeto :",ir_name , " ",lv_nametf);
+        ObjectDelete(0,ir_name); 
+      }
+      else
+      {
+         return;
+      }
+   }     
+
+
    string lv_mensaje;
    
    
@@ -11469,7 +11490,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
    // 2. "apenas": la diferencia (low_vela3 - high_vela1) debe ser menor o igual a nuestra tolerancia.
    if (low_vela3 < high_vela1 && high_vela1 < high_vela3 && low_vela3 > low_vela2  && close_vela1 < low_vela3 && high_vela1 < Bajista) // && close_vela1 < open_vela1)
    {
-       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , low_vela3))
+       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,lv_vela_inicial + 2) , low_vela3))
        {
            Print("Error al crear la línea de tendencia: ", GetLastError());
            return;
@@ -11479,7 +11500,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
        ObjectSetInteger(0, ir_name, OBJPROP_STYLE, STYLE_DOT);
        ObjectSetInteger(0, ir_name, OBJPROP_RAY, false); // Línea finita (no infinita)
        ObjectSetInteger(0, ir_name, OBJPROP_SELECTABLE, true); 
-       ObjectSetInteger(0, ir_name, OBJPROP_TIME,1,iTime(_Symbol,lv_timeframes,0)); 
+       ObjectSetInteger(0, ir_name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_M1,0)); 
        //ObjectSetInteger(0, ir_name ,OBJPROP_TIMEFRAMES, OBJ_PERIOD_M1|OBJ_PERIOD_M2|OBJ_PERIOD_M3|OBJ_PERIOD_M5|OBJ_PERIOD_M10|OBJ_PERIOD_M5|OBJ_PERIOD_M15);
        
       if ( (high_vela1 - low_vela3) == 0 )
@@ -11496,7 +11517,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
       //SendNotification(LVPosibleTrade);
       //Alert(LVPosibleTrade);
       //TextToSpeech("\"Immediate Rebalance Bajista " +  _Symbol + lv_tf +\"");
-      textohablado(lv_mensaje,false);
+      //textohablado(lv_mensaje,false);
       ContadorSonido = 1;
       //Print("Patrón 'Immediate Rebalance Bajista ' detectado en : ",lv_tf);
       //Print("   Vela 1 (Alto): ", DoubleToString(high_vela1, _Digits));
@@ -11506,7 +11527,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
          
    if (high_vela3  > low_vela1 && low_vela1 > low_vela3 && high_vela3 < high_vela2 && close_vela1 > high_vela3 && low_vela1 > Alsista) // && close_vela1 > open_vela1)
    { 
-       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,3) , high_vela3))
+       if(!ObjectCreate(0, ir_name, OBJ_TREND, 0, iTime(_Symbol,lv_timeframes,lv_vela_inicial + 2) , high_vela3))
        {
            Print("Error al crear la línea de tendencia: ", GetLastError());
            return;
@@ -11516,7 +11537,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
        ObjectSetInteger(0, ir_name, OBJPROP_STYLE, STYLE_DOT);
        ObjectSetInteger(0, ir_name, OBJPROP_RAY, false); // Línea finita (no infinita)
        ObjectSetInteger(0, ir_name, OBJPROP_SELECTABLE, true); 
-       ObjectSetInteger(0, ir_name, OBJPROP_TIME,1,iTime(_Symbol,lv_timeframes,0)); 
+       ObjectSetInteger(0, ir_name, OBJPROP_TIME,1,iTime(_Symbol,PERIOD_M1,0)); 
        //ObjectSetInteger(0, ir_name ,OBJPROP_TIMEFRAMES, OBJ_PERIOD_M1|OBJ_PERIOD_M2|OBJ_PERIOD_M3|OBJ_PERIOD_M5|OBJ_PERIOD_M10|OBJ_PERIOD_M5|OBJ_PERIOD_M15);
 
       if ( (low_vela1 - high_vela3) == 0 )
@@ -11532,7 +11553,7 @@ void DetectImmediateRebalancePattern(ENUM_TIMEFRAMES lv_timeframes, int lv_vela_
       //SendNotification(LVPosibleTrade);
       //Alert(LVPosibleTrade);
       //TextToSpeech("\"Immediate Rebalance Bajista una Vela" +  _Symbol + lv_tf +\"");
-      textohablado(lv_mensaje, false);
+      //textohablado(lv_mensaje, false);
       ContadorSonido = 1;
 
       //Print("Patrón 'Immediate Rebalance Alcista ' detectado en : ",lv_tf);
@@ -12356,21 +12377,29 @@ void GetDailyStartingBalance()
       ulong ticket = HistoryDealGetTicket(i);
       if(ticket > 0)
       {
+         long type = HistoryDealGetInteger(ticket, DEAL_TYPE);
          double profit     = HistoryDealGetDouble(ticket, DEAL_PROFIT);
          double commission = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
          double swap       = HistoryDealGetDouble(ticket, DEAL_SWAP);
-         
-         beneficioHoy += (profit + commission + swap);
+        if(type == DEAL_TYPE_BALANCE)
+        {         
+            Print(" ticket : ",ticket,"profit",profit);
+        }
+        else
+        { 
+            beneficioHoy += (profit + commission + swap);
+        }    
       }
    }
 
    // 4. Balance Inicial = Balance Actual - Beneficio Neto de hoy
    double balanceActual = AccountInfoDouble(ACCOUNT_BALANCE);
-   double balanceInicial = balanceActual - beneficioHoy;
+   double balanceInicial = balanceActual - beneficioHoy;;
    
+   //Print ( "balanceActual : ",balanceActual ," balanceInicial : ",balanceInicial, " beneficioHoy :",beneficioHoy);
+
    GlobalVariableSet(GV_BALANCE, balanceInicial);
 
-   Print ( " balanceInicial : ",balanceInicial);
 }
 
 //+------------------------------------------------------------------+
