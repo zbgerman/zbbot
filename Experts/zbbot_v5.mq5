@@ -169,12 +169,13 @@ CMoneyFixedRisk   MiMoney;
 string NombreLineaPromedio = "A_Linea_Promedio"; //Nombre Linea promedio
 
 
-input double MaxDailyLossPercent = 3.0; //MAxima perdida diaria en %
+input double MaxDailyLossPercent = 3.0; //Maxima perdida diaria en %
 
 input ENUM_TIMEFRAMES Time_Frame_HTF = PERIOD_D1; //Select time frame for high time frame
 input ENUM_TIMEFRAMES Time_Frame_M2022 = PERIOD_M3; //Select time frame for Model 2022
 input int velas_verificar_fractal = 4; // Velas verificar fractal modelo 2022
-input int  inpnumerofvg = 1; // Numero de FVG para las alarmas
+input int inpnumerofvg = 1; // Numero de FVG para las alarmas
+input int Numero_velas = 6; //Numero Velas para detectar FVG
 input double inpumbral = 1; //inpumbral
 
 input int inphorainicial = 7; //Hora inicial
@@ -535,7 +536,7 @@ int OnInit()
     
   double lote_maximo_permitido = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
   double realLeverage = AccountInfoInteger(ACCOUNT_LEVERAGE);
-  Print( " lote_maximo_permitido : ",lote_maximo_permitido, " realLeverage :",realLeverage);
+  //Print( " lote_maximo_permitido : ",lote_maximo_permitido, " realLeverage :",realLeverage);
      
 //--- Desactivar autoajuste y forzar margen
    ChartSetInteger(0, CHART_SHIFT, true);    
@@ -618,7 +619,7 @@ int OnInit()
 
    verificar_ordenes_Abiertas();
         
-  Print("Inicio zbbot : ",_Symbol);
+  //Print("Inicio zbbot : ",_Symbol);
    //Print("_Period:",_Period);
 
    //VGTime_Frame_HT = Time_Frame_HTF;
@@ -1843,8 +1844,9 @@ void OnTick()
 
       DrawFVG(VGTime_Frame_Current, Velas_FVG_Current, Color_Bullish_Current, Color_Bearist_Current,1);
       
-      int numero_velas = 5;
-      DrawFVG(Time_Frame_M2022, numero_velas, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg en el numero de velas para displacement leg
+      
+      //DrawFVG(Time_Frame_M2022, Numero_velas, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg en el numero de velas para displacement leg
+      DrawFVG(PERIOD_M1, Numero_velas, Color_Bullish_HTF, Color_Bearist_HTF, 9);//para contar fvg en el numero de velas para displacement leg
 
 
          if (StringFind(_Symbol,"USDJPY") >=0 )
@@ -1867,10 +1869,10 @@ void OnTick()
          //AlarmaImmediateRebalance_vela_1(PERIOD_MN1,"MN1");
          
          
-         DetectImmediateRebalancePattern(PERIOD_M1,0);
-         DetectImmediateRebalancePattern(PERIOD_M3,0);
-         DetectImmediateRebalancePattern(PERIOD_M5,0);
-         DetectImmediateRebalancePattern(PERIOD_M10,0);
+         //DetectImmediateRebalancePattern(PERIOD_M1,0);
+         //DetectImmediateRebalancePattern(PERIOD_M3,0);
+         //DetectImmediateRebalancePattern(PERIOD_M5,0);
+         //DetectImmediateRebalancePattern(PERIOD_M10,0);
          DetectImmediateRebalancePattern(PERIOD_M15,0);
          DetectImmediateRebalancePattern(PERIOD_H1,0);
          DetectImmediateRebalancePattern(PERIOD_H2,0);
@@ -6717,7 +6719,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
               
             }
 
-            if( fvgwidh == 9 && contadorFVGbullish >= 3)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbullish >= Numero_velas - 1)//Para verificar si el precio esta actualmente en un FVG
             {
                double vlbajo = 0;
                int vlbag = 1;
@@ -6828,7 +6830,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
  
             }
             
-            if( fvgwidh == 9 && contadorFVGbearish >= 3)//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 9 && contadorFVGbearish >= 5)//Para verificar si el precio esta actualmente en un FVG
             {
             
                double vlalto = 0;
@@ -6836,7 +6838,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   
                  
                string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Bajista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
-               textohablado(lvmensaje,false);
+               textohablado(lvmensaje,true);
                break;
 
                for ( int j = i ; j >= 1; j--)
@@ -8163,6 +8165,28 @@ void TextToSpeech(string text)
     //    Print("Script de Python ejecutado correctamente.");
     //}
 }
+
+
+void DrawMacros(int lv_flag)
+{
+   MqlDateTime MiHoraNewYork;
+   MqlDateTime MiHoraActual;
+
+    // Obtener la hora de Nueva York
+   datetime newYorkTime = GetNewYorkTime();
+   
+   //TimeToStruct(newYorkTime, MiHoraNewYork);
+
+   TimeToStruct(TimeCurrent(), MiHoraActual);
+   
+   TimeToStruct(newYorkTime, MiHoraNewYork);
+   
+   datetime HoraInicio;
+   string macro_text ;
+
+
+}
+
 
 
 void DrawMacro_Session_Lunch(int lv_flag)
@@ -10369,7 +10393,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             if(VGcontadorFVG >= inpnumerofvg && VGcontadorAlertasAlcista == 1)
             {
                lvmensaje = "\"Oportunidad de compra con  " + VGcontadorFVG  + " FVG " +  _Symbol + \"";
-               //textohablado(lvmensaje,true);
+               textohablado(lvmensaje,true);
                //VGcontadorAlertasAlcista = 2;
             }
             //return;
@@ -10578,7 +10602,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                else
                {
                      lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                     //textohablado(lvmensaje, true);
+                     textohablado(lvmensaje, true);
                }
                
 
@@ -11717,7 +11741,7 @@ void DrawBuySell(double lvalto, double lvbajo, string namebuysell, color lvcolor
          if (namebuysell == "Buy_")
          {
             lvprice = lvalto;
-            if(lvalto == iHigh(_Symbol,PERIOD_M1,i))
+            if(lvalto == iHigh(_Symbol,Time_Frame_M2022,i))
             {
                break;
             }
@@ -11729,7 +11753,7 @@ void DrawBuySell(double lvalto, double lvbajo, string namebuysell, color lvcolor
          if (namebuysell == "Sell_")
          {
             lvprice = lvbajo;
-            if(lvbajo == iLow(_Symbol,PERIOD_M1,i))
+            if(lvbajo == iLow(_Symbol,Time_Frame_M2022,i))
             {
                break;
             }
@@ -11741,7 +11765,7 @@ void DrawBuySell(double lvalto, double lvbajo, string namebuysell, color lvcolor
       }
       name_object = namebuysell + lvprice;
       //ObjectCreate(0,name_object,OBJ_RECTANGLE,0,iTime(_Symbol,PERIOD_M1,2),lvalto,iTime(_Symbol,PERIOD_M1,1),lvbajo);
-      ObjectCreate(0,name_object,OBJ_TREND,0,iTime(_Symbol,PERIOD_M1,i),lvprice,iTime(_Symbol,PERIOD_M1,1),lvprice);
+      ObjectCreate(0,name_object,OBJ_TREND,0,iTime(_Symbol,Time_Frame_M2022,i),lvprice,iTime(_Symbol,Time_Frame_M2022,1),lvprice);
       ObjectSetInteger(0,name_object,OBJPROP_COLOR,lvcolor);
       ObjectSetInteger(0,name_object,OBJPROP_STYLE,lvstyle);
       ObjectSetInteger(0,name_object,OBJPROP_FILL,false);
@@ -12259,12 +12283,9 @@ void DailyLossProtection()
    // 🟢 Si vuelve dentro del límite → desbloquear automático
    else
    {
-      if(blocked)
-      {
-         Print("Equity dentro del límite -> Desbloqueando");
+         //Print("Equity dentro del límite -> Desbloqueando");
          GlobalVariableSet(GV_BLOCK,0);
          ObjectDelete(0,BLOCK_LABEL);
-      }
    }
 }
 
