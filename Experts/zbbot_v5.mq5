@@ -2701,7 +2701,7 @@ void OnChartEvent(const int id, const long &lparam, const double &dparam, const 
    if (id == CHARTEVENT_CHART_CHANGE)
    {
      // Obtener los valores iniciales del gráfico
-      CreateButtons();
+      //CreateButtons();
       ProgramarCompraVenta();
       int   current_visible_bars = (int)ChartGetInteger(0, CHART_VISIBLE_BARS);
       bool  scale_changed = false;
@@ -8473,11 +8473,11 @@ void DrawMacro_Session_Lunch(int lv_flag)
          if (lv_flag == 3 && MiHoraNewYork.hour >= 01 )//  && MiHoraNewYork.hour < 19)
          {
 
-            string horaserver = GetServerTimeNY("20");
+            string horaserver = GetServerTimeNY("19");
 
             string originalTime =  MiHoraNewYork.year + "." + MiHoraNewYork.mon + "." + MiHoraActual.day + " "  "  " + horaserver;// +  ":50:00";// + 2023.10.25 14:30';
             HoraInicio = StringToTime(originalTime);
-            futureBars = 240;
+            futureBars = 300;
             macro_text = "Asia " + horaserver ;//  ":50";// - 16:10";
 
             //string originalTime =  MiHoraNewYork.year + "." + MiHoraNewYork.mon + "." + MiHoraNewYork.day + " "  " 02:00:00";// + 2023.10.25 14:30';
@@ -10258,6 +10258,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
      //VGcontadorAlertasAlcista = 0;
      //VGcontadorAlertasBajista = 0;
    }
+   
    if( lvflag == "5" &&  (current_minutes >= start_minutes && current_minutes <= end_minutes)  )// && VGHoraNewYork.min <= inpminutofinal)// ||  VGHoraNewYork.hour >= 17 &&  VGHoraNewYork.hour <= 23 ) )// &&  VGHoraNewYork.hour == inphora el parametro 7 es solo para alertas
    {  
    
@@ -10302,10 +10303,12 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
      
      //Print( "VGContadorPosible2022 : ",VGContadorPosible2022, " lvpuntosvelaanterior : ",lvpuntosvelaanterior , " lvpuntosvela : ",lvpuntosvela);
      
-      lvclose = iClose(_Symbol,PERIOD_M1,0);
+      lvclose = iClose(_Symbol,PERIOD_M1,1);
       
-      double lvbajo = iLow(_Symbol,PERIOD_M1,0);
-      double lvalto = iHigh(_Symbol,PERIOD_M1,0);
+      double lvbajo = iLow(_Symbol,PERIOD_M1,1);
+      double lvalto = iHigh(_Symbol,PERIOD_M1,1);
+      
+      //Print(" lvbajo :",lvbajo, " lvalto :",lvalto);
       
       //VGHTF_Name = TimeframeToString(Time_Frame_M2022);
       
@@ -12026,7 +12029,7 @@ void CreateButtons()
   
   //Print(" lvxpos : ",lvxpos);
   
-  if (lvxpos > 0 && lvxpos < 3000 )
+  if (lvxpos > 0 && lvxpos < 1000 )
       return;
       
 
