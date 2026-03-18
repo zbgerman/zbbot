@@ -7654,7 +7654,7 @@ void MoveToBreakEven(double pips_buffer = 1.0)
 string TimeframeToString(ENUM_TIMEFRAMES timeframe)
 {
    //Print("_Period : ",_Period, "  timeframe: ",timeframe, " PERIOD_CURRENT: ", PERIOD_CURRENT );
-   switch (timeframe)
+   switch (_Period)
    {
       case PERIOD_M1:   return "M1";
       case PERIOD_M2:   return "M2";
