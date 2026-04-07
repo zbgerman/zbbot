@@ -500,8 +500,8 @@ datetime lastTime = 0; //Ejecucion en un minuto en ontick en vez de ontimer
 int OnInit()
   {
 
-   ObjectsDeleteAll(0,"Macro_");
-   ObjectsDeleteAll(0,"Text_");
+   //ObjectsDeleteAll(0,"Macro_");
+   //ObjectsDeleteAll(0,"Text_");
 
    GetDailyStartingBalance();
    
@@ -2311,11 +2311,23 @@ void OnTimer()
 //         
 //         DrawMacro_Session_Lunch(13); //Macro Opening Range
 
-         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrRoyalBlue);
+         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrLightSteelBlue);
          DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrRoyalBlue);
-         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrRoyalBlue);
+         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTomato);
 
-
+         DrawHistoricalMacros("M 2:33 - 2:45", 02, 33, 02, 45, clrWhiteSmoke);
+         DrawHistoricalMacros("M 3:20 - 3:40", 03, 20, 03, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("M 4:03 - 4:30", 04, 03, 04, 30, clrWhiteSmoke);
+         DrawHistoricalMacros("M 5:20 - 5:40", 05, 20, 05, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("M 7:50 - 8:10", 07, 50, 08, 10, clrWhiteSmoke);
+         DrawHistoricalMacros("M 9:20 - 9:40", 09, 20, 09, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("M 9:50 - 10:10", 09, 50, 10, 10, clrWhiteSmoke);
+         DrawHistoricalMacros("M 10:20 - 10:40", 10, 20, 10, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("NL 10:50 - 11:10", 10, 50, 11, 10, clrWhiteSmoke);
+         DrawHistoricalMacros("M 11:20 - 11:40", 11, 20, 11, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("LH 12:00 - 13:30", 12, 00, 13, 30, clrWhiteSmoke);
+         DrawHistoricalMacros("M 15:15 - 15:45", 15, 15, 15, 45, clrWhiteSmoke);
+         DrawHistoricalMacros("M 16:15 - 16:45", 16, 15, 16, 45, clrWhiteSmoke);
 
          lastActionB = now;
    }
@@ -8896,9 +8908,23 @@ void HideObjectsByPrefix(string prefix)
 //         
 //         DrawMacro_Session_Lunch(90); //Samurai
 
-         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrRoyalBlue);
-         DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrTeal);
-         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTeal);
+         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrLightSteelBlue);
+         DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrRoyalBlue);
+         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTomato);
+
+         DrawHistoricalMacros("M 2:33 - 2:45", 02, 33, 02, 45, clrWhiteSmoke);
+         DrawHistoricalMacros("M 3:20 - 3:40", 03, 20, 03, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("M 4:03 - 4:30", 04, 03, 04, 30, clrWhiteSmoke);
+         DrawHistoricalMacros("M 5:20 - 5:40", 05, 20, 05, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("M 7:50 - 8:10", 07, 50, 08, 10, clrWhiteSmoke);
+         DrawHistoricalMacros("M 9:20 - 9:40", 09, 20, 09, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("M 9:50 - 10:10", 09, 50, 10, 10, clrWhiteSmoke);
+         DrawHistoricalMacros("M 10:20 - 10:40", 10, 20, 10, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("NL 10:50 - 11:10", 10, 50, 11, 10, clrWhiteSmoke);
+         DrawHistoricalMacros("M 11:20 - 11:40", 11, 20, 11, 40, clrWhiteSmoke);
+         DrawHistoricalMacros("LH 12:00 - 13:30", 12, 00, 13, 30, clrWhiteSmoke);
+         DrawHistoricalMacros("M 15:15 - 15:45", 15, 15, 15, 45, clrWhiteSmoke);
+         DrawHistoricalMacros("M 16:15 - 16:45", 16, 15, 16, 45, clrWhiteSmoke);
    
    }
 
@@ -12532,7 +12558,7 @@ void DrawHistoricalMacros(string label, int startH, int startM, int endH, int en
         ObjectSetInteger(0, rectName, OBJPROP_TIME, 1, drawEnd);
         ObjectSetDouble(0, rectName, OBJPROP_PRICE, 1, low);
         ObjectSetInteger(0, rectName, OBJPROP_COLOR, clr);
-        ObjectSetInteger(0, rectName, OBJPROP_FILL, true);
+        ObjectSetInteger(0, rectName, OBJPROP_FILL, false);
         ObjectSetInteger(0, rectName, OBJPROP_BACK, true);
 
         // 3. Dibujar Texto con Pips
