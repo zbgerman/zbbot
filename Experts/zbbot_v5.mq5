@@ -443,7 +443,7 @@ int fiboInterval = 60;
 int intervalB = 60;//Macros
 int intervalC = 60 * 60; // 5 son los minutos
 int RejectionBlockInterval = 15 * 60; 
-int NoticiasInterval = 7 * 60;
+int NoticiasInterval = 1 * 60;
 
 
 datetime previousCandleTimeM1 = 0;
@@ -499,6 +499,9 @@ datetime lastTime = 0; //Ejecucion en un minuto en ontick en vez de ontimer
 //+------------------------------------------------------------------+
 int OnInit()
   {
+
+   ObjectsDeleteAll(0,"Macro_");
+   ObjectsDeleteAll(0,"Text_");
 
    GetDailyStartingBalance();
    
@@ -624,25 +627,43 @@ int OnInit()
 
    //VGTime_Frame_HT = Time_Frame_HTF;
    
+   //switch (_Period)
+   //{
+   //   case 1:   VGTime_Frame_Current = PERIOD_M1; break;
+   //   case 2:   VGTime_Frame_Current = PERIOD_M2; break;
+   //   case 3:   VGTime_Frame_Current = PERIOD_M3; break;
+   //   case 5:   VGTime_Frame_Current = PERIOD_M5; break;
+   //   case 10:   VGTime_Frame_Current = PERIOD_M10; break;
+   //   case 15:   VGTime_Frame_Current = PERIOD_M15; break;
+   //   case 20:   VGTime_Frame_Current = PERIOD_M20; break;
+   //   case 30:   VGTime_Frame_Current = PERIOD_M30; break;
+   //   case 16385:   VGTime_Frame_Current = PERIOD_H1; break;
+   //   case 16386:   VGTime_Frame_Current = PERIOD_H2; break;
+   //   case 16388:   VGTime_Frame_Current = PERIOD_H4; break;
+   //   case 16408:   VGTime_Frame_Current = PERIOD_D1; break;
+   //   case 32769:   VGTime_Frame_Current = PERIOD_W1; break;
+   //   default:  VGTime_Frame_Current = "Desconocido";
+   //}
+
    switch (_Period)
    {
-      case 1:   VGTime_Frame_Current = PERIOD_M1; break;
-      case 2:   VGTime_Frame_Current = PERIOD_M2; break;
-      case 3:   VGTime_Frame_Current = PERIOD_M3; break;
-      case 5:   VGTime_Frame_Current = PERIOD_M5; break;
-      case 10:   VGTime_Frame_Current = PERIOD_M10; break;
-      case 15:   VGTime_Frame_Current = PERIOD_M15; break;
-      case 20:   VGTime_Frame_Current = PERIOD_M20; break;
-      case 30:   VGTime_Frame_Current = PERIOD_M30; break;
-      case 16385:   VGTime_Frame_Current = PERIOD_H1; break;
-      case 16386:   VGTime_Frame_Current = PERIOD_H2; break;
-      case 16388:   VGTime_Frame_Current = PERIOD_H4; break;
-      case 16408:   VGTime_Frame_Current = PERIOD_D1; break;
-      case 32769:   VGTime_Frame_Current = PERIOD_W1; break;
+      case PERIOD_M1:   VGTime_Frame_Current = PERIOD_M1; break;
+      case PERIOD_M2:   VGTime_Frame_Current = PERIOD_M2; break;
+      case PERIOD_M3:   VGTime_Frame_Current = PERIOD_M3; break;
+      case PERIOD_M5:   VGTime_Frame_Current = PERIOD_M5; break;
+      case PERIOD_M10:   VGTime_Frame_Current = PERIOD_M10; break;
+      case PERIOD_M15:   VGTime_Frame_Current = PERIOD_M15; break;
+      case PERIOD_M20:   VGTime_Frame_Current = PERIOD_M20; break;
+      case PERIOD_M30:   VGTime_Frame_Current = PERIOD_M30; break;
+      case PERIOD_H1:   VGTime_Frame_Current = PERIOD_H1; break;
+      case PERIOD_H2:   VGTime_Frame_Current = PERIOD_H2; break;
+      case PERIOD_H4:   VGTime_Frame_Current = PERIOD_H4; break;
+      case PERIOD_D1:   VGTime_Frame_Current = PERIOD_D1; break;
+      case PERIOD_W1:   VGTime_Frame_Current = PERIOD_W1; break;
       default:  VGTime_Frame_Current = "Desconocido";
    }
 
-
+   //Print("VGTime_Frame_Current :",VGTime_Frame_Current);
    //HideObjectsByPrefix("ZB_"+ _Symbol + "_Macro"); 
 
    name = "ZB_FIBO";
@@ -2020,7 +2041,7 @@ void OnTimer()
       //DrawBarFractals(Time_Frame_M2022, 500, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022  
       if (Time_Frame_M2022 <= PERIOD_M3)
       {   
-         if (VGHoraNewYork.sec == 01  || VGHoraNewYork.sec == 05 || VGHoraNewYork.sec == 10 || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 20 || VGHoraNewYork.sec == 25 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 35 || VGHoraNewYork.sec == 40 || VGHoraNewYork.sec == 45 || VGHoraNewYork.sec == 50 || VGHoraNewYork.sec == 55    )
+         if (VGHoraNewYork.sec == 01)//  || VGHoraNewYork.sec == 05 || VGHoraNewYork.sec == 10 || VGHoraNewYork.sec == 15 || VGHoraNewYork.sec == 20 || VGHoraNewYork.sec == 25 || VGHoraNewYork.sec == 30 || VGHoraNewYork.sec == 35 || VGHoraNewYork.sec == 40 || VGHoraNewYork.sec == 45 || VGHoraNewYork.sec == 50 || VGHoraNewYork.sec == 55    )
          {
    
             DrawBarFractals(Time_Frame_M2022, 300, velas_verificar_fractal, "5" ); //El parametro 5 es para alartas Modelo 2022 
@@ -2256,39 +2277,45 @@ void OnTimer()
    if(now - lastActionB >= intervalB && VGShowMacrosKillzone == true) //60 segundos
    {
            
-         DrawMacro_Session_Lunch(50); //Para Macros 
-         DrawMacro_Session_Lunch(51); //Para Macros 
-         DrawMacro_Session_Lunch(52); //Para Macros 
-         DrawMacro_Session_Lunch(53); //Para Macros 
-         DrawMacro_Session_Lunch(54); //Para Macros 
-         DrawMacro_Session_Lunch(55); //Para Macros 
-         DrawMacro_Session_Lunch(56); //Para Macros 
-         DrawMacro_Session_Lunch(57); //Para Macros 
-         DrawMacro_Session_Lunch(58); //Para Macros 
-         DrawMacro_Session_Lunch(59); //Para Macros 
-         DrawMacro_Session_Lunch(60); //Para Macros 
-         DrawMacro_Session_Lunch(61); //Para Macros 
-         DrawMacro_Session_Lunch(62); //Para Macros 
-         DrawMacro_Session_Lunch(63); //Para Macros 
-         DrawMacro_Session_Lunch(64); //Para Macros 
-         DrawMacro_Session_Lunch(65); //Para Macros 
-         DrawMacro_Session_Lunch(66); //Para Macros 
-         DrawMacro_Session_Lunch(67); //Para Macros 
-         DrawMacro_Session_Lunch(68); //Para Macros 
-         DrawMacro_Session_Lunch(69); //Para Macros 
-         DrawMacro_Session_Lunch(70); //Para Macros 
-         DrawMacro_Session_Lunch(71); //Para Macros 
-         
-         DrawMacro_Session_Lunch(2); //Para Lunch
-         DrawMacro_Session_Lunch(3); //Asia Session
-         DrawMacro_Session_Lunch(4); //Londres Session
-         DrawMacro_Session_Lunch(5); //New York Session
-         
-         DrawMacro_Session_Lunch(10); //Silver Bullet Londres
-         DrawMacro_Session_Lunch(11); //Silver Bullet NY AM
-         DrawMacro_Session_Lunch(12); //Silver Bullet NY PM
-         
-         DrawMacro_Session_Lunch(13); //Macro Opening Range
+//         DrawMacro_Session_Lunch(50); //Para Macros 
+//         DrawMacro_Session_Lunch(51); //Para Macros 
+//         DrawMacro_Session_Lunch(52); //Para Macros 
+//         DrawMacro_Session_Lunch(53); //Para Macros 
+//         DrawMacro_Session_Lunch(54); //Para Macros 
+//         DrawMacro_Session_Lunch(55); //Para Macros 
+//         DrawMacro_Session_Lunch(56); //Para Macros 
+//         DrawMacro_Session_Lunch(57); //Para Macros 
+//         DrawMacro_Session_Lunch(58); //Para Macros 
+//         DrawMacro_Session_Lunch(59); //Para Macros 
+//         DrawMacro_Session_Lunch(60); //Para Macros 
+//         DrawMacro_Session_Lunch(61); //Para Macros 
+//         DrawMacro_Session_Lunch(62); //Para Macros 
+//         DrawMacro_Session_Lunch(63); //Para Macros 
+//         DrawMacro_Session_Lunch(64); //Para Macros 
+//         DrawMacro_Session_Lunch(65); //Para Macros 
+//         DrawMacro_Session_Lunch(66); //Para Macros 
+//         DrawMacro_Session_Lunch(67); //Para Macros 
+//         DrawMacro_Session_Lunch(68); //Para Macros 
+//         DrawMacro_Session_Lunch(69); //Para Macros 
+//         DrawMacro_Session_Lunch(70); //Para Macros 
+//         DrawMacro_Session_Lunch(71); //Para Macros 
+//         
+//         DrawMacro_Session_Lunch(2); //Para Lunch
+//         DrawMacro_Session_Lunch(3); //Asia Session
+//         DrawMacro_Session_Lunch(4); //Londres Session
+//         DrawMacro_Session_Lunch(5); //New York Session
+//         
+//         DrawMacro_Session_Lunch(10); //Silver Bullet Londres
+//         DrawMacro_Session_Lunch(11); //Silver Bullet NY AM
+//         DrawMacro_Session_Lunch(12); //Silver Bullet NY PM
+//         
+//         DrawMacro_Session_Lunch(13); //Macro Opening Range
+
+         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrRoyalBlue);
+         DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrRoyalBlue);
+         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrRoyalBlue);
+
+
 
          lastActionB = now;
    }
@@ -5195,7 +5222,7 @@ void Alarmas()
       //{
          VGVenta = 0;
          VGCompra = 1;
-         textohablado("\"Zona Discount "+ _Symbol +\"", true);
+         //textohablado("\"Zona Discount "+ _Symbol +\"", true);
          VGContadorAlertasZona++;
       //}
    
@@ -5227,7 +5254,7 @@ void Alarmas()
       ////{
          VGVenta = 1;
          VGCompra = 0;
-         textohablado("\"Zona Primiun "+ _Symbol +\"", true);
+         //textohablado("\"Zona Primiun "+ _Symbol +\"", true);
          VGContadorAlertasZona++;
       //}
    
@@ -6683,7 +6710,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
         {
         
             contadorFVGbullish++;
-            if( fvgwidh == "cambiar por numero 5")//Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 5)//Para verificar si el precio esta actualmente en un FVG
             {
               //Print("german : contadorFVGbullish = ",contadorFVGbullish,  " low : ", low0, " high2 :",high2, " VGlowestLow : ",VGlowestLow);
                   //Print("VGvalor_fractal_alto :",VGvalor_fractal_alto, " VGvalor_fractal_bajo :",VGvalor_fractal_bajo ," low2 : ",low2, " high0 :",high0 );
@@ -6726,7 +6753,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                
                
                string lvmensaje = "\" " + contadorFVGbullish + " Displacement leg Alcista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
-               textohablado(lvmensaje,true);
+               //textohablado(lvmensaje,true);
                break;
 
 
@@ -6794,7 +6821,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
 
             contadorFVGbearish++;
 
-            if( fvgwidh == "cambiar por numero 5")// 5 es Para verificar si el precio esta actualmente en un FVG
+            if( fvgwidh == 5)// 5 es Para verificar si el precio esta actualmente en un FVG
             {
               //if(VGcontadorAlertasBajista > 0)// && timeframe == Time_Frame_M2022)
               //{
@@ -6838,7 +6865,7 @@ void DrawFVG(ENUM_TIMEFRAMES timeframe, int candlesToCheck, color colorBullis, c
                   
                  
                string lvmensaje = "\" "  + contadorFVGbearish + " Displacement leg Bajista !!! : " + " " + _Symbol + "  " + nametimeframe + \"";
-               textohablado(lvmensaje,true);
+               //textohablado(lvmensaje,true);
                break;
 
                for ( int j = i ; j >= 1; j--)
@@ -7654,7 +7681,12 @@ void MoveToBreakEven(double pips_buffer = 1.0)
 string TimeframeToString(ENUM_TIMEFRAMES timeframe)
 {
    //Print("_Period : ",_Period, "  timeframe: ",timeframe, " PERIOD_CURRENT: ", PERIOD_CURRENT );
-   switch (_Period)
+   //switch (_Period)
+//   if (_Period != timeframe)
+//      return "Desconocido";
+//      
+//   Print("_Period : ",_Period, "  timeframe: ",timeframe, " PERIOD_CURRENT: ", PERIOD_CURRENT );
+   switch (timeframe)
    {
       case PERIOD_M1:   return "M1";
       case PERIOD_M2:   return "M2";
@@ -8470,16 +8502,18 @@ void DrawMacro_Session_Lunch(int lv_flag)
 
 
          //Asia Session
-         if (lv_flag == 3 && MiHoraNewYork.hour >= 01 )//  && MiHoraNewYork.hour < 19)
+         if (lv_flag == 3 && MiHoraNewYork.hour >= 01   && MiHoraNewYork.hour < 19)
          {
 
             string horaserver = GetServerTimeNY("19");
-
-            string originalTime =  MiHoraNewYork.year + "." + MiHoraNewYork.mon + "." + MiHoraActual.day + " "  "  " + horaserver;// +  ":50:00";// + 2023.10.25 14:30';
+            
+            string originalTime =  MiHoraNewYork.year + "." + MiHoraNewYork.mon + "." + MiHoraNewYork.day + " "  "  " + horaserver;// +  ":50:00";// + 2023.10.25 14:30';
             HoraInicio = StringToTime(originalTime);
             futureBars = 300;
             macro_text = "Asia " + horaserver ;//  ":50";// - 16:10";
-
+            
+            //Print("macro_text : ",macro_text);
+            
             //string originalTime =  MiHoraNewYork.year + "." + MiHoraNewYork.mon + "." + MiHoraNewYork.day + " "  " 02:00:00";// + 2023.10.25 14:30';
             //HoraInicio = StringToTime(originalTime);
             //futureBars = 240;
@@ -8619,7 +8653,7 @@ void DrawMacro_Session_Lunch(int lv_flag)
          int periodSeconds = PeriodSeconds(PERIOD_M1);
             //datetime HoraInicio = iTime(NULL,PERIOD_M1, 0); // Última barra (actual)
             datetime lvHoraFinal = HoraInicio + (periodSeconds * futureBars);
-            //Print("lvHoraFinal:",lvHoraFinal);
+            //Print("HoraInicio : ",HoraInicio," lvHoraFinal:",lvHoraFinal, " macro_text : ",macro_text, " lv_flag : ",lv_flag );
             string ObjectExiste = ObjectFind(0,obj_name_rectagle);      
             if (ObjectExiste < 0)
             {    
@@ -8808,6 +8842,10 @@ void HideObjectsByPrefix(string prefix)
       ObjectsDeleteAll(0,"Sell_");  
       ObjectsDeleteAll(0,"Samurai_");    
       ObjectsDeleteAll(0,"ZB_"+ _Symbol + "_Macro");
+
+      ObjectsDeleteAll(0,"Macro_");
+      ObjectsDeleteAll(0,"Text_");
+      
       //ObjectsDeleteAll(0,prefix);
    }   
    else
@@ -8822,41 +8860,45 @@ void HideObjectsByPrefix(string prefix)
 
 //  Dibuja macros y sanurai
  
-         DrawMacro_Session_Lunch(50); //Para Macros 
-         DrawMacro_Session_Lunch(51); //Para Macros 
-         DrawMacro_Session_Lunch(52); //Para Macros 
-         DrawMacro_Session_Lunch(53); //Para Macros 
-         DrawMacro_Session_Lunch(54); //Para Macros 
-         DrawMacro_Session_Lunch(55); //Para Macros 
-         DrawMacro_Session_Lunch(56); //Para Macros 
-         DrawMacro_Session_Lunch(57); //Para Macros 
-         DrawMacro_Session_Lunch(58); //Para Macros 
-         DrawMacro_Session_Lunch(59); //Para Macros 
-         DrawMacro_Session_Lunch(60); //Para Macros 
-         DrawMacro_Session_Lunch(61); //Para Macros 
-         DrawMacro_Session_Lunch(62); //Para Macros 
-         DrawMacro_Session_Lunch(63); //Para Macros 
-         DrawMacro_Session_Lunch(64); //Para Macros 
-         DrawMacro_Session_Lunch(65); //Para Macros 
-         DrawMacro_Session_Lunch(66); //Para Macros 
-         DrawMacro_Session_Lunch(67); //Para Macros 
-         DrawMacro_Session_Lunch(68); //Para Macros 
-         DrawMacro_Session_Lunch(69); //Para Macros 
-         DrawMacro_Session_Lunch(70); //Para Macros 
-         DrawMacro_Session_Lunch(71); //Para Macros 
-         
-         DrawMacro_Session_Lunch(2); //Para Lunch
-         DrawMacro_Session_Lunch(3); //Asia Session
-         DrawMacro_Session_Lunch(4); //Londres Session
-         DrawMacro_Session_Lunch(5); //New York Session
-         
-         DrawMacro_Session_Lunch(10); //Silver Bullet Londres
-         DrawMacro_Session_Lunch(11); //Silver Bullet NY AM
-         DrawMacro_Session_Lunch(12); //Silver Bullet NY PM
-         
-         DrawMacro_Session_Lunch(13); //Macro Opening Range
-         
-         DrawMacro_Session_Lunch(90); //Samurai
+//         DrawMacro_Session_Lunch(50); //Para Macros 
+//         DrawMacro_Session_Lunch(51); //Para Macros 
+//         DrawMacro_Session_Lunch(52); //Para Macros 
+//         DrawMacro_Session_Lunch(53); //Para Macros 
+//         DrawMacro_Session_Lunch(54); //Para Macros 
+//         DrawMacro_Session_Lunch(55); //Para Macros 
+//         DrawMacro_Session_Lunch(56); //Para Macros 
+//         DrawMacro_Session_Lunch(57); //Para Macros 
+//         DrawMacro_Session_Lunch(58); //Para Macros 
+//         DrawMacro_Session_Lunch(59); //Para Macros 
+//         DrawMacro_Session_Lunch(60); //Para Macros 
+//         DrawMacro_Session_Lunch(61); //Para Macros 
+//         DrawMacro_Session_Lunch(62); //Para Macros 
+//         DrawMacro_Session_Lunch(63); //Para Macros 
+//         DrawMacro_Session_Lunch(64); //Para Macros 
+//         DrawMacro_Session_Lunch(65); //Para Macros 
+//         DrawMacro_Session_Lunch(66); //Para Macros 
+//         DrawMacro_Session_Lunch(67); //Para Macros 
+//         DrawMacro_Session_Lunch(68); //Para Macros 
+//         DrawMacro_Session_Lunch(69); //Para Macros 
+//         DrawMacro_Session_Lunch(70); //Para Macros 
+//         DrawMacro_Session_Lunch(71); //Para Macros 
+//         
+//         DrawMacro_Session_Lunch(2); //Para Lunch
+//         DrawMacro_Session_Lunch(3); //Asia Session
+//         DrawMacro_Session_Lunch(4); //Londres Session
+//         DrawMacro_Session_Lunch(5); //New York Session
+//         
+//         DrawMacro_Session_Lunch(10); //Silver Bullet Londres
+//         DrawMacro_Session_Lunch(11); //Silver Bullet NY AM
+//         DrawMacro_Session_Lunch(12); //Silver Bullet NY PM
+//         
+//         DrawMacro_Session_Lunch(13); //Macro Opening Range
+//         
+//         DrawMacro_Session_Lunch(90); //Samurai
+
+         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrRoyalBlue);
+         DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrTeal);
+         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTeal);
    
    }
 
@@ -9061,12 +9103,12 @@ void noticias()
                   //TextToSpeech("\"Noticia en " +  lvminutos + " Minutos " + " Prioridad " + event.importance +"  \"" );
                   if (event.importance == 3 && country.currency == "USD")
                   {
-                     textohablado("\"Noticia en " +  lvminutos + " Minutos " + " Prioridad " + event.importance + " Name : " + event.name + " currency: " + country.currency + \"", true);
+                     //textohablado("\"Noticia en " +  lvminutos + " Minutos " + " Prioridad " + event.importance + " Name : " + event.name + " currency: " + country.currency + \"", true);
 
                   }
                   else
                   {
-                     textohablado("\"Noticia en " +  lvminutos + " Minutos " + " Prioridad " + event.importance + " Name : " + event.name + " currency: " + country.currency +   \"", false);
+                     //textohablado("\"Noticia en " +  lvminutos + " Minutos " + " Prioridad " + event.importance + " Name : " + event.name + " currency: " + country.currency +   \"", false);
                   }
                   //Print("Noticia en " +  lvminutos + " Minutos " + " Prioridad " + event.importance + " currency: " + country.currency);
                }
@@ -9157,13 +9199,14 @@ string GetServerTimeNY(string horaNY)
     MqlDateTime mifecha;
     TimeToStruct(serverTimeNY, mifecha);    
 
-    if(horaNY == "08")
+    if(horaNY == "19")
       {
-         //Print("mifecha.hour :",mifecha.hour," serverOffset : ",serverOffset, " gmtTime : ",gmtTime, " serverTime : ",serverTime, " serverGMTOffset : ",serverGMTOffset);
+          //Print("mifecha.hour :",mifecha.hour," serverOffset : ",serverOffset, " gmtTime : ",gmtTime, " serverTime : ",serverTime, " nyTime : ",nyTime);//, " serverGMTOffset : ",serverGMTOffset);
       }    
 
     // 5. Devolver resultado formateado
     //Print(" mifecha.hour : ",mifecha.hour, " nyOffset : ",nyOffset);
+    //Print("mifecha.hour :",mifecha.hour," serverOffset : ",serverOffset, " gmtTime : ",gmtTime, " serverTime : ",serverTime, " nyTime : ",nyTime);//, " serverGMTOffset : ",serverGMTOffset);
 
     return mifecha.hour;
 }
@@ -10159,6 +10202,9 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
 
    datetime fecha_caducidad_order = TimeCurrent() + 300 ;// minimo acepta 2 minutos 120 segundos
    //Print("fecha_caducidad_order :",fecha_caducidad_order);
+   
+   if (timeframe == 0)
+      timeframe = _Period;
 
    string lv_timeframe = TimeframeToString(timeframe);
    
@@ -10311,8 +10357,8 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
       //Print(" lvbajo :",lvbajo, " lvalto :",lvalto);
       
       //VGHTF_Name = TimeframeToString(Time_Frame_M2022);
-      
-      //DrawFVG(Time_Frame_M2022, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
+     
+      DrawFVG(timeframe, lvnumero_velas_verificar_fvg, Color_Bullish_HTF, Color_Bearist_HTF, 5);//para contar fvg dentro del rango de precios
    
       //double lot = CalculateLotSize(valor_fractal_bajo_1, lvresistencia, 1 ); // porcentajeRiesgo1); //calcular el tamano del lote  con 1% de riesgo    
       //if(VGTendencia_interna_D1 == "Bajista" )
@@ -10396,7 +10442,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
             if(VGcontadorFVG >= inpnumerofvg && VGcontadorAlertasAlcista == 1)
             {
                lvmensaje = "\"Oportunidad de compra con  " + VGcontadorFVG  + " FVG " +  _Symbol + \"";
-               textohablado(lvmensaje,true);
+               //textohablado(lvmensaje,true);
                //VGcontadorAlertasAlcista = 2;
             }
             //return;
@@ -10605,7 +10651,7 @@ void DrawBarFractals(ENUM_TIMEFRAMES timeframe, int total_velas_fractal, int vel
                else
                {
                      lvmensaje = "\"Oportunidad de compra  : " +  _Symbol + " " + lv_timeframe + " Contador : " + VGcontadorAlertasAlcista + \"";
-                     textohablado(lvmensaje, true);
+                     //textohablado(lvmensaje, true);
                }
                
 
@@ -12427,6 +12473,86 @@ void GetDailyStartingBalance()
 
 }
 
+
+
+//+------------------------------------------------------------------+
+//|                                     ICT_Macros_Pips_5Days.mq5    |
+//+------------------------------------------------------------------+
+#property strict
+
+// --- Función para obtener el desplazamiento de NY (Auto DST) ---
+int GetNYOffset()
+{
+    MqlDateTime dt;
+    TimeToStruct(TimeGMT(), dt);
+    // Marzo a Noviembre = EDT (-4), resto = EST (-5)
+    if((dt.mon > 3 && dt.mon < 11) || (dt.mon == 3 && dt.day > 14) || (dt.mon == 11 && dt.day < 7)) 
+        return -4;
+    return -5;
+}
+
+// --- Función para dibujar Macros e informar Pips ---
+void DrawHistoricalMacros(string label, int startH, int startM, int endH, int endM, color clr)
+{
+    int nyOffset = GetNYOffset();
+    double tickSize = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+    int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
+    
+    for(int i = 0; i < 5; i++)
+    {
+        datetime dayStartServer = iTime(_Symbol, PERIOD_D1, i);
+        if(dayStartServer <= 0) continue;
+
+        // Calcular desfase Servidor vs NY
+        int serverToNYDiff = (int)((TimeCurrent() - TimeGMT())/3600) - nyOffset;
+        
+        datetime drawStart = dayStartServer + (startH + serverToNYDiff) * 3600 + (startM * 60);
+        datetime drawEnd   = dayStartServer + (endH + serverToNYDiff) * 3600 + (endM * 60);
+
+        // Validar que los tiempos existan en el histórico
+        int startBar = iBarShift(_Symbol, _Period, drawStart);
+        int endBar   = iBarShift(_Symbol, _Period, drawEnd);
+        if(startBar < 0 || endBar < 0) continue;
+
+        // 1. Calcular High, Low y Rango de Pips
+        int count = startBar - endBar + 1;
+        double high = iHigh(_Symbol, _Period, iHighest(_Symbol, _Period, MODE_HIGH, count, endBar));
+        double low  = iLow(_Symbol, _Period, iLowest(_Symbol, _Period, MODE_LOW, count, endBar));
+        
+        // Cálculo de Pips (ajustado para Forex y Oro)
+        double pips = (high - low) / (_Digits == 3 || _Digits == 5 ? 10 * _Point : _Point);
+
+        string rectName = "Macro_" + label + "_" + IntegerToString(i);
+        string textName = "Text_" + label + "_" + IntegerToString(i);
+
+        // 2. Dibujar Rectángulo
+        if(ObjectFind(0, rectName) < 0) ObjectCreate(0, rectName, OBJ_RECTANGLE, 0, 0, 0, 0, 0);
+        ObjectSetInteger(0, rectName, OBJPROP_TIME, 0, drawStart);
+        ObjectSetDouble(0, rectName, OBJPROP_PRICE, 0, high);
+        ObjectSetInteger(0, rectName, OBJPROP_TIME, 1, drawEnd);
+        ObjectSetDouble(0, rectName, OBJPROP_PRICE, 1, low);
+        ObjectSetInteger(0, rectName, OBJPROP_COLOR, clr);
+        ObjectSetInteger(0, rectName, OBJPROP_FILL, true);
+        ObjectSetInteger(0, rectName, OBJPROP_BACK, true);
+
+        // 3. Dibujar Texto con Pips
+        if(ObjectFind(0, textName) < 0) ObjectCreate(0, textName, OBJ_TEXT, 0, 0, 0);
+        ObjectSetInteger(0, textName, OBJPROP_TIME, 0, drawStart);
+        ObjectSetDouble(0, textName, OBJPROP_PRICE, 0, high);
+        string info = StringFormat("  %s [%.1f Pips]", label, pips);
+        ObjectSetString(0, textName, OBJPROP_TEXT, info);
+        ObjectSetInteger(0, textName, OBJPROP_COLOR, clr);
+        ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
+        ObjectSetInteger(0, textName, OBJPROP_ANCHOR, ANCHOR_LEFT_LOWER);
+    }
+}
+
+//void OnTick()
+//{
+//    // Limpiar y Redibujar para mantener actualizado el High/Low del día actual
+//    DrawHistoricalMacros("ICT 9:50", 9, 50, 10, 10, clrRoyalBlue);
+//    DrawHistoricalMacros("ICT 10:50", 10, 50, 11, 10, clrDarkOrange);
+//}
 //+------------------------------------------------------------------+
 
 // Fin de Programa zbbot
