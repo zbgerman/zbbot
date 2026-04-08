@@ -8036,6 +8036,8 @@ void DrawMacrosKillzone()
          DrawHistoricalMacros("M 4:03 - 4:30", 04, 03, 04, 30, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 5:20 - 5:40", 05, 20, 05, 40, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 7:50 - 8:10", 07, 50, 08, 10, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 8:20 - 8:45", 08, 20, 08, 45, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 8:50 - 9:10", 08, 50, 09, 10, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 9:20 - 9:40", 09, 20, 09, 40, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 9:50 - 10:10", 09, 50, 10, 10, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 10:20 - 10:40", 10, 20, 10, 40, clrWhiteSmoke, 1);
