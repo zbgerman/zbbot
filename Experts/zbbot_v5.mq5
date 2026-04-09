@@ -8026,35 +8026,36 @@ void DrawMacrosKillzone()
   {
   
          //Kill Zone
-         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrLightSteelBlue, 0);
-         DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrRoyalBlue, 0);
-         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTomato, 0);
+         DrawHistoricalMacros("Asia", 19, 00, 23, 59, clrLightSteelBlue, 0,"");
+         DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrRoyalBlue, 0,"");
+         DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTomato, 0,"");
 
          //Bloque 1: Sesión de Londres (AM)
-         DrawHistoricalMacros("M 2:33 - 2:45", 02, 33, 02, 45, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 3:20 - 3:40", 03, 20, 03, 40, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 4:03 - 4:30", 04, 03, 04, 30, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 5:20 - 5:40", 05, 20, 05, 40, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 2:33 - 2:45", 02, 33, 02, 45, clrWhiteSmoke, 1,"02:33 - 02:45: London Entry Macro. Es la inyección inicial de volatilidad tras la apertura de Londres. Busca limpiar stops de Asia.");
+         DrawHistoricalMacros("M 3:20 - 3:40", 03, 20, 03, 40, clrWhiteSmoke, 1,"03:20 - 03:40: London Trend Macro. Si Londres va a ser una tendencia clara, aquí es donde el precio suele expandir con fuerza hacia el objetivo de la mañana.");
+         DrawHistoricalMacros("M 4:03 - 4:30", 04, 03, 04, 30, clrWhiteSmoke, 1,"03:20 - 03:40: London Trend Macro. Si Londres va a ser una tendencia clara, aquí es donde el precio suele expandir con fuerza hacia el objetivo de la mañana.");
+         DrawHistoricalMacros("M 4:40 - 5:15", 04, 40, 05, 15, clrWhiteSmoke, 1,"04:40 - 05:15: London End Macro. Preparación para el cierre de la primera mitad de Londres. Suele buscar un nivel de liquidez importante antes de entrar en rango.");
+         DrawHistoricalMacros("M 5:20 - 5:40", 05, 20, 05, 40, clrWhiteSmoke, 1,"Transición hacia el pre-market de Nueva York. Generalmente es de menor volumen.");
          
          //Bloque 2: Sesión de Nueva York (Mañana)
-         DrawHistoricalMacros("M 7:50 - 8:10", 07, 50, 08, 10, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 8:20 - 8:45", 08, 20, 08, 45, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 8:50 - 9:10", 08, 50, 09, 10, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 9:20 - 9:40", 09, 20, 09, 40, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 9:50 - 10:10", 09, 50, 10, 10, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 10:20 - 10:40", 10, 20, 10, 40, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("NL 10:50 - 11:10", 10, 50, 11, 10, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 11:20 - 11:40", 11, 20, 11, 40, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 7:50 - 8:10", 07, 50, 08, 10, clrWhiteSmoke, 1,"07:50 - 08:10: Pre-NY Macro. Reacción inicial a las noticias de las 08:30 AM. Prepara la liquidez para la apertura de Wall Street.");
+         DrawHistoricalMacros("M 8:20 - 8:45", 08, 20, 08, 45, clrWhiteSmoke, 1,"08:20 - 08:45: News/Opening Prep. Macro crítica si hay noticias de alto impacto. El algoritmo posiciona el precio cerca de un PD Array.");
+         DrawHistoricalMacros("M 8:50 - 9:10", 08, 50, 09, 10, clrWhiteSmoke, 1,"08:50 - 09:10: The 9:00 Macro. La última ventana antes de que abran las acciones (9:30). Muy propensa a barrer máximos o mínimos previos.");
+         DrawHistoricalMacros("M 9:20 - 9:40", 09, 20, 09, 40, clrWhiteSmoke, 1,"09:20 - 09:40: Equity Open Macro. Gestiona la volatilidad extrema de los primeros 10 minutos de la apertura de acciones.");
+         DrawHistoricalMacros("M 9:50 - 10:10", 09, 50, 10, 10, clrWhiteSmoke, 1,"09:50 - 10:10: Silver Bullet AM. La Macro Rey. Es el desplazamiento más puro. El algoritmo busca completar la entrega de precio hacia el objetivo diario.");
+         DrawHistoricalMacros("M 10:20 - 10:40", 10, 20, 10, 40, clrWhiteSmoke, 1,"10:20 - 10:40: Morning Extension. Si el mercado tiene mucha fuerza, aquí ocurre la extensión final de la mañana.");
+         DrawHistoricalMacros("NL 10:50 - 11:10", 10, 50, 11, 10, clrWhiteSmoke, 1,"10:50 - 11:10 (NY Lunch): Lunch Reversal/Rebalance. Toma de liquidez final de la mañana. Suele formar el High o Low de la sesión AM.");
+         DrawHistoricalMacros("M 11:20 - 11:40", 11, 20, 11, 40, clrWhiteSmoke, 1,"11:20 - 11:40: Morning Wrap-Up. Último movimiento antes de la calma del mediodía.");
          
          //Bloque 3: Almuerzo y Sesión de Tarde (PM)
-         DrawHistoricalMacros("LH 12:00 - 13:30", 12, 00, 13, 30, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 15:15 - 15:45", 15, 15, 15, 45, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 16:15 - 16:45", 16, 15, 16, 45, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("LH 12:00 - 13:30", 12, 00, 13, 30, clrWhiteSmoke, 1,"12:00 - 13:30 (LUNCH HOUR): No es operativa. El algoritmo crea Ingeniería de Liquidez (Equal Highs/Lows) que serán barridos en la tarde.");
+         DrawHistoricalMacros("M 15:15 - 15:45", 15, 15, 15, 45, clrWhiteSmoke, 1,"14:20 - 14:40: PM Session Entry. El algoritmo despierta tras el almuerzo. Busca la liquidez creada durante la hora anterior.");
+         DrawHistoricalMacros("M 16:15 - 16:45", 16, 15, 16, 45, clrWhiteSmoke, 1,"15:15 - 15:35: The Bond Close / PM Macro. Expansión rápida hacia los niveles de cierre de bonos. Suele ser muy direccional.");
          
          //Bloque 4: Sesión de Asia (PM/Next Day)
-         DrawHistoricalMacros("M 19:20 - 19:40", 19, 20, 19, 40, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 20:15 - 20:50", 20, 15, 20, 50, clrWhiteSmoke, 1);
-         DrawHistoricalMacros("M 21:15 - 21:35", 21, 15, 21, 35, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 19:20 - 19:40", 19, 20, 19, 40, clrWhiteSmoke, 1,"19:20 - 19:40: Asia Opening Macro. Reacción a la apertura de los mercados asiáticos y futuros.");
+         DrawHistoricalMacros("M 20:15 - 20:50", 20, 15, 20, 50, clrWhiteSmoke, 1,"20:15 - 20:50: Asia Main Macro. Establece el rango de trabajo para la sesión de medianoche. Es la macro más activa de Asia.");
+         DrawHistoricalMacros("M 21:15 - 21:35", 21, 15, 21, 35, clrWhiteSmoke, 1,"21:15 - 21:35: Asia Mid-Shift. Ajuste de precio antes de que el volumen caiga para la transición a Londres.");
   }
 
 
@@ -11624,7 +11625,7 @@ int GetNYOffset()
 }
 
 // --- Función para dibujar Macros e informar Pips ---
-void DrawHistoricalMacros(string label, int startH, int startM, int endH, int endM, color clr, int flag)
+void DrawHistoricalMacros(string label, int startH, int startM, int endH, int endM, color clr, int flag, string detalle)
 {
     int nyOffset = GetNYOffset();
     double tickSize = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
@@ -11666,6 +11667,7 @@ void DrawHistoricalMacros(string label, int startH, int startM, int endH, int en
         ObjectSetInteger(0, rectName, OBJPROP_COLOR, clr);
         ObjectSetInteger(0, rectName, OBJPROP_FILL, false);
         ObjectSetInteger(0, rectName, OBJPROP_BACK, true);
+        ObjectSetString(0, rectName, OBJPROP_TOOLTIP, detalle);
         
 
         // 3. Dibujar Texto con Pips
@@ -11674,6 +11676,7 @@ void DrawHistoricalMacros(string label, int startH, int startM, int endH, int en
         ObjectSetDouble(0, textName, OBJPROP_PRICE, 0, high);
         string info = StringFormat("  %s [%.1f Pips]", label, pips);
         ObjectSetString(0, textName, OBJPROP_TEXT, info);
+        ObjectSetString(0, textName, OBJPROP_TOOLTIP, detalle);
         ObjectSetInteger(0, textName, OBJPROP_COLOR, clr);
         ObjectSetInteger(0, textName, OBJPROP_FONTSIZE, 9);
         ObjectSetInteger(0, textName, OBJPROP_ANCHOR, ANCHOR_LEFT_LOWER);
