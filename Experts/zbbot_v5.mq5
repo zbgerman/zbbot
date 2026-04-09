@@ -8030,11 +8030,13 @@ void DrawMacrosKillzone()
          DrawHistoricalMacros("Londres", 02, 00, 05, 00, clrRoyalBlue, 0);
          DrawHistoricalMacros("NY", 08, 00, 11, 00, clrTomato, 0);
 
-         //MAcros
+         //Bloque 1: Sesión de Londres (AM)
          DrawHistoricalMacros("M 2:33 - 2:45", 02, 33, 02, 45, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 3:20 - 3:40", 03, 20, 03, 40, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 4:03 - 4:30", 04, 03, 04, 30, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 5:20 - 5:40", 05, 20, 05, 40, clrWhiteSmoke, 1);
+         
+         //Bloque 2: Sesión de Nueva York (Mañana)
          DrawHistoricalMacros("M 7:50 - 8:10", 07, 50, 08, 10, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 8:20 - 8:45", 08, 20, 08, 45, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 8:50 - 9:10", 08, 50, 09, 10, clrWhiteSmoke, 1);
@@ -8043,10 +8045,16 @@ void DrawMacrosKillzone()
          DrawHistoricalMacros("M 10:20 - 10:40", 10, 20, 10, 40, clrWhiteSmoke, 1);
          DrawHistoricalMacros("NL 10:50 - 11:10", 10, 50, 11, 10, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 11:20 - 11:40", 11, 20, 11, 40, clrWhiteSmoke, 1);
+         
+         //Bloque 3: Almuerzo y Sesión de Tarde (PM)
          DrawHistoricalMacros("LH 12:00 - 13:30", 12, 00, 13, 30, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 15:15 - 15:45", 15, 15, 15, 45, clrWhiteSmoke, 1);
          DrawHistoricalMacros("M 16:15 - 16:45", 16, 15, 16, 45, clrWhiteSmoke, 1);
-  
+         
+         //Bloque 4: Sesión de Asia (PM/Next Day)
+         DrawHistoricalMacros("M 19:20 - 19:40", 19, 20, 19, 40, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 20:15 - 20:50", 20, 15, 20, 50, clrWhiteSmoke, 1);
+         DrawHistoricalMacros("M 21:15 - 21:35", 21, 15, 21, 35, clrWhiteSmoke, 1);
   }
 
 
@@ -8162,15 +8170,15 @@ void noticias()
    if(StringFind(_Symbol, "EURUSD") == 0 )
    {
  
-      if(( VGHoraNewYork.hour >= 07 && VGHoraNewYork.hour <= 11 && VGHoraNewYork.min == 47))
+      //if(( VGHoraNewYork.hour >= 07 && VGHoraNewYork.hour <= 11 && VGHoraNewYork.min == 47))
           //TextToSpeech("\"Macro en 3 minutos"  \"");
-          textohablado("\"Macro en 3 minutos"  \"", false);
-      if(( VGHoraNewYork.hour >= 07 && VGHoraNewYork.hour <= 11 && VGHoraNewYork.min == 48))
+          //textohablado("\"Macro en 3 minutos"  \"", false);
+      //if(( VGHoraNewYork.hour >= 07 && VGHoraNewYork.hour <= 11 && VGHoraNewYork.min == 48))
           //TextToSpeech("\"Macro en 2 minutos"  \"");
-          textohablado("\"Macro en 2 minutos"  \"", false);
-      if(( VGHoraNewYork.hour >= 07 && VGHoraNewYork.hour <= 11 && VGHoraNewYork.min == 49))
+          //textohablado("\"Macro en 2 minutos"  \"", false);
+      //if(( VGHoraNewYork.hour >= 07 && VGHoraNewYork.hour <= 11 && VGHoraNewYork.min == 49))
           //TextToSpeech("\"Macro en 1 minuto"  \"");
-          textohablado("\"Macro en 1 minuto"  \"", false);
+          //textohablado("\"Macro en 1 minuto"  \"", false);
    }  
    
    if(count > 0)
